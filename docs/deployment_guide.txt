@@ -1,0 +1,12 @@
+Systems needed for deployment:
+- Basyx AAS Server Implementation https://basyx.org/ 
+- Node-Red https://nodered.org/
+- an LCA tool (recommended: openLCA) https://www.openlca.org/
+
+Optional: 
+- Data space access / be a registered data space participant
+- OPC UA Server for your production systems
+- PLM / ERP software with API connection
+- ema plant Simulator 
+- AASX Package Explorer
+
