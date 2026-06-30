@@ -121,41 +121,49 @@ The SDI-KIT addresses this challenge by providing a structured integration appro
 
 ### Use Cases
 
-The SDI-KIT supports five primary use cases that together describe a continuous enrichment flow from early engineering data to cross-company sustainability data exchange.
+The SDI-KIT supports five primary use cases that together describe a continuous enrichment flow from early engineering data to cross-company sustainability data exchange. The use cases are defined as generic integration patterns and can therefore be implemented with different PLM, ERP, simulation, production, LCA, AAS and dataspace technologies. Taken together, they show how sustainability-relevant information can be incrementally improved, reused and shared across product lifecycle stages.
 
 #### **Use case 1: Early-stage Life Cycle Assessment from PLM data**
-In the early product development phase, Life Cycle Assessment (LCA) starts with product master data from PLM systems. Product structure, bill of materials, CAD-derived properties, component weights and material information are retrieved via API, processed and mapped into the Asset Administration Shell (AAS).
+In the early product development phase, Life Cycle Assessment (LCA) starts with product master data from PLM systems. Product structure, bill of materials, CAD-derived properties, component weights and material information are retrieved via API, processed and mapped into the Asset Administration Shell (AAS). Based on this initial dataset, a sustainability calculation service can derive the first environmental assessment results. The resulting outputs, together with the corresponding input data and metadata, are stored in the AAS and form the baseline for subsequent enrichment steps.
+This use case establishes the earliest available sustainability baseline directly from engineering data. It enables organizations to move sustainability assessment closer to the point of design decision-making, even before detailed production information is available.
 
 #### **Use case 2: Simulation-based enrichment of sustainability data**
-Once process simulation models are available, the initial engineering-based assessment can be refined with simulation-derived process data. Energy consumption, water consumption and cycle times per process step are extracted, mapped and stored in a dedicated simulation-related AAS structure.
+Once process simulation models are available, the initial engineering-based assessment can be refined with simulation-derived process data. Energy consumption, water consumption and cycle times per process step are extracted, mapped and stored in a dedicated simulation-related AAS structure. The sustainability calculation is then repeated using the updated dataset.
+Instead of overwriting earlier results, the SDI-KIT supports the storage of an additional, explicitly attributed result set. This preserves the original PLM-based assessment and enables the comparison of different data-quality levels within the same AAS context.
 
 #### **Use case 3: Production-data enriched Life Cycle Assessment**
-When ERP and production data become available, the sustainability dataset can be further refined with order-specific and operational information. ERP systems contribute configuration data, BOM information, material specifications and order-related attributes. During execution, OPC UA-connected production systems provide measured data such as energy consumption, cycle times and timestamps at machine, batch or instance level.
+When ERP and production data become available, the sustainability dataset can be further refined with order-specific and operational information. ERP systems contribute configuration data, BOM information, material specifications and order-related attributes. During execution, OPC UA-connected production systems provide measured data such as energy consumption, cycle times and timestamps at machine, batch or instance level. These values are aggregated and stored in production-related AAS structures and can be used to recalculate environmental indicators on a more specific basis.
+This use case increases the reliability of the LCA by replacing assumptions with measured or order-specific values. It therefore strengthens the reliability of sustainability information for operational decision-making, customer communication and later downstream exchange scenarios.
 
 #### **Use case 4: Provision of sustainability-related AAS data in the Manufacturing-X dataspace**
-After lifecycle-related enrichment, selected AAS content can be shared within the Manufacturing-X dataspace via EDC-based exchange mechanisms.
+After lifecycle-related enrichment, selected AAS content can be shared within the Manufacturing-X dataspace via EDC-based exchange mechanisms. Depending on the applicable policies and business context, this may range from single submodels to larger sustainability-relevant datasets. Downstream stakeholders such as customers, OEMs or certification-related actors can consume this information and integrate it into their own AAS, PLM or sustainability processes.
+This use case establishes the standardized outbound flow of sustainability-related product information from internal enterprise systems into the wider ecosystem. It also creates the basis for downstream scenarios such as collaborative assessments, regulatory transparency and Digital Product Passport-related data provision.
 
 #### **Use case 5: Cross-phase ingestion of supplier-provided sustainability data**
-Supplier-provided sustainability information can be integrated throughout different lifecycle phases and at different levels of granularity, ranging from single attributes to complete AAS datasets.
+Supplier-provided sustainability information can be integrated throughout different lifecycle phases and at different levels of granularity, ranging from single attributes to complete AAS datasets. Incoming data is transferred via dataspace-compatible exchange mechanisms, processed by the integration layer and linked to the corresponding internal product structures. Existing values can be updated where appropriate, while additional information can be added in parallel with explicit source attribution.
+This use case supports continuous inbound enrichment of sustainability information from external partners. It enables organizations to complement internally generated values with supplier-specific data while maintaining traceability, coexistence of multiple data sources and the possibility to recalculate sustainability results as better information becomes available.
 
 <img src="docs/img/Sequence_diagram_with_marked_out_use_cases_.svg" alt="Icon" width="1450">
 Sequence diagram with marked out use cases
 
 ### Regulatory Relevance
 
-The SDI-KIT supports compliance-oriented sustainability processes by improving the traceability, consistency and availability of sustainability-relevant data across product lifecycle stages.
-
-It provides a structured foundation for preparing, updating and reusing sustainability information required for regulatory reporting, product transparency obligations and downstream compliance-related use cases.
+The SDI-KIT supports compliance-oriented sustainability processes by improving the traceability, consistency and availability of sustainability-relevant data across product lifecycle stages. It provides a structured foundation for preparing, updating and reusing sustainability information required for regulatory reporting, product transparency obligations and downstream compliance-related use cases.
+By integrating engineering, simulation, ERP, production and supplier data within a unified AAS-based framework, the SDI-KIT helps reduce the manual effort typically associated with collecting and consolidating regulatory-relevant information. At the same time, it improves the robustness and auditability of sustainability-related decision-making by preserving source attribution, data-quality evolution and recalculability over time.
+In this way, the SDI-KIT can support organizations in preparing data for regulatory and market-driven requirements such as Digital Product Passport scenarios, the EU Ecodesign context, carbon-related reporting requirements and supply-chain-related transparency obligations. The KIT itself does not implement regulatory compliance logic. Rather, it provides the interoperable data foundation on which compliance-oriented applications and reporting processes can build.
 
 ## Value Chain Partners
 
 The SDI-KIT creates value for multiple stakeholders across the value chain by providing a structured and interoperable approach to collect, enrich, calculate and share sustainability-relevant product and process data.
 
-- **OEMs and manufacturers** benefit from more reliable sustainability assessments derived directly from engineering, simulation, ERP and production data.
-- **Suppliers** can provide sustainability-relevant information in a more structured and reusable way without fundamentally changing their existing system landscape.
-- **Solution providers** benefit from a clearly structured reference architecture and reusable integration patterns.
-- **IT departments, platform operators and system integrators** gain a technical foundation for connecting heterogeneous enterprise and shop-floor systems.
-- **Internal sustainability, compliance and engineering teams** benefit from a shared data foundation that connects technical product data with sustainability-related assessment results.
+**OEMs and manufacturers** benefit from more reliable sustainability assessments derived directly from engineering, simulation, ERP and production data. This supports earlier and better-informed decisions in product engineering, sourcing and production planning. Because data provenance and enrichment stages are preserved in AAS-based structures, different data-quality levels remain transparent and comparable over time.
+
+**Suppliers** can provide sustainability-relevant information in a more structured and reusable way without fundamentally changing their existing system landscape. The SDI-KIT supports the gradual integration of supplier-specific data, ranging from single attributes to larger structured datasets, and enables this information to be linked with customer-side product and process contexts. This lowers the barrier for participation in interoperable sustainability data exchange and improves the quality of shared upstream information.
+
+**Solution providers**, including PLM, ERP, simulation, AAS and sustainability-software vendors, benefit from a clearly structured reference architecture and reusable integration patterns. The SDI-KIT shows how existing system capabilities can be connected to AAS-based sustainability data structures and dataspace-compatible exchange mechanisms. This creates a practical foundation for developing commercial or non-profit solutions that integrate into the Tractus-X and Manufacturing-X ecosystem.
+IT departments, platform operators and system integrators gain a technical foundation for connecting heterogeneous enterprise and shop-floor systems to interoperable sustainability workflows. The SDI-KIT reduces integration complexity by providing a consistent approach for mapping source data into AAS-based structures and linking it with calculation and exchange processes. This supports scalable implementation across different organizational and technical environments.
+
+**Internal sustainability**, compliance and engineering teams benefit from a shared data foundation that connects technical product data with sustainability-related assessment results. This improves collaboration between traditionally separated domains and supports the consistent preparation of information for internal analyses, customer communication and regulatory-facing processes.
 
 ## Whitepaper
 
@@ -182,26 +190,20 @@ The development view provides an overview of the features of the KIT, the necess
 <img src="docs/img/General component diagram.svg" alt="Icon" width="1000">
 General component diagram
 
-The architecture is structured around the data management tool (DMT), implemented using the low-code platform Node-RED. It contains a user interface (UI). The DMT controls data flows, calls required APIs, performs auxiliary calculations and maps data to the correct metadata in the AAS data model.
-
-The DMT can connect to different third-party systems and data sources. This includes primary production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data according to the AAS data model. To connect to the Tractus-X dataspace, the DMT can also manage the connection to an EDC Connector to enable secure data exchange.
-
-For a complete minimal workflow, an AAS server implementation, a sustainability calculation tool and at least one data source are mandatory.
+The architecture of the Decide4ECO KIT is structured around the data management tool (DMT), which is implemented using the low code plattform Node-Red. It contains a user interface (UI). The DMT controls the data flows, calls the nesseccary APIs, performs simple auxillary calculations and maps the data to the correct meta data in the AAS data model. APIs can be unidirectional as well as bidirectional. Figure 2 shows the types of components that can be connected the DMT. The DMT can connect to different third-party systems and data sources. This includes primary data like production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data as per the AAS data model (c.f. The AAS data model, submodels and costum submodels). To connect to the Tractus-X data space the DMT can also manage the connection to an EDC Connector to enable save data exchange. The last typ of component is a tool to calculate sustainability, e.g. the CO2 footprint or water usage. 
+As flexibility is a core value of the Decide4ECO KIT, third party systems, data sources, the sustainability calculation tool as well as the AAS server implementation can be chosen freely. However, for a complete minimal workflow and to use the Decide4ECO KIT an AAS server implementation, a sustainability calculation tool and at least one data source are mandatory.
 
 ## Sequence View
 
 <img src="docs/img/Generic sequnce diagram of the DMT interacting with a third-party system.svg" alt="Icon" width="1000">
 Generic sequnce diagram of the DMT interacting with a third-party system
 
-The process starts with user input via the UI. The data management tool calls the asset’s AAS via REST API and displays it in the UI. Next, the DMT calls a third-party tool or retrieves data via OPC UA or file upload. The DMT maps the retrieved data to the correct submodels and properties in the AAS.
-
-Afterwards, the sustainability calculation starts. The DMT reads the AAS, retrieves all relevant data, passes it to the calculation tool and writes the returned results back into the AAS. Results are displayed in the UI.
-
-Depending on the number of data sources and third-party systems, the process can be iterated several times. A higher number of data sources improves data quality and therefore the sustainability calculation result.
+Figure shows the sequence diagram of the Decide4ECO KIT. As the Decide4ECO KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from a list of the available assets on the AAS server via the UI. The data management tool (DMT) calls the asset’s AAS via REST API and displays it to the user in the UI. Next the DMT calls the third-party tool. In the diagram, a bidirectional API call is displayed. However, data from a third-party system can also be retrieved by OPC UA or a file upload, as described in Use case 2, Use case 3 and in Use case 4. The DMT maps the retrieved data and maps it to the correct submodels and properties in the AAS. The updated AAS is displayed in the UI. Next, the sustainability calculation starts. The DMT reads the AAS and retrieves all available data relevant to the sustainabilty caculation. The data is then passed on to the calculation tool. The calculation tool returns the results which are then written to the AAS. Optionally, the data can also be written back to update the third-party system. Results are displayed in the UI.
+Depending on the number of data souces and third-party systems, the entire process can be interated several times. A higher number of data sources improves the data quality and therefore the result of the sustainability calculation. In this regard, the EDC Connector is to be treated as a data source or third-party system as it introduces new data for sustainability calculations into the system.
 
 ## API Documentation
 
-The reference implementation does not provide its own API. Data can be transferred externally via the dataspace using the EDC connector.
+The reference implementation does not provide an API. Data can be transferred externally via the data room using the EDC connector. 
 
 ### API documentation of used APIs within the system
 
@@ -210,11 +212,15 @@ The reference implementation does not provide its own API. Data can be transferr
 | AAS Server | Specification of the Asset Administration Shell, Part 2: Application Programming Interfaces, 01002-3-0, https://app.swaggerhub.com/apis/Plattform_i40/AssetAdministrationShellRepositoryServiceSpecification/V3.0.3_SSP-001#/ |
 | EDC Connector | EDC Connector provided by Smart Systems Hub, https://smart-systems-hub.github.io/docs/docs/tractus-x-edc-connector |
 
-## The API documentation of third-party systems depends on the individually selected system and is therefore not included here.
+The API documentation of third-party systems depends on the individually selected system and is therefore not included here.
 
 ## Sample Data: TRACEpen
 
-Sample files are provided to assist with the use of the reference implementation.
+Sample files are provided to assist with the use of the reference implementation. These are listed in Table 1 below. Data is provided in several different formats. The reason for this is that the reference implementation is designed to utilise data from various formats in order to obtain sustainability data of the highest possible quality. 
+AAS data is provided in both AASX and JSON formats. The JSON format can also be viewed without an AASX viewer. These files provide the structure, the necessary sub-models and sample asset data for the case study. To use them, the AAS file must be uploaded to the BaSyx server so that it can be accessed via the reference implementation using the AAS API.
+An export file of a production simulation from the ema plant Designer by imk Industrial is also provided. This contains the results of the simulation for the case study. The ema Software Suite is not open source but is not required for this application. The export file is in xlsx format and can be opened with Excel. To use it, the path to the ema export file must be entered in the reference implementation. Corresponding Submodel Collections (SMC) are created in the appropriate submodel within the AAS, and the data is imported from the ema export file into the AAS.
+
+Sample data provided to test the Decide4ECO KIT
 
 | File | Description | Data format |
 | --- | --- | --- |
@@ -229,29 +235,26 @@ Sample files are provided to assist with the use of the reference implementation
 <img src="docs/img/Architecture overview of the demonstrator implementation.svg" alt="Icon" width="1000">
 Architecture overview of the demonstrator implementation
 
+The reference implementation was developed and implemented at the Smart Automation Lab at the Heinz Nixdorf Institute. The software was implemented using the low-code platform Node-Red. Node-Red is used to create flows that enable the necessary data flows between external (software) systems and the AAS. The Node-Red code is provided in JSON format. Figure shows an architecture overview of the demonstrator implementation in a possible environment with the data space and a decision support, which is based on the data calculated and managed within the demonstrator system. Moreover, the MX-ports “Orion”, “Leo” and “Hercules” are marked. 
+
 <img src="docs/img/Component diagram of the Decide4ECO KIT, including third party software.svg" alt="Icon" width="1000">
 Component diagram of the Decide4ECO KIT, including third party software
+
+The architecture of the Decide4ECO Reference implementation is structured around the data management tool, which is implemented using the low code plattform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI).
 
 <img src="docs/img/Sequence view of the Decide4ECO KIT.svg" alt="Icon" width="1000">
 Sequence view of the Decide4ECO KIT
 
-<img src="docs/img/Diagram of the custom submodel Data Sources to store process data.svg" alt="Icon" width="1000">
-Diagram of the custom submodel "Data Sources" to store process data
+Figure shows the sequence diagram of the Decide4ECO Reference Architecture. As the Decide4ECO KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from the PLM system by entering the PLM number into the UI. The PLM number can be retrieved by looking it up in the PLM system. The data management tool (DMT) calls this asset via REST API and receives all information on the asset as it is saved in the PLM system. Next, the DMT creates a type-AAS in the predefined configuration. More information on this configuration can be found in the AAS section. The previously retrieved asset data is now written in the AAS and displayed to the user via the UI. The DMT then reads the data from the AAS that is relevant to the sustainability calculation. In this case, openLCA is used for the calculation. The data is transferred to openLCA via API and used to calculate sustainability values. The results are returned to the DMT per REST API and the DMT updates the PLM system and the AAS and writes the data to the mapped submodel and properties. This concludes Use case 1 as an early-stage LCA based on PLM data. 
+For the second iteration in Use case 2, the reference implementation enriches the AAS with simulation data. For the simulation, the ema Plant Designer is used to model and simulate the production process of the asset. The simulation calculates process times, energy and water consumption. The results can be exported as a .xlsx-file. This file is then uploaded into the DMT via the UI. The DMT then reads the relevant cells and creates the processes as submodel element collections and the corresponding simulation values as properties in the AAS. Afterwards the LCA sequence is run again to calculate updated sustainability values. 
+For the third iteration in Use case 3, production data is used. For this, the DMT is connected to the ERP system via REST API to retrieve order data and save it in the AAS. The data from the ERP system is nesseccary to calculate the correct number of each product for the order. As the production process is started, OPC UA servers installed on the maschines send live process data. The Open Platform Communication Unified Architecture (OPC UA) is a standardised communication protocol for internal factory data  [2].  The OPC UA servers at the systems are implemented using Raspberry Pis on the one hand and Shelly plugs (Shelly Plug S (230 V)) on the other. The Raspberry Pis record activity data from the systems, such as ‘door open’, ‘door closed’ or ‘robot active’. The Shellys are plugs that are connected between the device and the power source and record only the energy consumption. Data is received from the OPC UA servers of the individual production systems in the laboratory. On the one hand, this data is displayed in real time on a dashboard on the UI; on the other hand, the average of this data is calculated to store it in the AAS. Once the production process is finished, the LCA sequence is started. 
+On the fourth iteration, the DMT connects to the EDC Connector via REST API. The ECD Connector then exchanges data via the data space with business partners. The exact workflow of the EDC Connector is documented in in the Catena-X Standard CX-0018 Dataspace Connectivity v.4.2. Functionally, the EDC Connector is treated as a data source, as it provides new data to the reference implementation system. Due to this, the data that is received via the data space is written to the AAS. Finally, the LCA sequence is carried out. This constitutes both Use case 4 and Use case 5 as both use Cases can be executed using the EDC Connector. 
 
-<img src="docs/img/Diagram of the custom submodel ILCD to store LCA data from different iteration.svg" alt="Icon" width="1000">
-Diagram of the custom submodel "ILCD" to store LCA data from different iteration
+## AAS Data Model, Submodels and Custom Submodels
 
-The reference implementation was developed and implemented at the Smart Automation Lab at the Heinz Nixdorf Institute. The software was implemented using the low-code platform Node-RED.
+The Asset Administration Shell (AAS) for the asset is created via API. The AAS API documentation is standardised and is described in the AAS standard “01002-3-0 Part 2: Application Programming Interfaces” [3]. In the reference implementation presented in this KIT, the AAS is not created entirely automatically. First, a type-AAS must be created for the respective asset and stored in the system. On this basis, instance-AASs can be created automatically. Due to this constraint, a preconfigurated AAS is stored in the system. When a new AAS is created, it automatically contains the predefined structure presented in the following. The predefined AAS contains the submodels shown in Table. 
 
-Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as a PLM system, OpenLCA and an ERP system, as well as necessary components such as the AAS Server and the EDC connector.
-
-Other components are unidirectional, such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Designer simulation data, which is exported and uploaded into the data management tool.
-
-## The AAS Data Model, Submodels and Custom Submodels
-
-The Asset Administration Shell (AAS) for the asset is created via API. The AAS API documentation is standardized in the AAS standard “01002-3-0 Part 2: Application Programming Interfaces” [1].
-
-The predefined AAS contains the following submodels:
+Submodels of the preconfigurated AAS data model
 
 | Submodel name | Short name, Version | IDTA Number / Custom |
 | --- | --- | --- |
@@ -263,15 +266,21 @@ The predefined AAS contains the following submodels:
 | Data Sources for recorded and simulated production data | DataSources | custom |
 | ILCD-based LCA data | ILCD | custom |
 
-The custom submodel **Data Sources** stores production and simulation data in a process-specific way. The custom submodel **ILCD** stores LCA calculation results from different iterations and preserves traceability of data sources.
+The master data, which is the same for every asset, is automatically transferred from the PLM system to each AAS instance via the REST API. The same applies to other data relating to the asset type, such as simulation results, CAD models, technical data, material information and provided documents. The submodels receiving different data for each individual instance are the Submodel Collection (SMC) “Manufacturing” from the custom submodel “Data Sources”, which stores the production data send by the OPC UA servers, and “ILCD” in case data from the SMC “Manufacturing” was used to run an LCA. In case each instance is marked, for example with a QR-code, the marking may also change per instance and is stored in “Nameplate” in the Submodel Element List (SML) “Markings”. 
+
+<img src="docs/img/Diagram of the custom submodel Data Sources to store process data.svg" alt="Icon" width="1000">
+Diagram of the custom submodel "Data Sources" to store process data
+
+The custom submodel “Data Sources” is shown in Figure. It has the purpose to store both production data and simulation data in a process specific way. That means that data from a single process receives its own Submodel Element Collection, ensuring that process specific data does not get mixed up. It also allows the calculation of the environmental impact of a single process rather than the entire production line. The simulation result file is structured in a way that it delivers data per process. Therefore, it is beneficial to sort it into the process specific structure as well.
+
+<img src="docs/img/Diagram of the custom submodel ILCD to store LCA data from different iteration.svg" alt="Icon" width="1000">
+Diagram of the custom submodel "ILCD" to store LCA data from different iteration
 
 # Documentation
 
 ## Copyright Notice
 
-Mandatory for every KIT. It **must** be included in every file, not only in the Adoption View. KIT documentation works under the **CC-BY-4.0** license.
-
-It **must always** include the following copyright statement [1]:
+Mandatory for every KIT, It MUST be included in every file (not just on the adoption view!). KIT documentation works under the CC-BY-4.0 license. Therefore you need to add the "notice" part to make transparent which companies worked on this KIT. It MUST always include the - SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation copyright statement.
 
 ```text
 SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation
