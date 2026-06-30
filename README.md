@@ -130,6 +130,9 @@ After lifecycle-related enrichment, selected AAS content can be shared within th
 #### **Use case 5: Cross-phase ingestion of supplier-provided sustainability data**
 Supplier-provided sustainability information can be integrated throughout different lifecycle phases and at different levels of granularity, ranging from single attributes to complete AAS datasets.
 
+<img src="docs/img/Sequence_diagram_with_marked_out_use_cases_.svg" alt="Icon" width="1450">
+Sequence diagram with marked out use cases
+
 ### Regulatory Relevance
 
 The SDI-KIT supports compliance-oriented sustainability processes by improving the traceability, consistency and availability of sustainability-relevant data across product lifecycle stages.
@@ -168,6 +171,9 @@ The development view provides an overview of the features of the KIT, the necess
 
 ## Architecture View
 
+<img src="docs/img/General component diagram.svg" alt="Icon" width="1000">
+General component diagram
+
 The architecture is structured around the data management tool (DMT), implemented using the low-code platform Node-RED. It contains a user interface (UI). The DMT controls data flows, calls required APIs, performs auxiliary calculations and maps data to the correct metadata in the AAS data model.
 
 The DMT can connect to different third-party systems and data sources. This includes primary production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data according to the AAS data model. To connect to the Tractus-X dataspace, the DMT can also manage the connection to an EDC Connector to enable secure data exchange.
@@ -175,6 +181,9 @@ The DMT can connect to different third-party systems and data sources. This incl
 For a complete minimal workflow, an AAS server implementation, a sustainability calculation tool and at least one data source are mandatory.
 
 ## Sequence View
+
+<img src="docs/img/Generic sequnce diagram of the DMT interacting with a third-party system.svg" alt="Icon" width="1000">
+Generic sequnce diagram of the DMT interacting with a third-party system
 
 The process starts with user input via the UI. The data management tool calls the asset’s AAS via REST API and displays it in the UI. Next, the DMT calls a third-party tool or retrieves data via OPC UA or file upload. The DMT maps the retrieved data to the correct submodels and properties in the AAS.
 
@@ -208,6 +217,9 @@ Sample files are provided to assist with the use of the reference implementation
 | ERP file | Product data from an ERP system | `.xml` |
 
 ## Demonstrator Implementation in the Laboratory
+
+<img src="docs/img/Architecture overview of the demonstrator implementation.svg" alt="Icon" width="1000">
+Architecture overview of the demonstrator implementation
 
 The reference implementation was developed and implemented at the Smart Automation Lab at the Heinz Nixdorf Institute. The software was implemented using the low-code platform Node-RED.
 
