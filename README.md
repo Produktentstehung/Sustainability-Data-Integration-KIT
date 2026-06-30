@@ -280,7 +280,7 @@ Diagram of the custom submodel "ILCD" to store LCA data from different iteration
 
 ## Copyright Notice
 
-Mandatory for every KIT, It MUST be included in every file (not just on the adoption view!). KIT documentation works under the CC-BY-4.0 license. Therefore you need to add the "notice" part to make transparent which companies worked on this KIT. It MUST always include the - SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation copyright statement.
+KIT documentation works under the CC-BY-4.0 license.
 
 ```text
 SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation
