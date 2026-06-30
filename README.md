@@ -221,6 +221,18 @@ Sample files are provided to assist with the use of the reference implementation
 <img src="docs/img/Architecture overview of the demonstrator implementation.svg" alt="Icon" width="1000">
 Architecture overview of the demonstrator implementation
 
+<img src="docs/img/Component diagram of the Decide4ECO KIT, including third party software.svg" alt="Icon" width="1000">
+Component diagram of the Decide4ECO KIT, including third party software
+
+<img src="docs/img/Sequence view of the Decide4ECO KIT.svg" alt="Icon" width="1000">
+Sequence view of the Decide4ECO KIT
+
+<img src="docs/img/Diagram of the custom submodel Data Sources to store process data.svg" alt="Icon" width="1000">
+Diagram of the custom submodel "Data Sources" to store process data
+
+<img src="docs/img/Diagram of the custom submodel ILCD to store LCA data from different iteration.svg" alt="Icon" width="1000">
+Diagram of the custom submodel "ILCD" to store LCA data from different iteration
+
 The reference implementation was developed and implemented at the Smart Automation Lab at the Heinz Nixdorf Institute. The software was implemented using the low-code platform Node-RED.
 
 Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as a PLM system, OpenLCA and an ERP system, as well as necessary components such as the AAS Server and the EDC connector.
