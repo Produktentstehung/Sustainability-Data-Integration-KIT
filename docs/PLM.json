@@ -1,0 +1,1188 @@
+[
+    {
+        "id": "ae88e0c42828bbd4",
+        "type": "tab",
+        "label": "PLM Flow (Master)",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d360832dd00ed241",
+        "type": "inject",
+        "z": "ae88e0c42828bbd4",
+        "name": "Start",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "000114",
+        "payloadType": "str",
+        "x": 150,
+        "y": 280,
+        "wires": [
+            [
+                "a74d76a3788f59af"
+            ]
+        ]
+    },
+    {
+        "id": "a74d76a3788f59af",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "URL vorbereiten",
+        "func": "const BASE = 'https://plm.uni-paderborn.de';\nmsg.baseUrl = BASE;\nmsg.url = BASE + '/api/v1/collection/part/' + msg.payload;\nmsg.headers = {'Accept':'application/json'};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 280,
+        "wires": [
+            [
+                "d9cc2ee1aec045c8"
+            ]
+        ]
+    },
+    {
+        "id": "d9cc2ee1aec045c8",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET Part",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 280,
+        "wires": [
+            [
+                "db3d4a7227bba679"
+            ]
+        ]
+    },
+    {
+        "id": "7eafa87df742e22b",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Phase2 starten",
+        "func": "msg.headers={'Accept':'application/json'};return msg;",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 280,
+        "wires": [
+            [
+                "76be382bf6535baa",
+                "178053a8633e3cff"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "76be382bf6535baa",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "BOM-URL setzen",
+        "func": "msg.url=msg.relBomUrl;msg.headers={'Accept':'application/json'};return msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 240,
+        "wires": [
+            [
+                "4e35192f462ddc72"
+            ]
+        ]
+    },
+    {
+        "id": "4e35192f462ddc72",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET BOM-Links",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 1390,
+        "y": 240,
+        "wires": [
+            [
+                "263c27859ec73d85"
+            ]
+        ]
+    },
+    {
+        "id": "263c27859ec73d85",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "BOM-Items aufteilen",
+        "func": "const targets = msg.payload.targets || [];\nnode.warn('BOM: ' + targets.length + ' Items gefunden');\n\nif (targets.length === 0) {\n    msg.topic = 'bom';\n    msg.payload = [];\n    msg.parts = {id: 0, count: 1, index: 0};\n    return msg;\n}\n\nflow.set('bomTotal', targets.length);\nflow.set('bomCollected', []);\n\nconst msgs = targets.map((u, i) => ({\n    url: typeof u === 'string' ? u : u['@id'],\n    headers: {'Accept': 'application/json'},\n    topic: 'bom_item',\n    parts: {id: i, count: targets.length, index: i},\n    partData: msg.partData,\n    baseUrl: msg.baseUrl\n}));\nreturn [msgs];",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1600,
+        "y": 240,
+        "wires": [
+            [
+                "42cf7bcb66f86736"
+            ]
+        ]
+    },
+    {
+        "id": "42cf7bcb66f86736",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET BOM-Item",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 1820,
+        "y": 240,
+        "wires": [
+            [
+                "9a705d220dc5e028"
+            ]
+        ]
+    },
+    {
+        "id": "178053a8633e3cff",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Docs-URL setzen",
+        "func": "msg.url=msg.relDocsUrl;msg.headers={'Accept':'application/json'};return msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 360,
+        "wires": [
+            [
+                "0be4fba6c26fa139"
+            ]
+        ]
+    },
+    {
+        "id": "0be4fba6c26fa139",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET Doc-Links",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 1390,
+        "y": 360,
+        "wires": [
+            [
+                "e4862e282247219a"
+            ]
+        ]
+    },
+    {
+        "id": "e4862e282247219a",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Ersten Doc holen",
+        "func": "const t=msg.payload.targets||[];\nnode.warn('Docs: '+t.length+' gefunden');\nif(t.length===0){\n  msg.topic='doc';\n  msg.payload={docData:null,cadBuffer:null,previewBuffer:null};\n  return msg;\n}\nmsg.url=typeof t[0]==='string'?t[0]:t[0]['@id'];\nmsg.headers={'Accept':'application/json'};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1600,
+        "y": 360,
+        "wires": [
+            [
+                "d92fc552326c6a40"
+            ]
+        ]
+    },
+    {
+        "id": "d92fc552326c6a40",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET Doc-Metadaten",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 1820,
+        "y": 360,
+        "wires": [
+            [
+                "a5c54049be300265"
+            ]
+        ]
+    },
+    {
+        "id": "a5c54049be300265",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Files-API URL vorbereiten",
+        "func": "const docObj = msg.payload;\nif (!docObj || !docObj['@id']) {\n    node.error('Keine Dokumenten-Metadaten erhalten');\n    return null;\n}\n\nmsg.docMetadata = {\n    fileId:             docObj['z_nummer'] || '',\n    fileVersion:        docObj['src_index'] || docObj['z_index'] || '1',\n    title:              docObj['titel'] || docObj['benennung'] || 'Modell',\n    fileClassification: docObj['erzeug_system'] || 'CAD-Modell',\n    consumingApp:       docObj['erzeug_system'] || 'SolidWorks',\n    uiLink:             docObj['system:ui_link'] || ''\n};\n\nmsg.url = docObj['@id'] + '/files?data=complete';\nmsg.headers = { 'Accept': 'application/json' };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2040,
+        "y": 360,
+        "wires": [
+            [
+                "2d3d91d2bc155086"
+            ]
+        ]
+    },
+    {
+        "id": "2d3d91d2bc155086",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET Files-Liste JSON",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 2260,
+        "y": 360,
+        "wires": [
+            [
+                "40f7981a3d459975"
+            ]
+        ]
+    },
+    {
+        "id": "40f7981a3d459975",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Targets extrahieren",
+        "func": "const fileCollection = msg.payload;\nconst targets = fileCollection.targets || [];\nnode.warn('Anzahl gefundener Target-Dateien: ' + targets.length);\n\nif (targets.length === 0) {\n    msg.topic = 'doc';\n    msg.payload = { docData: msg.docMetadata, cadBuffer: null, previewBuffer: null };\n    return [null, msg];\n}\n\nconst t0 = targets[0];\nmsg.cadUrl = typeof t0 === 'string' ? t0 : (t0['@id'] || null);\nmsg.cadName = typeof t0 === 'object' ? (t0['cdbf_name'] || 'model.sldasm') : 'model.sldasm';\n\nconst t1 = targets[1];\nmsg.previewUrl = t1 ? (typeof t1 === 'string' ? t1 : (t1['@id'] || null)) : null;\nmsg.previewName = (t1 && typeof t1 === 'object') ? (t1['cdbf_name'] || 'preview.jpg') : 'preview.jpg';\n\nmsg.url = msg.cadUrl;\nmsg.headers = { 'Accept': '*/*' };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2470,
+        "y": 360,
+        "wires": [
+            [
+                "d4a26e94bb7b2d2e"
+            ]
+        ]
+    },
+    {
+        "id": "d4a26e94bb7b2d2e",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "Download CAD (binär)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 2700,
+        "y": 360,
+        "wires": [
+            [
+                "213f4af92f458b0c"
+            ]
+        ]
+    },
+    {
+        "id": "213f4af92f458b0c",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "CAD sichern & Preview laden",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.cadBuffer = msg.payload;\n} else {\n    node.warn('CAD Download unvollständig: ' + msg.statusCode);\n    msg.cadBuffer = null;\n}\n\nif (msg.previewUrl) {\n    msg.url = msg.previewUrl;\n    msg.headers = { 'Accept': '*/*' };\n    return msg;\n}\n\nmsg.previewBuffer = null;\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    cadName: msg.cadName,\n    previewBuffer: null,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2920,
+        "y": 360,
+        "wires": [
+            [
+                "a246bd2098345897"
+            ]
+        ]
+    },
+    {
+        "id": "a246bd2098345897",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "Download Preview (binär)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 3140,
+        "y": 360,
+        "wires": [
+            [
+                "050781d6637ac0bc"
+            ]
+        ]
+    },
+    {
+        "id": "050781d6637ac0bc",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Dokumenten-Zweig abschließen",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview Download unvollständig: ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3360,
+        "y": 360,
+        "wires": [
+            [
+                "f62d0a39fc6471d0"
+            ]
+        ]
+    },
+    {
+        "id": "f62d0a39fc6471d0",
+        "type": "join",
+        "z": "ae88e0c42828bbd4",
+        "name": "BOM + Doc zusammenführen",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "useparts": true,
+        "accumulate": false,
+        "timeout": "30",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 3610,
+        "y": 280,
+        "wires": [
+            [
+                "05f305c2c85dd9f4"
+            ]
+        ]
+    },
+    {
+        "id": "05f305c2c85dd9f4",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Daten als JSON speichern",
+        "func": "const results  = msg.payload;\nconst bom      = results['bom']||[];\nconst docRes   = results['doc']||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = 'P:/02_Lehrstuhl/SHK Studentische Hilfskräfte/de Buhr/CIM_trace-pen/new_base_shell';\nconst OUTPUT_PATH = 'P:/02_Lehrstuhl/SHK Studentische Hilfskräfte/de Buhr/CIM_trace-pen/output';\nconst PYTHON_SCRIPT = 'P:/02_Lehrstuhl/SHK Studentische Hilfskräfte/de Buhr/CIM_trace-pen/create_aas_v17.py';\nconst DATA_JSON   = 'C:/tmp/cim_aas_data.json';\nconst FILE_BIN    = 'C:/tmp/cim_cad_file.bin';\nconst PREVIEW_BIN = 'C:/tmp/cim_preview_file.bin';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\ntry { if(!fs.existsSync('C:/tmp')) fs.mkdirSync('C:/tmp',{recursive:true}); } catch(e){}\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD-Binary geschrieben: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('CAD schreiben fehlgeschlagen: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview-Binary geschrieben: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Preview schreiben fehlgeschlagen: ' + e.message); }\n}\n\nlet maxBomCsv = '';\ntry {\n    const csvPath = BASE_PATH.replace(/\\//g,'\\\\') + '\\\\aasx\\\\files\\\\Produktstruktur_MaxBOM_TRACEpen_Kugelschreiber.CSV';\n    if (fs.existsSync(csvPath)) {\n        maxBomCsv = fs.readFileSync(csvPath, 'latin1');\n        node.warn('MaxBOM CSV geladen: ' + csvPath);\n    }\n} catch(e) { node.warn('MaxBOM CSV nicht geladen: ' + e.message); }\n\nconst partNameSafe = (part && part.name) ? part.name : '';\nconst templateXmlPath = partNameSafe\n    ? OUTPUT_PATH + '/' + partNameSafe + '/aasx/' + partNameSafe + '/' + partNameSafe + '.aas.xml'\n    : '';\nnode.warn('Template XML Pfad: ' + templateXmlPath);\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n  maxBomCsv: maxBomCsv,\n  templateXmlPath: templateXmlPath,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON geschrieben: '+DATA_JSON);\n}catch(e){\n  node.error('JSON schreiben fehlgeschlagen: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\nnode.warn('Starte Python: '+msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3830,
+        "y": 280,
+        "wires": [
+            [
+                "6721bb148dc936ce",
+                "963e1ca7c5ac684b"
+            ]
+        ]
+    },
+    {
+        "id": "6721bb148dc936ce",
+        "type": "exec",
+        "z": "ae88e0c42828bbd4",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "60",
+        "winHide": false,
+        "name": "Python: AAS erstellen",
+        "x": 4060,
+        "y": 280,
+        "wires": [
+            [
+                "d1452aee5ad01152"
+            ],
+            [
+                "d1452aee5ad01152"
+            ],
+            [
+                "d1452aee5ad01152"
+            ]
+        ]
+    },
+    {
+        "id": "d1452aee5ad01152",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Status ausgeben",
+        "func": "const out = typeof msg.payload==='string' ? msg.payload : JSON.stringify(msg.payload);\nif(out && out.trim()) node.warn('Python output: '+out.substring(0,2000));\nmsg.payload = {\n  status: msg.rc===0||out.includes('FERTIG') ? 'OK' : 'CHECK',\n  pythonOutput: out,\n  outputPath: msg.outputPath||'?',\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 4280,
+        "y": 280,
+        "wires": [
+            [
+                "32ba64968a3dee43"
+            ]
+        ]
+    },
+    {
+        "id": "32ba64968a3dee43",
+        "type": "debug",
+        "z": "ae88e0c42828bbd4",
+        "name": "Ergebnis",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 4490,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "ebc0c6b5215f95fa",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "── PHASE 1: Part ──",
+        "info": "Basic Auth in 'GET Part' eintragen.",
+        "x": 150,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "68d45ceb932d5835",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "── PHASE 2a: BOM ──",
+        "info": "Alle BOM-Items einzeln abrufen.",
+        "x": 1250,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "e8271985888af6f5",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "── PHASE 2b: CAD-Dokument & Files ──",
+        "info": "Löst erst die Metadaten auf und holt danach sequentiell die Binärdaten ab.",
+        "x": 1300,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c015a068974b8194",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "── PHASE 3: AAS via Python ──",
+        "info": "Nutzt global.get() für fs und path.",
+        "x": 3830,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "db3d4a7227bba679",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Part-Daten extrahieren",
+        "func": "const p = msg.payload;\nif(msg.statusCode!==200){node.error('Part HTTP '+msg.statusCode);return null;}\nconst rel = (p['system:relships']&&p['system:relships']['relships'])||{};\nmsg.partData = {\n  name:             p['benennung']||null,\n  articleNumber:    p['teilenummer']||null,\n  erpNumber:        p['materialnr_erp']||null,\n  status:           p['joined_status_name']||null,\n  navigationId:     p['system:navigation_id']||null,\n  uiLink:           p['system:ui_link']||null,\n  unit:             p['mengeneinheit_name']||p['mengeneinheit']||null,\n  category:         p['t_kategorie_name']||p['t_kategorie']||null,\n  maturity:         p['mapped_maturity_name']||null,\n  createdBy:        p['mapped_cpersno_name']||null,\n  createdAt:        p['cdb_cdate']||null,\n  materialObjectId: p['material_object_id']||null,\n  techdaten:        p['techdaten']||null\n};\nmsg.relBomUrl  = rel['BOM']||null;\nmsg.relDocsUrl = rel['Documents']||null;\nnode.warn('Part OK: '+msg.partData.name);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 100,
+        "wires": [
+            [
+                "a9804040d298b002"
+            ]
+        ]
+    },
+    {
+        "id": "a9804040d298b002",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Parse Haupt-Techdaten & API Vorbereiten",
+        "func": "const partData = msg.partData;\nif (!partData || !partData.techdaten) {\n    msg.partWeight = 0.0;\n    msg.partMaterialName = \"Kein Material definiert\";\n    return [null, msg];\n}\ntry {\n    const parts = partData.techdaten.split(\",\");\n    const materialId = parts[0].trim();\n    const weightKg = parseFloat(parts[1].trim());\n    msg.partWeight = weightKg;\n    msg.partMaterialId = materialId;\n    msg.url = `https://plm.uni-paderborn.de/api/v1/collection/material/${materialId}`;\n    return [msg, null];\n} catch (e) {\n    node.error(\"Fehler beim Parsen der Haupt-Techdaten: \" + e.message, msg);\n    msg.partWeight = 0.0;\n    msg.partMaterialName = \"Formatfehler Techdaten\";\n    return [null, msg];\n}",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 160,
+        "wires": [
+            [
+                "25828761fac70393"
+            ],
+            [
+                "e4959564bbeee04e"
+            ]
+        ]
+    },
+    {
+        "id": "25828761fac70393",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET Haupt-Material Info",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 690,
+        "y": 80,
+        "wires": [
+            [
+                "586a3d9628af086b"
+            ]
+        ]
+    },
+    {
+        "id": "586a3d9628af086b",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Haupt-Material Name extrahieren",
+        "func": "const materialData = msg.payload;\nif (msg.statusCode !== 200 || !materialData) {\n    node.error(\"Haupt-Material HTTP Fehler \" + msg.statusCode);\n    msg.partMaterialName = \"API Fehler\";\n} else {\n    msg.partMaterialName = materialData.name || \"Unbenanntes Material\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 80,
+        "wires": [
+            [
+                "e4959564bbeee04e"
+            ]
+        ]
+    },
+    {
+        "id": "e4959564bbeee04e",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Hauptdaten zusammenführen",
+        "func": "msg.partData.weight = msg.partWeight;\nmsg.partData.material = msg.partMaterialName;\n// Payload zurücksetzen für nachfolgende HTTP-Stücklisten-Aufrufe\nmsg.payload = {}; \nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 160,
+        "wires": [
+            [
+                "7eafa87df742e22b"
+            ]
+        ]
+    },
+    {
+        "id": "c4247cb8e769a2d7",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "BOM-Item parsen",
+        "func": "const d = msg.basicData;\nconst a = msg.payload;\nconst item = (msg.statusCode !== 200) ? null : {\n    position: d['position'] || d['lfd_nr'] || null,\n    partNumber: d['teilenummer'] || null,\n    name: d['benennung'] || d['system:description'] || null,\n    quantity: d['menge'] || null,\n    unit: d['mengeneinheit'] || d['mengeneinheit_name'] || null,\n    assemblyType: d['baugruppenart'] || null,\n    category: d['t_kategorie'] || d['t_kategorie_name'] || null,\n    weight: d['techdaten'].split(', ')[1] || null,\n    material: a['name'] || null,\n};\n\nconst collected = flow.get('bomCollected') || [];\ncollected.push(item);\nflow.set('bomCollected', collected);\n\nconst total = flow.get('bomTotal') || 1;\nnode.warn('BOM Item ' + collected.length + '/' + total);\n\nif (collected.length >= total) {\n    flow.set('bomCollected', []);\n    msg.payload = collected.filter(x => x !== null);\n    msg.topic = 'bom';\n    msg.bomItems = msg.payload;\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2570,
+        "y": 240,
+        "wires": [
+            [
+                "f62d0a39fc6471d0"
+            ]
+        ]
+    },
+    {
+        "id": "8887bfc8690faa7f",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET BOM-Material Info",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 2310,
+        "y": 240,
+        "wires": [
+            [
+                "c4247cb8e769a2d7",
+                "43dac87fbdbe9cb5"
+            ]
+        ]
+    },
+    {
+        "id": "9a705d220dc5e028",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "set request's parameters",
+        "func": "const fields = msg.payload;\nmsg.basicData = fields;\nmsg.url = msg.baseUrl + '/api/v1/collection/material/' + fields['techdaten'].split(', ')[0];\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2050,
+        "y": 240,
+        "wires": [
+            [
+                "8887bfc8690faa7f"
+            ]
+        ]
+    },
+    {
+        "id": "963e1ca7c5ac684b",
+        "type": "debug",
+        "z": "ae88e0c42828bbd4",
+        "name": "debug 61",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 4050,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "43dac87fbdbe9cb5",
+        "type": "link out",
+        "z": "ae88e0c42828bbd4",
+        "name": "PLM Flow (Bauteil)",
+        "mode": "link",
+        "links": [
+            "e46ff3cf1f2a355b"
+        ],
+        "x": 2505,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "0bf346aa1e637d09",
+        "type": "tab",
+        "label": "PLM Flow (Bauteil)",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d3f1bab79762c47b",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Docs-URL setzen",
+        "func": "msg.url=msg.relDocsUrl;msg.headers={'Accept':'application/json'};return msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 260,
+        "wires": [
+            [
+                "9d698cbd5e232fa4"
+            ]
+        ]
+    },
+    {
+        "id": "9d698cbd5e232fa4",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "GET Doc-Links",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 930,
+        "y": 260,
+        "wires": [
+            [
+                "8a42d369884f8a4e"
+            ]
+        ]
+    },
+    {
+        "id": "8a42d369884f8a4e",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Ersten Doc holen",
+        "func": "const t=msg.payload.targets||[];\nnode.warn('Docs: '+t.length+' gefunden');\nif(t.length===0){\n  msg.topic='doc';\n  msg.payload={docData:null,cadBuffer:null,previewBuffer:null};\n  return msg;\n}\nmsg.url=typeof t[0]==='string'?t[0]:t[0]['@id'];\nmsg.headers={'Accept':'application/json'};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 260,
+        "wires": [
+            [
+                "616cd83afa6ae2b4"
+            ]
+        ]
+    },
+    {
+        "id": "616cd83afa6ae2b4",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "GET Doc-Metadaten",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 1360,
+        "y": 260,
+        "wires": [
+            [
+                "6c90ac06a47cc23a"
+            ]
+        ]
+    },
+    {
+        "id": "6c90ac06a47cc23a",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Files-API URL vorbereiten",
+        "func": "const docObj = msg.payload;\nif (!docObj || !docObj['@id']) {\n    node.error('Keine Dokumenten-Metadaten erhalten');\n    return null;\n}\n\nmsg.docMetadata = {\n    fileId:             docObj['z_nummer'] || '',\n    fileVersion:        docObj['src_index'] || docObj['z_index'] || '1',\n    title:              docObj['titel'] || docObj['benennung'] || 'Modell',\n    fileClassification: docObj['erzeug_system'] || 'CAD-Modell',\n    consumingApp:       docObj['erzeug_system'] || 'SolidWorks',\n    uiLink:             docObj['system:ui_link'] || ''\n};\n\nmsg.url = docObj['@id'] + '/files?data=complete';\nmsg.headers = { 'Accept': 'application/json' };\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1580,
+        "y": 260,
+        "wires": [
+            [
+                "a38e94ced3a99eeb"
+            ]
+        ]
+    },
+    {
+        "id": "a38e94ced3a99eeb",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "GET Files-Liste JSON",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 1800,
+        "y": 260,
+        "wires": [
+            [
+                "d8b3f971da6a4994"
+            ]
+        ]
+    },
+    {
+        "id": "d8b3f971da6a4994",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Targets extrahieren",
+        "func": "const fileCollection = msg.payload;\nconst targets = fileCollection.targets || [];\nnode.warn('Anzahl gefundener Target-Dateien: ' + targets.length);\n\nif (targets.length === 0) {\n    msg.topic = 'doc';\n    msg.payload = { docData: msg.docMetadata, cadBuffer: null, previewBuffer: null };\n    return [null, msg];\n}\n\nconst t0 = targets[0];\nmsg.cadUrl = typeof t0 === 'string' ? t0 : (t0['@id'] || null);\nmsg.cadName = typeof t0 === 'object' ? (t0['cdbf_name'] || 'model.sldasm') : 'model.sldasm';\n\nconst t1 = targets[1];\nmsg.previewUrl = t1 ? (typeof t1 === 'string' ? t1 : (t1['@id'] || null)) : null;\nmsg.previewName = (t1 && typeof t1 === 'object') ? (t1['cdbf_name'] || 'preview.jpg') : 'preview.jpg';\n\nmsg.url = msg.cadUrl;\nmsg.headers = { 'Accept': '*/*' };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2010,
+        "y": 260,
+        "wires": [
+            [
+                "5867dff5f31ee28f",
+                "01e8123ae9e4fc7a"
+            ]
+        ]
+    },
+    {
+        "id": "5867dff5f31ee28f",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "Download CAD (binär)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 2240,
+        "y": 260,
+        "wires": [
+            [
+                "9d005c47b83e40f4"
+            ]
+        ]
+    },
+    {
+        "id": "9d005c47b83e40f4",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "CAD sichern & Preview laden",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.cadBuffer = msg.payload;\n} else {\n    node.warn('CAD Download unvollständig: ' + msg.statusCode);\n    msg.cadBuffer = null;\n}\n\nif (msg.previewUrl) {\n    msg.url = msg.previewUrl;\n    msg.headers = { 'Accept': '*/*' };\n    return msg;\n}\n\nmsg.previewBuffer = null;\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    cadName: msg.cadName,\n    previewBuffer: null,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2460,
+        "y": 260,
+        "wires": [
+            [
+                "5b07161ca65b1229"
+            ]
+        ]
+    },
+    {
+        "id": "5b07161ca65b1229",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "Download Preview (binär)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "basic",
+        "senderr": false,
+        "headers": [],
+        "x": 2680,
+        "y": 260,
+        "wires": [
+            [
+                "7f114459b79b8a98"
+            ]
+        ]
+    },
+    {
+        "id": "7f114459b79b8a98",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Dokumenten-Zweig abschließen",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview Download unvollständig: ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2950,
+        "y": 260,
+        "wires": [
+            [
+                "9148ea21e3697c5d"
+            ]
+        ]
+    },
+    {
+        "id": "9148ea21e3697c5d",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Daten als JSON speichern",
+        "func": "const bom      = [];\nconst docRes   = msg.payload||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = 'P:/02_Lehrstuhl/SHK Studentische Hilfskräfte/de Buhr/CIM_trace-pen/new_base_shell';\nconst OUTPUT_PATH = 'P:/02_Lehrstuhl/SHK Studentische Hilfskräfte/de Buhr/CIM_trace-pen/output';\nconst PYTHON_SCRIPT = 'P:/02_Lehrstuhl/SHK Studentische Hilfskräfte/de Buhr/CIM_trace-pen/create_aas_v17.py';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\nconst JOB = \"C:/tmp/jobs/\" + msg.jobId;\nfs.mkdirSync(JOB, { recursive: true });\nconst DATA_JSON = JOB + \"/data.json\";\nconst FILE_BIN = JOB + \"/cad.bin\";\nconst PREVIEW_BIN = JOB + \"/preview.jpg\";\n\ntry { if(!fs.existsSync('C:/tmp')) fs.mkdirSync('C:/tmp',{recursive:true}); } catch(e){}\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD-Binary geschrieben: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('CAD schreiben fehlgeschlagen: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview-Binary geschrieben: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Preview schreiben fehlgeschlagen: ' + e.message); }\n}\n\nlet maxBomCsv = '';\ntry {\n    const csvPath = BASE_PATH.replace(/\\//g,'\\\\') + '\\\\aasx\\\\files\\\\Produktstruktur_MaxBOM_TRACEpen_Kugelschreiber.CSV';\n    if (fs.existsSync(csvPath)) {\n        maxBomCsv = fs.readFileSync(csvPath, 'latin1');\n        node.warn('MaxBOM CSV geladen: ' + csvPath);\n    }\n} catch(e) { node.warn('MaxBOM CSV nicht geladen: ' + e.message); }\n\nconst partNameSafe = (part && part.name) ? part.name : '';\nconst templateXmlPath = partNameSafe\n    ? OUTPUT_PATH + '/' + partNameSafe + '/aasx/' + partNameSafe + '/' + partNameSafe + '.aas.xml'\n    : '';\nnode.warn('Template XML Pfad: ' + templateXmlPath);\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n  maxBomCsv: maxBomCsv,\n  templateXmlPath: templateXmlPath,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON geschrieben: '+DATA_JSON);\n}catch(e){\n  node.error('JSON schreiben fehlgeschlagen: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\nnode.warn('Starte Python: '+msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3240,
+        "y": 260,
+        "wires": [
+            [
+                "6266dc3adef1f946"
+            ]
+        ]
+    },
+    {
+        "id": "6266dc3adef1f946",
+        "type": "exec",
+        "z": "0bf346aa1e637d09",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "60",
+        "winHide": false,
+        "name": "Python: AAS erstellen",
+        "x": 3510,
+        "y": 260,
+        "wires": [
+            [
+                "b76d20d619807008"
+            ],
+            [
+                "b76d20d619807008"
+            ],
+            [
+                "b76d20d619807008"
+            ]
+        ]
+    },
+    {
+        "id": "b76d20d619807008",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Status ausgeben",
+        "func": "const out = typeof msg.payload==='string' ? msg.payload : JSON.stringify(msg.payload);\nif(out && out.trim()) node.warn('Python output: '+out.substring(0,2000));\nmsg.payload = {\n  status: msg.rc===0||out.includes('FERTIG') ? 'OK' : 'CHECK',\n  pythonOutput: out,\n  outputPath: msg.outputPath||'?',\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3730,
+        "y": 260,
+        "wires": [
+            [
+                "31b465694e30388a"
+            ]
+        ]
+    },
+    {
+        "id": "31b465694e30388a",
+        "type": "debug",
+        "z": "0bf346aa1e637d09",
+        "name": "Ergebnis",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 3940,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "90a47fcb38af7341",
+        "type": "comment",
+        "z": "0bf346aa1e637d09",
+        "name": "── PHASE 1: Part ──",
+        "info": "Basic Auth in 'GET Part' eintragen.",
+        "x": 440,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c5954831b04a5297",
+        "type": "comment",
+        "z": "0bf346aa1e637d09",
+        "name": "── PHASE 2b: CAD-Dokument & Files ──",
+        "info": "Löst erst die Metadaten auf und holt danach sequentiell die Binärdaten ab.",
+        "x": 840,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "4ac8f39a03440cb7",
+        "type": "comment",
+        "z": "0bf346aa1e637d09",
+        "name": "── PHASE 3: AAS via Python ──",
+        "info": "Nutzt global.get() für fs und path.",
+        "x": 3280,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "682bed30d54ba99b",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Part-Daten extrahieren",
+        "func": "const d = msg.basicData;\nconst a = msg.payload;\nif(msg.statusCode!==200){node.error('Part HTTP '+msg.statusCode);return null;}\nconst rel = (d['system:relships']&&d['system:relships']['relships'])||{};\nmsg.partData = {\n  name:             d['benennung']||null,\n  articleNumber:    d['teilenummer']||null,\n  erpNumber:        d['component_materialnr_erp']||null,\n  status:           d['component_status_name']||null,\n  navigationId:     d['system:navigation_id']||null,\n  uiLink:           d['system:ui_link']||null,\n  quantity:         d['menge'] || null,\n  unit:             d['mengeneinheit']||null,\n  category:         d['t_kategorie']||null,\n  weight:           d['techdaten'].split(', ')[1] || null,\n  material:         a['name'] || null,\n};\nmsg.relDocsUrl = rel['Documents']||null;\nnode.warn('Part OK: '+msg.partData.name);\nmsg.jobId = msg.partData.articleNumber + \"_\" + Date.now();\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 260,
+        "wires": [
+            [
+                "d3f1bab79762c47b"
+            ]
+        ]
+    },
+    {
+        "id": "e46ff3cf1f2a355b",
+        "type": "link in",
+        "z": "0bf346aa1e637d09",
+        "name": "PLM Flow (Master)",
+        "links": [
+            "43dac87fbdbe9cb5"
+        ],
+        "x": 275,
+        "y": 260,
+        "wires": [
+            [
+                "682bed30d54ba99b"
+            ]
+        ]
+    },
+    {
+        "id": "01e8123ae9e4fc7a",
+        "type": "debug",
+        "z": "0bf346aa1e637d09",
+        "name": "debug 63",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2150,
+        "y": 420,
+        "wires": []
+    }
+]

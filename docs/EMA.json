@@ -1,0 +1,390 @@
+[
+    {
+        "id": "ae62b325a6fdeec1",
+        "type": "tab",
+        "label": "EMA → AAS Integration",
+        "disabled": false,
+        "info": "Liest EMA-Exportdatei (xlsx) und schreibt Verbrauchswerte in AAS Technical_Data_erweitert."
+    },
+    {
+        "id": "201165ea25c5d840",
+        "type": "inject",
+        "z": "ae62b325a6fdeec1",
+        "name": "▶ EMA Import starten",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 100,
+        "wires": [
+            [
+                "3c76d63d1f4d251c"
+            ]
+        ]
+    },
+    {
+        "id": "3c76d63d1f4d251c",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "📂 Pfade & Metadaten setzen",
+        "func": "// ═══════════════════════════════════════════════════════════\n// KONFIGURATION – Pfade hier anpassen\n// ═══════════════════════════════════════════════════════════\nconst fs = global.get('fs');\nconst path = global.get('path');\n\nconst AASX_DIR    = 'P:\\\\02_Lehrstuhl\\\\SHK Studentische Hilfskräfte\\\\de Buhr\\\\Carmen\\\\Technical_Data_erweitert';\nconst XLSX_PATH   = 'P:\\\\02_Lehrstuhl\\\\SHK Studentische Hilfskräfte\\\\de Buhr\\\\Carmen\\\\Beispiel_Ema_Exportdatei.xlsx';\nconst AAS_PATH    = AASX_DIR + '\\\\aasx\\\\aasenv-with-no-id\\\\aasenv-with-no-id.aas.xml';\nconst FILES_DIR   = AASX_DIR + '\\\\aasx\\\\files';\nconst AASX_OUTPUT = 'P:\\\\02_Lehrstuhl\\\\SHK Studentische Hilfskräfte\\\\de Buhr\\\\Carmen\\\\Technical_Data_erweitert.aasx';\nconst XLSX_FNAME  = path.basename(XLSX_PATH);\n\n// ═══════════════════════════════════════════════════════════\n// Erstelldatum der XLSX-Datei = time_of_simulation\n// ═══════════════════════════════════════════════════════════\nlet timeOfSim = new Date().toISOString();\ntry {\n    const stats = fs.statSync(XLSX_PATH);\n    const birthtime = stats.birthtime;\n    timeOfSim = (birthtime && birthtime.getFullYear() > 1970)\n        ? birthtime.toISOString()\n        : stats.mtime.toISOString();\n    node.log('[Metadaten] time_of_simulation = ' + timeOfSim);\n} catch (e) {\n    node.warn('[Metadaten] Erstelldatum nicht lesbar, verwende aktuelles Datum. ' + e.message);\n}\n\n// ═══════════════════════════════════════════════════════════\n// xlsx-to-json Node Parameter (per msg übergeben)\n// ═══════════════════════════════════════════════════════════\nmsg.filepath  = XLSX_PATH;\nmsg.filename  = XLSX_PATH;\nmsg.rangecell = 'B5:F36';\nmsg.range     = 'B5:F36';\nmsg.sheet     = '2025 - Medienverbrauch';\nmsg.columnkey = JSON.stringify({\n    \"B\": \"Arbeitsplatz\",\n    \"C\": \"Verbrauch, Strom\",\n    \"F\": \"Verbrauch, Wasser\"\n});\n\n// Alle Pfade im Flow-Kontext speichern\nflow.set('time_of_simulation', timeOfSim);\nflow.set('aas_path',     AAS_PATH);\nflow.set('xlsx_path',    XLSX_PATH);\nflow.set('xlsx_filename', XLSX_FNAME);\nflow.set('files_dir',    FILES_DIR);\nflow.set('aasx_dir',     AASX_DIR);\nflow.set('aasx_output',  AASX_OUTPUT);\n\nnode.status({ fill: 'blue', shape: 'dot', text: 'time_of_sim: ' + timeOfSim.substring(0, 10) });\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 100,
+        "wires": [
+            [
+                "5c2da6ddf251da49"
+            ]
+        ]
+    },
+    {
+        "id": "5c2da6ddf251da49",
+        "type": "XLSX-to-json",
+        "z": "ae62b325a6fdeec1",
+        "name": "📊 EMA Excel einlesen",
+        "filepath": "",
+        "rangecell": "",
+        "columnkey": "",
+        "sheet": "",
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "b102ac0f360462bd",
+                "a8503fa20e895641"
+            ]
+        ]
+    },
+    {
+        "id": "b102ac0f360462bd",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "⚙️ Excel-Daten verarbeiten",
+        "func": "// ═══════════════════════════════════════════════════════════\n// msg.payload = Array von Row-Objekten vom xlsx-Node\n// ═══════════════════════════════════════════════════════════\n\nif (!msg.payload || !Array.isArray(msg.payload)) {\n    node.error('Ungültiges Excel-Format – msg.payload ist kein Array', msg);\n    return null;\n}\n\n// Leere Zeilen und Zeilen ohne Arbeitsplatz herausfiltern\nconst rawRows = msg.payload.filter(row =>\n    row['Arbeitsplatz'] && String(row['Arbeitsplatz']).trim() !== ''\n);\n\nif (rawRows.length === 0) {\n    node.warn('Keine gültigen Datenzeilen gefunden. Prüfe Bereich B5:F36 und Sheet-Name.');\n    return null;\n}\n\n// ── AAS-konformer idShort  ────────────────────────────────────────────────\n// Constraint AASd-002: idShort shall match [a-zA-Z][a-zA-Z0-9_]*\n//   • Nur Buchstaben, Ziffern, Unterstrich erlaubt (kein Bindestrich!)\n//   • Erstes Zeichen MUSS ein Buchstabe sein → Präfix 'AP_' falls nicht\nfunction toIdShort(name) {\n    // 1. Umlaute semantisch ersetzen für die idShort\n    let s = name\n        .replace(/ä/g, 'ae')\n        .replace(/ö/g, 'oe')\n        .replace(/ü/g, 'ue')\n        .replace(/Ä/g, 'Ae')\n        .replace(/Ö/g, 'Oe')\n        .replace(/Ü/g, 'Ue')\n        .replace(/ß/g, 'ss');\n    // 2. Alle nicht erlaubten Zeichen (inkl. '-' und ' ') → '_'\n    name = name.replace(/[^a-zA-Z0-9_]/g, '_');\n    // 3. Führende Unterstriche / Ziffern mit 'AP_' präfixieren\n    if (!/^[a-zA-Z]/.test(s)) s = 'AP_' + s;\n    // 4. Doppelte Unterstriche bereinigen (optional, für Lesbarkeit)\n    s = s.replace(/__+/g, '_').replace(/_$/, '');\n    // 5. Maximal 255 Zeichen\n    return s.substring(0, 255);\n}\n\n// Daten normalisieren\nconst parseNum = v => parseFloat(String(v || '0').replace(',', '.')) || 0;\n\nconst processes = rawRows.map(row => {\n    const ap = String(row['Arbeitsplatz']).trim();\n    return {\n        Arbeitsplatz:     ap,\n        idShort:          toIdShort(ap),\n        Verbrauch_Strom:  parseNum(row['Verbrauch, Strom']  || row['Verbrauch_Strom']),\n        Verbrauch_Wasser: parseNum(row['Verbrauch, Wasser'] || row['Verbrauch_Wasser'])\n    };\n});\n\nnode.log('[Verarbeitung] ' + processes.length + ' Arbeitsplätze: ' +\n    processes.map(p => '\"' + p.Arbeitsplatz + '\" → ' + p.idShort).join(', '));\n\nflow.set('ema_processes', processes);\nmsg.payload = { processes };\n\nnode.status({ fill: 'green', shape: 'dot', text: processes.length + ' Arbeitsplätze verarbeitet' });\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 100,
+        "wires": [
+            [
+                "cc6e8e1137f9024f",
+                "5e3c9ec283a9fa33"
+            ]
+        ]
+    },
+    {
+        "id": "241ec920ed458da2",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "AAS-Pfad für file in setzen",
+        "func": "msg.filename = flow.get('aas_path');\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1090,
+        "y": 100,
+        "wires": [
+            [
+                "d2b129e72676e79a"
+            ]
+        ]
+    },
+    {
+        "id": "d2b129e72676e79a",
+        "type": "file in",
+        "z": "ae62b325a6fdeec1",
+        "name": "📄 AAS XML lesen",
+        "filename": "filename",
+        "filenameType": "msg",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 1290,
+        "y": 100,
+        "wires": [
+            [
+                "bc9d332b7c1a0b4d"
+            ]
+        ]
+    },
+    {
+        "id": "a31185fb7837d91e",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "🔧 AAS Submodell aktualisieren",
+        "func": "// ═══════════════════════════════════════════════════════════\n// HILFSFUNKTIONEN (xml2js-Format: Werte stets in Arrays)\n// ═══════════════════════════════════════════════════════════\n\n/** Sucht in einem Array von xml2js-Elementen nach idShort */\nfunction findByIdShort(arr, idShort) {\n    if (!Array.isArray(arr)) return null;\n    return arr.find(el => el.idShort && el.idShort[0] === idShort) || null;\n}\n\n/** Erstellt/Aktualisiert eine AAS Property im propArray */\nfunction upsertProperty(propArray, idShort, value, valueType) {\n    let prop = findByIdShort(propArray, idShort);\n    if (!prop) {\n        propArray.push({ idShort: [idShort], valueType: [valueType], value: [String(value)] });\n        node.log('[AAS] Property angelegt: ' + idShort + ' = ' + value);\n    } else {\n        prop.value     = [String(value)];\n        prop.valueType = [valueType];\n        node.log('[AAS] Property aktualisiert: ' + idShort + ' = ' + value);\n    }\n}\n\n// ═══════════════════════════════════════════════════════════\n// DATEN AUS FLOW-KONTEXT\n// ═══════════════════════════════════════════════════════════\nconst environment  = msg.payload.environment;\nconst timeOfSim    = flow.get('time_of_simulation') || new Date().toISOString();\nconst emaProcesses = flow.get('ema_processes') || [];\nconst xlsxFname    = flow.get('xlsx_filename') || '';\n\nif (!environment || !environment.submodels) {\n    node.error(\"Ungültige XML-Struktur: 'environment.submodels' nicht gefunden.\"); return null;\n}\n\n// ═══════════════════════════════════════════════════════════\n// NAVIGATION: TechnicalData → Data Sources → Simulation\n// ═══════════════════════════════════════════════════════════\nconst submodels = environment.submodels[0].submodel;\nconst techData  = findByIdShort(submodels, 'TechnicalData');\nif (!techData) { node.error(\"Submodell 'TechnicalData' nicht gefunden.\"); return null; }\n\nconst smElemContainer = techData.submodelElements[0];\n\nconst dataSourcesList = findByIdShort(smElemContainer.submodelElementList, 'Data Sources');\nif (!dataSourcesList || !dataSourcesList.value) {\n    node.error(\"SubmodelElementList 'Data Sources' nicht gefunden.\"); return null;\n}\n\nconst dsValueContainer = dataSourcesList.value[0];\nif (!dsValueContainer.submodelElementCollection) {\n    node.error(\"Keine SubmodelElementCollections in 'Data Sources'.\"); return null;\n}\n\nconst simulationSmc = findByIdShort(dsValueContainer.submodelElementCollection, 'Simulation');\nif (!simulationSmc || !simulationSmc.value) {\n    node.error(\"SMC 'Simulation' nicht gefunden.\"); return null;\n}\n\n// simValueContainer enthält property[], file[], submodelElementList[], submodelElementCollection[]\nconst simValueContainer = simulationSmc.value[0];\nif (!simValueContainer.property)                   simValueContainer.property = [];\nif (!simValueContainer.file)                       simValueContainer.file     = [];\nif (!simValueContainer.submodelElementCollection)  simValueContainer.submodelElementCollection = [];\n\n// ═══════════════════════════════════════════════════════════\n// time_of_simulation (Property, Geschwister von Simulation_Processes)\n// ═══════════════════════════════════════════════════════════\nupsertProperty(simValueContainer.property, 'time_of_simulation', timeOfSim, 'xs:dateTime');\n\n// ═══════════════════════════════════════════════════════════\n// export_file (File-Element, Geschwister von Simulation_Processes)\n// Interner AASX-Pfad: /aasx/files/<dateiname>\n// ═══════════════════════════════════════════════════════════\nlet exportFile = findByIdShort(simValueContainer.file, 'export_file');\nif (!exportFile) {\n    exportFile = { idShort: ['export_file'], contentType: [''], value: [''] };\n    simValueContainer.file.push(exportFile);\n    node.log('[AAS] file[export_file] neu angelegt');\n}\nexportFile.contentType = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];\nexportFile.value       = ['/aasx/files/' + xlsxFname];\nnode.log('[AAS] export_file → /aasx/files/' + xlsxFname);\n\n// ═══════════════════════════════════════════════════════════\n// Simulation_Processes als SubmodelElementCOLLECTION anlegen\n// ─────────────────────────────────────────────────────────\n// WICHTIG: Nicht als submodelElementList, weil sonst:\n//   AASd-120: Kinder dürfen kein idShort haben\n//   AASd-108: Kinder müssen expliziten SubmodelElement-Typ haben\n// Als SubmodelElementCollection darf jedes Kind ein idShort tragen.\n// ═══════════════════════════════════════════════════════════\n\n// Falls Simulation_Processes noch als submodelElementList existiert (alt):\n// → aus der Liste entfernen, wird unten als Collection neu angelegt\nif (simValueContainer.submodelElementList) {\n    const oldIdx = simValueContainer.submodelElementList\n        .findIndex(el => el.idShort && el.idShort[0] === 'Simulation_Processes');\n    if (oldIdx !== -1) {\n        simValueContainer.submodelElementList.splice(oldIdx, 1);\n        node.log('[AAS] Simulation_Processes aus submodelElementList entfernt (Migration → Collection)');\n    }\n}\n\n// In submodelElementCollection suchen oder neu anlegen\nlet simProcSmc = findByIdShort(simValueContainer.submodelElementCollection, 'Simulation_Processes');\nif (!simProcSmc) {\n    simProcSmc = { idShort: ['Simulation_Processes'], value: [{ submodelElementCollection: [] }] };\n    simValueContainer.submodelElementCollection.push(simProcSmc);\n    node.log('[AAS] SubmodelElementCollection[Simulation_Processes] neu angelegt');\n}\nif (!simProcSmc.value)                                         simProcSmc.value = [{}];\nif (!simProcSmc.value[0].submodelElementCollection)            simProcSmc.value[0].submodelElementCollection = [];\n\nconst procArray = simProcSmc.value[0].submodelElementCollection;\n\n// ═══════════════════════════════════════════════════════════\n// Je Arbeitsplatz: SubmodelElementCollection mit Properties\n// idShort ist hier erlaubt (wir sind in einer SMC, nicht SML)\n// ═══════════════════════════════════════════════════════════\nlet addedCount = 0;\nfor (const proc of emaProcesses) {\n    let apSmc = findByIdShort(procArray, proc.idShort);\n    if (!apSmc) {\n        apSmc = { idShort: [proc.idShort], value: [{ property: [] }] };\n        procArray.push(apSmc);\n        node.log('[AAS] SMC angelegt: ' + proc.idShort);\n    }\n    if (!apSmc.value[0].property) apSmc.value[0].property = [];\n    upsertProperty(apSmc.value[0].property, 'Verbrauch_Strom',  proc.Verbrauch_Strom,  'xs:float');\n    upsertProperty(apSmc.value[0].property, 'Verbrauch_Wasser', proc.Verbrauch_Wasser, 'xs:float');\n    addedCount++;\n}\n\nnode.log('[AAS] ' + addedCount + ' Arbeitsplätze, time_of_simulation, export_file gesetzt.');\nnode.status({ fill: 'green', shape: 'dot', text: addedCount + ' AP + export_file + time_of_sim ✓' });\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1650,
+        "y": 100,
+        "wires": [
+            [
+                "37ceda42d40b4b96"
+            ]
+        ]
+    },
+    {
+        "id": "0c83bf3dce3f6674",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "💾 AAS XML speichern",
+        "func": "const fs = global.get('fs');\nconst aasPath = flow.get('aas_path');\n\ntry {\n    fs.writeFileSync(aasPath, msg.payload, 'utf8');\n    node.log('[Speichern] AAS XML gespeichert: ' + aasPath);\n    node.status({ fill: 'green', shape: 'dot', text: '✓ XML gespeichert ' + new Date().toLocaleTimeString('de-DE') });\n} catch (e) {\n    node.error('[Speichern] Fehler: ' + e.message, msg);\n    node.status({ fill: 'red', shape: 'dot', text: 'Fehler beim Speichern!' });\n    return null;\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1990,
+        "y": 100,
+        "wires": [
+            [
+                "6e9ae3c03fb06e74"
+            ]
+        ]
+    },
+    {
+        "id": "a8503fa20e895641",
+        "type": "debug",
+        "z": "ae62b325a6fdeec1",
+        "name": "Debug: Excel Rohdaten",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 860,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "5e3c9ec283a9fa33",
+        "type": "debug",
+        "z": "ae62b325a6fdeec1",
+        "name": "Debug: Verarbeitete Prozesse",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 1110,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "141eb2e13e3ccacf",
+        "type": "debug",
+        "z": "ae62b325a6fdeec1",
+        "name": "Debug: Ergebnis",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "result",
+        "targetType": "msg",
+        "x": 2110,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "b1d1221d495c5bd7",
+        "type": "catch",
+        "z": "ae62b325a6fdeec1",
+        "name": "⚠️ Fehlerbehandlung",
+        "scope": null,
+        "uncaught": false,
+        "x": 400,
+        "y": 320,
+        "wires": [
+            [
+                "1cef3331d192210f"
+            ]
+        ]
+    },
+    {
+        "id": "1cef3331d192210f",
+        "type": "debug",
+        "z": "ae62b325a6fdeec1",
+        "name": "Debug: Fehler-Detail",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 660,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "abf15ef6a59d0ebf",
+        "type": "xml",
+        "z": "ae62b325a6fdeec1",
+        "name": "XML parsen",
+        "property": "payload",
+        "attr": "",
+        "chr": "",
+        "x": 1450,
+        "y": 100,
+        "wires": [
+            [
+                "a31185fb7837d91e"
+            ]
+        ]
+    },
+    {
+        "id": "37ceda42d40b4b96",
+        "type": "xml",
+        "z": "ae62b325a6fdeec1",
+        "name": "XML serialisieren",
+        "property": "payload",
+        "attr": "",
+        "chr": "",
+        "x": 1830,
+        "y": 100,
+        "wires": [
+            [
+                "a647b85746ea39a5"
+            ]
+        ]
+    },
+    {
+        "id": "cc6e8e1137f9024f",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "📁 xlsx kopieren + ContentTypes patchen",
+        "func": "const fs    = global.get('fs');\nconst path  = global.get('path');\n\nconst aasx_dir  = flow.get('aasx_dir');\nconst filesDir  = flow.get('files_dir');\nconst xlsxPath  = flow.get('xlsx_path');\nconst xlsxFname = flow.get('xlsx_filename');\n\n// ── 1. xlsx in aasx/files/ kopieren ─────────────────────────────────────────\ntry {\n    if (!fs.existsSync(filesDir)) {\n        fs.mkdirSync(filesDir, { recursive: true });\n        node.log('[Kopieren] Ordner erstellt: ' + filesDir);\n    }\n    const dest = path.join(filesDir, xlsxFname);\n    fs.copyFileSync(xlsxPath, dest);\n    node.log('[Kopieren] xlsx → ' + dest);\n    node.status({ fill: 'blue', shape: 'dot', text: xlsxFname + ' → aasx/files/' });\n} catch (e) {\n    node.error('[Kopieren] Fehler: ' + e.message, msg);\n    node.status({ fill: 'red', shape: 'dot', text: 'Kopieren fehlgeschlagen!' });\n    return null;\n}\n\n// ── 2. [Content_Types].xml patchen ──────────────────────────────────────────\n// AASX basiert auf OPC (Open Packaging Convention). Jede Datei im Paket MUSS\n// dort mit ihrem MIME-Typ registriert sein, sonst lehnen BaSyx und andere\n// konforme Viewer das Paket mit einem Parse-Fehler ab.\ntry {\n    const ctPath = path.join(aasx_dir, '[Content_Types].xml');\n\n    if (!fs.existsSync(ctPath)) {\n        node.warn('[ContentTypes] [Content_Types].xml nicht gefunden: ' + ctPath);\n    } else {\n        let ctXml = fs.readFileSync(ctPath, 'utf8');\n        node.log('[ContentTypes] Gelesen: ' + ctPath);\n\n        const xlsxMime    = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';\n        const xlsxExt     = 'xlsx';\n\n        // Prüfen ob xlsx bereits als Default-Extension oder Override registriert ist\n        const hasDefault  = new RegExp(`Extension=\"${xlsxExt}\"`).test(ctXml);\n        const hasOverride = ctXml.includes('/aasx/files/' + xlsxFname);\n\n        if (!hasDefault && !hasOverride) {\n            // Als Default-Extension eintragen (gilt für alle .xlsx-Dateien im Paket)\n            // Einfügen vor dem schließenden </Types>-Tag\n            const entry = `  <Default Extension=\"${xlsxExt}\" ContentType=\"${xlsxMime}\" />\\n`;\n            ctXml = ctXml.replace('</Types>', entry + '</Types>');\n            fs.writeFileSync(ctPath, ctXml, 'utf8');\n            node.log('[ContentTypes] Eintrag für .xlsx hinzugefügt: ' + xlsxMime);\n        } else {\n            node.log('[ContentTypes] .xlsx bereits registriert – kein Update nötig.');\n        }\n\n        node.status({ fill: 'green', shape: 'dot', text: '✓ xlsx kopiert + ContentTypes gepatcht' });\n    }\n} catch (e) {\n    node.warn('[ContentTypes] Fehler beim Patchen: ' + e.message);\n    // Kein return null – xlsx-Kopie war erfolgreich, Flow soll weiterlaufen\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 975,
+        "y": 100,
+        "wires": [
+            [
+                "241ec920ed458da2"
+            ]
+        ]
+    },
+    {
+        "id": "bc9d332b7c1a0b4d",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "🔒 Original XML sichern",
+        "func": "// Rohen XML-String vor dem Parsen im Flow-Kontext speichern.\n// Wird nach dem AASX-Packen für den Cleanup-Reset benötigt.\nflow.set('original_xml', msg.payload);\nnode.log('[Backup] Original-XML gesichert (' + msg.payload.length + ' Zeichen)');\nnode.status({ fill: 'grey', shape: 'ring', text: 'XML gesichert' });\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1370,
+        "y": 100,
+        "wires": [
+            [
+                "abf15ef6a59d0ebf"
+            ]
+        ]
+    },
+    {
+        "id": "6e9ae3c03fb06e74",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "📦 AASX packen",
+        "func": "const fs = global.get('fs');\nconst os = global.get('os');\nconst path = global.get('path');\nconst child_process = global.get('child_process');\nconst { execFileSync } = child_process;\n\nconst aasx_dir = flow.get('aasx_dir');\nconst aasx_out = flow.get('aasx_output');\n\ntry {\n    // Sicherstellen, dass der Zielordner existiert\n    const outDir = path.dirname(aasx_out);\n    if (!fs.existsSync(outDir)) {\n        fs.mkdirSync(outDir, { recursive: true });\n    }\n\n    // PowerShell-Skript mit verbesserter Pfad-Behandlung\n    // Wir nutzen hier Single-Quotes für die Pfade in PS, um Probleme mit Sonderzeichen zu minimieren\n    const psLines = [\n        '$ErrorActionPreference = \"Stop\"',\n        'try {',\n        '    Add-Type -Assembly \"System.IO.Compression.FileSystem\"',\n        '    $src = \\'' + aasx_dir + '\\'',\n        '    $dst = \\'' + aasx_out + '\\'',\n        '    if (Test-Path $dst) { Remove-Item $dst -Force }',\n        '    [System.IO.Compression.ZipFile]::CreateFromDirectory($src, $dst)',\n        '    Write-Host \"SUCCESS\"',\n        '} catch {',\n        '    Write-Error $_.Exception.Message',\n        '    exit 1',\n        '}'\n    ];\n\n    const tmpScript = path.join(os.tmpdir(), 'pack_aasx_' + Date.now() + '.ps1');\n    \n    // WICHTIG: Wir schreiben die Datei explizit mit UTF-8, \n    // aber wir fügen eine Zeile für PowerShell hinzu, um Umlaute zu handhaben.\n    fs.writeFileSync(tmpScript, psLines.join('\\r\\n'), 'utf8');\n\n    const out = execFileSync('powershell', [\n        '-NoProfile', \n        '-ExecutionPolicy', 'Bypass', \n        '-Command', `Get-Content '${tmpScript}' -Encoding UTF8 | Out-String | Invoke-Expression`\n    ], { timeout: 30000, encoding: 'utf8' });\n\n    if (fs.existsSync(tmpScript)) { fs.unlinkSync(tmpScript); }\n\n    if (fs.existsSync(aasx_out)) {\n        const stats = fs.statSync(aasx_out);\n        node.status({ fill: 'green', shape: 'dot', text: '✓ AASX fertig (' + Math.round(stats.size/1024) + ' KB)' });\n    } else {\n        throw new Error('Datei wurde trotz SUCCESS-Meldung nicht gefunden.');\n    }\n\n} catch (e) {\n    node.error('[AASX] Pack-Fehler: ' + e.message, msg);\n    node.status({ fill: 'red', shape: 'dot', text: 'Pfad- oder Encoding-Fehler!' });\n    return null;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2350,
+        "y": 100,
+        "wires": [
+            [
+                "c8220ea81c789f70"
+            ]
+        ]
+    },
+    {
+        "id": "c8220ea81c789f70",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "🧹 Cleanup & Urstand herstellen",
+        "func": "const fs = global.get('fs');\nconst path = global.get('path');\nconst errors = [];\n\n// 1. aasx/files/ Ordner entfernen (enthält die kopierte xlsx)\nconst filesDir = flow.get('files_dir');\ntry {\n    if (fs.existsSync(filesDir)) {\n        fs.rmSync(filesDir, { recursive: true, force: true });\n        node.log('[Cleanup] aasx/files/ entfernt: ' + filesDir);\n    }\n} catch (e) {\n    const m = 'Fehler beim Löschen von aasx/files/: ' + e.message;\n    node.warn('[Cleanup] ' + m); errors.push(m);\n}\n\n// 2. Original-XML (leere Werte) wiederherstellen\nconst originalXml = flow.get('original_xml');\nconst aasPath     = flow.get('aas_path');\ntry {\n    if (originalXml && aasPath) {\n        fs.writeFileSync(aasPath, originalXml, 'utf8');\n        node.log('[Cleanup] Original-XML wiederhergestellt: ' + aasPath);\n    } else {\n        node.warn('[Cleanup] Kein gesichertes Original-XML vorhanden!');\n        errors.push('Kein Original-XML im Flow-Kontext');\n    }\n} catch (e) {\n    const m = 'Fehler beim XML-Restore: ' + e.message;\n    node.warn('[Cleanup] ' + m); errors.push(m);\n}\n\n// 3. [Content_Types].xml: xlsx-Eintrag wieder entfernen\nconst aasx_dir = flow.get('aasx_dir');\ntry {\n    const ctPath = path.join(aasx_dir, '[Content_Types].xml');\n    if (fs.existsSync(ctPath)) {\n        let ctXml = fs.readFileSync(ctPath, 'utf8');\n        // Den von uns hinzugefügten Default-Eintrag für xlsx entfernen\n        const before = ctXml;\n        ctXml = ctXml.replace(/\\s*<Default Extension=\"xlsx\"[^\\/]*\\/>\\n?/g, '\\n');\n        if (ctXml !== before) {\n            fs.writeFileSync(ctPath, ctXml, 'utf8');\n            node.log('[Cleanup] xlsx-Eintrag aus [Content_Types].xml entfernt');\n        } else {\n            node.log('[Cleanup] [Content_Types].xml – kein xlsx-Eintrag gefunden (ok)');\n        }\n    }\n} catch (e) {\n    const m = 'Fehler beim ContentTypes-Restore: ' + e.message;\n    node.warn('[Cleanup] ' + m); errors.push(m);\n}\n\nif (errors.length === 0) {\n    node.status({ fill: 'green', shape: 'dot', text: '✓ Urstand hergestellt' });\n} else {\n    node.status({ fill: 'yellow', shape: 'dot', text: 'Cleanup (' + errors.length + ' Warnung(en))' });\n}\n\nmsg.result = {\n    success:     errors.length === 0,\n    aasx_output: flow.get('aasx_output'),\n    timestamp:   new Date().toISOString(),\n    errors\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2560,
+        "y": 160,
+        "wires": [
+            [
+                "141eb2e13e3ccacf"
+            ]
+        ]
+    },
+    {
+        "id": "34c876c447ced6a7",
+        "type": "comment",
+        "z": "ae62b325a6fdeec1",
+        "name": "FLOW-ÜBERSICHT  ·  v2 – xlsx in AASX einbetten + Cleanup",
+        "info": "## EMA → AAS Integration v2\n\n**Vollständiger Datenfluss:**\n1. `Inject` → startet den Flow\n2. `Pfade & Metadaten` → XLSX-Erstelldatum = time_of_simulation; alle Pfade in flow-Kontext\n3. `XLSX-to-json` → Sheet '2025 - Medienverbrauch', B5:F36\n4. `Excel-Daten verarbeiten` → Zeilen filtern, Zahlen parsen, AAS-idShort bilden\n5. `xlsx → aasx/files/ kopieren` → legt aasx/files/ an und kopiert die xlsx hinein\n6. `AAS-Pfad setzen` + `AAS XML lesen` → XML-Datei lesen\n7. `Original XML sichern` → Raw-XML-String im flow-Kontext sichern (für Cleanup)\n8. `XML parsen` → String → JS-Objekt (xml2js-Format)\n9. `AAS Submodell aktualisieren` → schreibt:\n     - `Simulation > time_of_simulation` (Geschwister von Simulation_Processes)\n     - `Simulation > export_file.value = /aasx/files/<datei>` (Geschwister)\n     - `Simulation > Simulation_Processes > {AP} > Verbrauch_Strom / Verbrauch_Wasser`\n10. `XML serialisieren` → JS-Objekt → XML-String\n11. `AAS XML speichern` → schreibt aktualisiertes XML zurück\n12. `AASX packen` → PowerShell ZipFile → Technical_Data_erweitert.aasx\n13. `Cleanup & Urstand` → löscht aasx/files/, stellt Original-XML wieder her\n\n**Voraussetzungen:**\n- Node-RED-Paket: `node-red-contrib-XLSX-to-json` (oder kompatibel)\n- Node-RED läuft auf Windows (PowerShell für AASX-Packaging)\n- Pfade in Node `Pfade & Metadaten setzen` anpassen",
+        "x": 520,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "a647b85746ea39a5",
+        "type": "function",
+        "z": "ae62b325a6fdeec1",
+        "name": "🔧 Fix XML (Namespace + Empty Lists)",
+        "func": "// ═══════════════════════════════════════════════════════════\n// FIX 1: Namespace-Korrektur\n// xml2js serialisiert xmlns manchmal als xmlns:ns0=\"...\" und\n// ändert die Versionsnummer (3/1 statt 3/0 des Originals).\n// ═══════════════════════════════════════════════════════════\nlet xmlStr = msg.payload;\n\n// a) Jegliche xmlns-Deklarationen am Root-Tag entfernen\nxmlStr = xmlStr.replace(/\\s+xmlns(?::\\w+)?=\"[^\"]*\"/g, '');\n\n// b) ns0: / ns1: Präfixe an Tag-Namen entfernen (xml2js-Artefakt)\nxmlStr = xmlStr.replace(/<(\\/?)ns\\d+:/g, '<$1');\n\n// c) Korrekten AAS-3/0-Namespace als Default-Namespace am Root einfügen\nxmlStr = xmlStr.replace(\n    /(<environment)(\\s|>)/,\n    '$1 xmlns=\"https://admin-shell.io/aas/3/0\"$2'\n);\n\nnode.log('[FixXML] Namespace: https://admin-shell.io/aas/3/0 gesetzt');\n\n// ═══════════════════════════════════════════════════════════\n// FIX 2: Leere Listen entfernen\n// aas-test-engines: \"Empty list not allowed @ .../description\"\n// xml2js parst <description/> zu description:[] oder description:[{}]\n// und serialisiert das zu <description></description> → Validierungsfehler.\n// ═══════════════════════════════════════════════════════════\nconst EMPTY_TAGS = [\n    'description', 'displayName', 'extension',\n    'embeddedDataSpecifications', 'qualifiers', 'annotations'\n];\n\nfor (const tag of EMPTY_TAGS) {\n    // <tag/>  und  <tag />\n    xmlStr = xmlStr.replace(new RegExp(`<${tag}\\\\s*/>`, 'g'), '');\n    // <tag></tag>  und  <tag>   </tag>\n    xmlStr = xmlStr.replace(new RegExp(`<${tag}[^>]*>\\\\s*</${tag}>`, 'g'), '');\n}\n\nnode.log('[FixXML] Leere Listen bereinigt: ' + EMPTY_TAGS.join(', '));\nnode.status({ fill: 'green', shape: 'dot', text: 'Fix OK – ' + xmlStr.length + ' Zeichen' });\n\nmsg.payload = xmlStr;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2140,
+        "y": 100,
+        "wires": [
+            [
+                "0c83bf3dce3f6674"
+            ]
+        ]
+    }
+]
