@@ -290,14 +290,14 @@ The knowledge graph was created using Neo4j. Neo4j is a graph database that stor
 List the exchange format and interface
 Once the data is stored in the knowledge graph, the actual use and visualization of the data can take place. Dashboards are created in Neo4j for this purpose. The dashboards are populated using queries in the knowledge graph. Queries in Neo4j are written in Cypher. The results are displayed to the user on the dashboard, and the query runs in the background without the user seeing the code. This allows engineers without an IT background to interpret the knowledge graph using the dashboards and consult it when making decisions. The data is not lost but can be utilized in an integrated manner.
 
-
+<img src="docs/img/Dataimplementationfordecisionsupport.svg" alt="Icon" width="1000">
 <em>Data implementation for decision support</em>
 
 ### Dashboards for decision support
 
 Dashboards are visual overviews that summarize key metrics and data, for example, in charts or tables. They allow users to quickly grasp complex data sets and filter them interactively without having to write queries themselves. 
 
-
+<img src="docs/img/Sampledashboards.svg" alt="Icon" width="1000">
 <em>Sample dashboards for different roles</em>
 
 # Documentation
