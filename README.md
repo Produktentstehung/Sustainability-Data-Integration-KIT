@@ -144,7 +144,7 @@ Supplier-provided sustainability information can be integrated throughout differ
 This use case supports continuous inbound enrichment of sustainability information from external partners. It enables organizations to complement internally generated values with supplier-specific data while maintaining traceability, coexistence of multiple data sources and the possibility to recalculate sustainability results as better information becomes available.
 
 <img src="docs/img/Sequence_diagram_with_marked_out_use_cases_.svg" alt="Icon" width="1450">
-Sequence diagram with marked out use cases
+<em>Sequence diagram with marked out use cases</em>
 
 ### Regulatory Relevance
 
@@ -188,7 +188,7 @@ The development view provides an overview of the features of the KIT, the necess
 ## Architecture View
 
 <img src="docs/img/General component diagram.svg" alt="Icon" width="1000">
-General component diagram
+<em>General component diagram</em>
 
 The architecture of the Decide4ECO KIT is structured around the data management tool (DMT), which is implemented using the low code plattform Node-Red. It contains a user interface (UI). The DMT controls the data flows, calls the nesseccary APIs, performs simple auxillary calculations and maps the data to the correct meta data in the AAS data model. APIs can be unidirectional as well as bidirectional. Figure 2 shows the types of components that can be connected the DMT. The DMT can connect to different third-party systems and data sources. This includes primary data like production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data as per the AAS data model (c.f. The AAS data model, submodels and costum submodels). To connect to the Tractus-X data space the DMT can also manage the connection to an EDC Connector to enable save data exchange. The last typ of component is a tool to calculate sustainability, e.g. the CO2 footprint or water usage. 
 As flexibility is a core value of the Decide4ECO KIT, third party systems, data sources, the sustainability calculation tool as well as the AAS server implementation can be chosen freely. However, for a complete minimal workflow and to use the Decide4ECO KIT an AAS server implementation, a sustainability calculation tool and at least one data source are mandatory.
@@ -196,7 +196,7 @@ As flexibility is a core value of the Decide4ECO KIT, third party systems, data 
 ## Sequence View
 
 <img src="docs/img/Generic sequnce diagram of the DMT interacting with a third-party system.svg" alt="Icon" width="1000">
-Generic sequnce diagram of the DMT interacting with a third-party system
+<em>Generic sequnce diagram of the DMT interacting with a third-party system</em>
 
 Figure shows the sequence diagram of the Decide4ECO KIT. As the Decide4ECO KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from a list of the available assets on the AAS server via the UI. The data management tool (DMT) calls the asset’s AAS via REST API and displays it to the user in the UI. Next the DMT calls the third-party tool. In the diagram, a bidirectional API call is displayed. However, data from a third-party system can also be retrieved by OPC UA or a file upload, as described in Use case 2, Use case 3 and in Use case 4. The DMT maps the retrieved data and maps it to the correct submodels and properties in the AAS. The updated AAS is displayed in the UI. Next, the sustainability calculation starts. The DMT reads the AAS and retrieves all available data relevant to the sustainabilty caculation. The data is then passed on to the calculation tool. The calculation tool returns the results which are then written to the AAS. Optionally, the data can also be written back to update the third-party system. Results are displayed in the UI.
 Depending on the number of data souces and third-party systems, the entire process can be interated several times. A higher number of data sources improves the data quality and therefore the result of the sustainability calculation. In this regard, the EDC Connector is to be treated as a data source or third-party system as it introduces new data for sustainability calculations into the system.
@@ -233,17 +233,17 @@ Sample data provided to test the Decide4ECO KIT
 ## Demonstrator Implementation in the Laboratory
 
 <img src="docs/img/Architecture overview of the demonstrator implementation.svg" alt="Icon" width="1000">
-Architecture overview of the demonstrator implementation
+<em>Architecture overview of the demonstrator implementation</em>
 
 The reference implementation was developed and implemented at the Smart Automation Lab at the Heinz Nixdorf Institute. The software was implemented using the low-code platform Node-Red. Node-Red is used to create flows that enable the necessary data flows between external (software) systems and the AAS. The Node-Red code is provided in JSON format. Figure shows an architecture overview of the demonstrator implementation in a possible environment with the data space and a decision support, which is based on the data calculated and managed within the demonstrator system. Moreover, the MX-ports “Orion”, “Leo” and “Hercules” are marked. 
 
 <img src="docs/img/Component diagram of the Decide4ECO KIT, including third party software.svg" alt="Icon" width="1000">
-Component diagram of the Decide4ECO KIT, including third party software
+<em>Component diagram of the Decide4ECO KIT, including third party software</em>
 
 The architecture of the Decide4ECO Reference implementation is structured around the data management tool, which is implemented using the low code plattform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI).
 
 <img src="docs/img/Sequence view of the Decide4ECO KIT.svg" alt="Icon" width="1000">
-Sequence view of the Decide4ECO KIT
+<em>Sequence view of the Decide4ECO KIT</em>
 
 Figure shows the sequence diagram of the Decide4ECO Reference Architecture. As the Decide4ECO KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from the PLM system by entering the PLM number into the UI. The PLM number can be retrieved by looking it up in the PLM system. The data management tool (DMT) calls this asset via REST API and receives all information on the asset as it is saved in the PLM system. Next, the DMT creates a type-AAS in the predefined configuration. More information on this configuration can be found in the AAS section. The previously retrieved asset data is now written in the AAS and displayed to the user via the UI. The DMT then reads the data from the AAS that is relevant to the sustainability calculation. In this case, openLCA is used for the calculation. The data is transferred to openLCA via API and used to calculate sustainability values. The results are returned to the DMT per REST API and the DMT updates the PLM system and the AAS and writes the data to the mapped submodel and properties. This concludes Use case 1 as an early-stage LCA based on PLM data. 
 
@@ -257,7 +257,7 @@ On the fourth iteration, the DMT connects to the EDC Connector via REST API. The
 
 The Asset Administration Shell (AAS) for the asset is created via API. The AAS API documentation is standardised and is described in the AAS standard “01002-3-0 Part 2: Application Programming Interfaces” [3]. In the reference implementation presented in this KIT, the AAS is not created entirely automatically. First, a type-AAS must be created for the respective asset and stored in the system. On this basis, instance-AASs can be created automatically. Due to this constraint, a preconfigurated AAS is stored in the system. When a new AAS is created, it automatically contains the predefined structure presented in the following. The predefined AAS contains the submodels shown in Table. 
 
-Submodels of the preconfigurated AAS data model
+<em>Submodels of the preconfigurated AAS data model</em>
 
 | Submodel name | Short name, Version | IDTA Number / Custom |
 | --- | --- | --- |
@@ -272,16 +272,23 @@ Submodels of the preconfigurated AAS data model
 The master data, which is the same for every asset, is automatically transferred from the PLM system to each AAS instance via the REST API. The same applies to other data relating to the asset type, such as simulation results, CAD models, technical data, material information and provided documents. The submodels receiving different data for each individual instance are the Submodel Collection (SMC) “Manufacturing” from the custom submodel “Data Sources”, which stores the production data send by the OPC UA servers, and “ILCD” in case data from the SMC “Manufacturing” was used to run an LCA. In case each instance is marked, for example with a QR-code, the marking may also change per instance and is stored in “Nameplate” in the Submodel Element List (SML) “Markings”. 
 
 <img src="docs/img/Diagram of the custom submodel Data Sources to store process data.svg" alt="Icon" width="1000">
-Diagram of the custom submodel "Data Sources" to store process data
+<em>Diagram of the custom submodel "Data Sources" to store process data</em>
 
 The custom submodel “Data Sources” is shown in Figure. It has the purpose to store both production data and simulation data in a process specific way. That means that data from a single process receives its own Submodel Element Collection, ensuring that process specific data does not get mixed up. It also allows the calculation of the environmental impact of a single process rather than the entire production line. The simulation result file is structured in a way that it delivers data per process. Therefore, it is beneficial to sort it into the process specific structure as well.
 
 <img src="docs/img/Diagram of the custom submodel ILCD to store LCA data from different iteration.svg" alt="Icon" width="1000">
-Diagram of the custom submodel "ILCD" to store LCA data from different iteration
+<em>Diagram of the custom submodel "ILCD" to store LCA data from different iteration</em>
 
 ## Decision support for sustainable product engineering
 
 Data collection and integration across various systems, such as LCA databases and PLM systems, was implemented in the laboratory demonstrator shown earlier. The process and product data consolidated through this implementation are used for a decision support tool. This decision support enables well-informed and targeted decisions in product engineering and is designed to empower engineers even in the early stages of the product design process through analysis and visualization of key data. As part of the decision-making process, particular emphasis is placed on sustainable product engineering, which involves integrating methods such as carbon footprint, water footprint, and effect chain analysis. The data is utilized within a knowledge graph. By designing a metadata model, the data is specifically contextualized and properly linked for analysis. Nodes and relationships were defined in advance and subsequently refined. The graph structure and metadata model are provided in JSON format. 
+
+<img src="docs/img/Metadatamodel.svg" alt="Icon" width="1000">
+<em>Metadatamodel for the knowledge graph</em>
+
+The knowledge graph was created using Neo4j. Neo4j is a graph database that stores data not in tables, but as nodes (entities) and edges (relationships). This makes it particularly well-suited for highly interconnected data, that can be analyzed and navigated directly along the relationships. The defined nodes and edges represent the structure of the knowledge graph. This graph still needs to be filled with data from the laboratory demonstrator or other data sources. Data is exchanged via the Asset Administration Shell (AAS) exchange format and through a system model of the product in a model-based systems engineering (MBSE) tool. The AAS contains sustainability metrics, product data, and material data. Requirements and functions can be derived from the system model.
+List the exchange format and interface
+The dashboards are populated using queries in the knowledge graph. Queries in Neo4j are written in Cypher. The results are displayed to the user on the dashboard, and the query runs in the background without the user seeing the code. This allows engineers without an IT background to interpret the knowledge graph using the dashboards and consult it when making decisions. The data is not lost but can be utilized in an integrated manner.
 
 # Documentation
 
