@@ -279,6 +279,10 @@ The custom submodel “Data Sources” is shown in Figure. It has the purpose to
 <img src="docs/img/Diagram of the custom submodel ILCD to store LCA data from different iteration.svg" alt="Icon" width="1000">
 Diagram of the custom submodel "ILCD" to store LCA data from different iteration
 
+## Decision support for sustainable product engineering
+
+Data collection and integration across various systems, such as LCA databases and PLM systems, was implemented in the laboratory demonstrator shown earlier. The process and product data consolidated through this implementation are used for a decision support tool. This decision support enables well-informed and targeted decisions in product engineering and is designed to empower engineers even in the early stages of the product design process through analysis and visualization of key data. As part of the decision-making process, particular emphasis is placed on sustainable product engineering, which involves integrating methods such as carbon footprint, water footprint, and effect chain analysis. The data is utilized within a knowledge graph. By designing a metadata model, the data is specifically contextualized and properly linked for analysis. Nodes and relationships were defined in advance and subsequently refined. The graph structure and metadata model are provided in JSON format. 
+
 # Documentation
 
 ## Copyright Notice
