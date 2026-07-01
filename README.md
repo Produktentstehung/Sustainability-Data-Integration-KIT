@@ -295,7 +295,7 @@ Once the data is stored in the knowledge graph, the actual use and visualization
 
 ### Dashboards for decision support
 
-Dashboards are visual overviews that summarize key metrics and data, for example, in charts or tables. They allow users to quickly grasp complex data sets and filter them interactively without having to write queries themselves. 
+Dashboards are visual overviews that summarize key metrics and data, for example, in charts or tables. They allow users to quickly grasp complex data sets and filter them interactively without having to write queries themselves. Depending on the use case, the role involved, and the method used, the sections of the dashboard look different. The graphic shows examples of various roles. The engineer receives a visualization of data quality to better assess the results of the carbon footprint and water footprint. The data analyst from the Data Science department evaluates data quality in their dashboard, which can then be displayed to the engineer. The different skills and responsibilities of these roles result in customized dashboards that meet their specific needs. The Cypher code for the dashboards is provided.
 
 <img src="docs/img/Sampledashboards.svg" alt="Icon" width="1000">
 <em>Sample dashboards for different roles</em>
