@@ -1,0 +1,1387 @@
+[
+    {
+        "id": "0fb9b33015556b16",
+        "type": "tab",
+        "label": "OLCA API - parameters",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "055c4d761b26cd7f",
+        "type": "group",
+        "z": "0fb9b33015556b16",
+        "name": "GET Shells",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "e64e813af07213ee",
+            "8bdcf85bd59b44a8",
+            "736420658e60eb94"
+        ],
+        "x": 268,
+        "y": 39,
+        "w": 518,
+        "h": 188
+    },
+    {
+        "id": "736420658e60eb94",
+        "type": "group",
+        "z": "0fb9b33015556b16",
+        "g": "055c4d761b26cd7f",
+        "name": "GET Request + Nachichten aufteilen",
+        "style": {
+            "stroke": "none",
+            "fill": "#61AFFE",
+            "label": true,
+            "color": "#ffffff"
+        },
+        "nodes": [
+            "84d5426423d6d0e4"
+        ],
+        "x": 294,
+        "y": 119,
+        "w": 235,
+        "h": 82
+    },
+    {
+        "id": "99f7bd762992eb08",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "1. Start calculation",
+        "func": "// Warteschlange aus dem Dropdown auslesen (enthält direkt die UUIDs)\nlet selectedMethodUUIDs = flow.get(\"selectedMethods\") || [];\nlet currentIndex = flow.get(\"methodQueueIndex\");\n\n// Erststart initialisieren\nif (currentIndex === undefined) {\n    currentIndex = 0;\n    flow.set(\"methodQueueIndex\", currentIndex);\n    flow.set(\"aggregatedPcfResults\", []); // Hier sammeln wir alle Ergebnisse\n}\n\n// Fallback, falls der Trigger ohne Auswahl betätigt wurde\nif (selectedMethodUUIDs.length === 0) {\n    node.error(\"Keine Impact Method im Dropdown ausgewählt!\", msg);\n    return null;\n}\n\n// Prüfen, ob alle ausgewählten Methoden berechnet wurden\nif (currentIndex >= selectedMethodUUIDs.length) {\n    // Schleife beendet -> Index zurücksetzen für den nächsten globalen Durchlauf\n    flow.set(\"methodQueueIndex\", undefined);\n    \n    // Die gesammelten Ergebnisse in den Payload schreiben\n    msg.payload = flow.get(\"aggregatedPcfResults\");\n    flow.set(\"step\", \"done\"); \n    \n    // Wir senden das Ergebnis exklusiv an den ZWEITEN Ausgang\n    return [null, msg];\n}\n\n// Aktuelle UUID für diesen Durchlauf holen und im Kontext sichern\nconst currentMethodUUID = selectedMethodUUIDs[currentIndex];\nconst currentMethodName = flow.get('selectedMethodNames')[currentIndex];\nflow.set(\"currentMethodUUID\", currentMethodUUID);\nflow.set('currentMethodName', currentMethodName);\n\nflow.set(\"step\", \"calculate\");\nmsg.url = \"http://localhost:8080\";\n\n// Deine vordefinierten Prozesse und Parameter-Redefinitionen\nconst processes = [\n  {\n    name: \"Bolzen\",\n    uuid: \"90291baa-d449-4afc-9d2a-01e8e650afd8\",\n    params: { Menge_Stahl_Bolzen: 0.00082, Menge_Aluminium_Bolzen: 0.00010, Energieverbrauch_Bolzen: 0.0035 }\n  },\n  {\n    name: \"Feder\",\n    uuid: \"fbe7bd7c-dfb7-4f81-ba55-be282f6460bf\",\n    params: { Menge_Stahl_Feder: 0.00046, Energieverbrauch_Feder: 0.0023 }\n  },\n  {\n    name: \"Gehäuse\",\n    uuid: \"099a8043-4cb5-46f3-936b-2525547b7430\",\n    params: { Menge_Kunststoff_Gehaeuse: 0.0084, Energieverbrauch_Gehaeuse: 0.015 }\n  },\n  {\n    name: \"Kappe\",\n    uuid: \"b27161b9-399f-4318-971c-333a38890cf2\",\n    params: { Menge_Kunststoff_Kappe: 0.0012, Energieverbrauch_Kappe: 0.003 }\n  },\n  {\n    name: \"Mine\",\n    uuid: \"df348398-e4b7-49f9-bd14-263d91b4fa03\",\n    params: { Menge_Kunststoff_Mine: 0.0008, Menge_Tinte_Mine: 0.001, Energieverbrauch_Mine: 0.004 }\n  }\n];\n\nconst parameterRedefs = [];\nfor (const proc of processes) {\n  for (const [paramName, paramValue] of Object.entries(proc.params)) {\n    parameterRedefs.push({\n      \"@type\": \"ParameterRedef\",\n      name: paramName,\n      value: paramValue,\n      context: { \"@type\": \"Process\", \"@id\": proc.uuid }\n    });\n  }\n}\n\n// JSON-RPC Payload zusammenbauen\nmsg.payload = {\n  jsonrpc: \"2.0\",\n  id: 1,\n  method: \"result/calculate\",\n  params: {\n    \"@type\": \"CalculationSetup\",\n    target: {\n      \"@type\": \"ProductSystem\",\n      \"@id\": \"78d8a79f-218d-4be9-bae4-06bca0ec5c66\"\n    },\n    impactMethod: {\n      \"@type\": \"ImpactMethod\",\n      \"@id\": currentMethodUUID // Direkte Nutzung der UUID aus dem Dropdown!\n    },\n    amount: 25,\n    parameterRedefs: parameterRedefs\n  }\n};\n\n// Berechnungsaufruf an den ERSTEN Ausgang senden\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1450,
+        "y": 480,
+        "wires": [
+            [
+                "6c518c2fe0795bd4"
+            ],
+            [
+                "4b174e4b8c7c23f0"
+            ]
+        ]
+    },
+    {
+        "id": "6c518c2fe0795bd4",
+        "type": "http request",
+        "z": "0fb9b33015556b16",
+        "name": "POST → OpenLCA IPC",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8080",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1740,
+        "y": 480,
+        "wires": [
+            [
+                "559ef2ada55ccf4c",
+                "eaf174334b1f3a5a"
+            ]
+        ]
+    },
+    {
+        "id": "559ef2ada55ccf4c",
+        "type": "switch",
+        "z": "0fb9b33015556b16",
+        "name": "Which step?",
+        "property": "step",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "calculate",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "check-state",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "get-impacts",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "dispose",
+                "vt": "str"
+            }
+        ],
+        "repair": false,
+        "outputs": 4,
+        "x": 1950,
+        "y": 540,
+        "wires": [
+            [
+                "b3047e0ddd50cbfd"
+            ],
+            [
+                "0eb852d89f33ea07"
+            ],
+            [
+                "110c32a6dd7313c8"
+            ],
+            [
+                "99f7bd762992eb08"
+            ]
+        ]
+    },
+    {
+        "id": "b3047e0ddd50cbfd",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "Store result ID → check state",
+        "func": "if (msg.payload.error) {\n  node.error(\"Calculate error: \" + msg.payload.error.message, msg);\n  return null;\n}\n\nconst resultId = msg.payload.result?.[\"@id\"];\nif (!resultId) {\n  node.error(\"No result ID returned: \" + JSON.stringify(msg.payload), msg);\n  return null;\n}\n\nflow.set(\"resultId\", resultId);\nflow.set(\"step\", \"check-state\");\n\nmsg.payload = {\n  jsonrpc: \"2.0\",\n  id: 2,\n  method: \"result/state\",\n  params: { \"@type\": \"Result\", \"@id\": resultId }\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1480,
+        "y": 600,
+        "wires": [
+            [
+                "6c518c2fe0795bd4"
+            ]
+        ]
+    },
+    {
+        "id": "0eb852d89f33ea07",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "Ready? → get impacts or wait",
+        "func": "if (msg.payload.error) {\n  node.error(\"State error: \" + msg.payload.error.message, msg);\n  return null;\n}\n\nconst state = msg.payload.result;\nconst resultId = flow.get(\"resultId\");\n\nif (state?.isReady === true) {\n  flow.set(\"step\", \"get-impacts\");\n  msg.payload = {\n    jsonrpc: \"2.0\",\n    id: 3,\n    method: \"result/total-impacts\",\n    params: { \"@type\": \"Result\", \"@id\": resultId }\n  };\n  return [msg, null];\n} else {\n  flow.set(\"step\", \"check-state\");\n  msg.payload = {\n    jsonrpc: \"2.0\",\n    id: 2,\n    method: \"result/state\",\n    params: { \"@type\": \"Result\", \"@id\": resultId }\n  };\n  return [null, msg];\n}",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1480,
+        "y": 700,
+        "wires": [
+            [
+                "6c518c2fe0795bd4"
+            ],
+            [
+                "9c455e67ba09ba6b"
+            ]
+        ]
+    },
+    {
+        "id": "9c455e67ba09ba6b",
+        "type": "delay",
+        "z": "0fb9b33015556b16",
+        "name": "Wait 500ms",
+        "pauseType": "delay",
+        "timeout": "500",
+        "timeoutUnits": "milliseconds",
+        "rate": "",
+        "nbRateUnits": "",
+        "randomFirst": "",
+        "randomLast": "",
+        "randomUnits": "seconds",
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1710,
+        "y": 760,
+        "wires": [
+            [
+                "6c518c2fe0795bd4"
+            ]
+        ]
+    },
+    {
+        "id": "110c32a6dd7313c8",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "Parse PCF → dispose",
+        "func": "if (msg.payload && msg.payload.error) {\n  node.error(\"Impacts error: \" + msg.payload.error.message, msg);\n  return null;\n}\n\n// openLCA packt die Liste der Indikatoren in .result, falls es ein Standard-JSON-RPC-Response ist.\n// Falls nicht, nehmen wir das Payload direkt.\nlet impacts = [];\nif (msg.payload) {\n  if (Array.isArray(msg.payload.result)) {\n    impacts = msg.payload.result;\n  } else if (Array.isArray(msg.payload)) {\n    impacts = msg.payload;\n  }\n}\n\n// Dynamisches Mapping aller zurückgegebenen Impact-Kategorien\nconst parsedImpacts = impacts.map(r => ({\n  category: r.impactCategory?.name,\n  value: r.amount,\n  unit: r.impactCategory?.refUnit\n}));\n\n// Aktuelle Methoden-UUID aus dem Kontext ziehen\nconst activeMethodUUID = flow.get(\"currentMethodUUID\") || \"Unbekannte UUID\";\nconst activeMethodName = flow.get('currentMethodName') || \"Undefined\";\n\n// Einzel-Ergebnisobjekt aufbauen\nconst singleResult = {\n  processName: \"LCA Prozess: Kugelschreiber TRACEpen\",\n  processUUID: \"78d8a79f-218d-4be9-bae4-06bca0ec5c66\",\n  impactMethod: activeMethodUUID,\n  impactMethodName: activeMethodName,\n  targetOutput: \"25 Stück\",\n  allImpacts: parsedImpacts, // Jetzt prall gefüllt!\n  calculatedAt: new Date().toISOString()\n};\n\n// In das globale Array im Flow-Kontext pushen\nlet aggregatedResults = flow.get(\"aggregatedPcfResults\") || [];\naggregatedResults.push(singleResult);\nflow.set(\"aggregatedPcfResults\", aggregatedResults);\n\n// Index für die Warteschlange um 1 erhöhen\nlet currentIndex = flow.get(\"methodQueueIndex\") || 0;\nflow.set(\"methodQueueIndex\", currentIndex + 1);\n\n// Speicherbereinigung in openLCA einleiten\nflow.set(\"step\", \"dispose\");\nmsg.payload = {\n  jsonrpc: \"2.0\",\n  id: 4,\n  method: \"result/dispose\",\n  params: { \"@type\": \"Result\", \"@id\": flow.get(\"resultId\") }\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1480,
+        "y": 840,
+        "wires": [
+            [
+                "6c518c2fe0795bd4"
+            ]
+        ]
+    },
+    {
+        "id": "4b174e4b8c7c23f0",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "Output final result",
+        "func": "// Nimmt das fertige Array aus dem Payload entgegen und leitet es an die UI/Debug weiter\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1480,
+        "y": 940,
+        "wires": [
+            [
+                "b41966b23c0349ad",
+                "2fbd9ff2f64732d8"
+            ]
+        ]
+    },
+    {
+        "id": "b41966b23c0349ad",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "PCF Result",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "payload",
+        "statusType": "auto",
+        "x": 1690,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "eaf174334b1f3a5a",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 54",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1850,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "044be5210f9d2e23",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "get Shell IDs",
+        "func": "let shells = msg.payload.result;  // assuming the HTTP node outputs parsed JSON\nlet options = [];\n\nfor (let shell of shells) {\n    options.push({\n        label: shell.idShort,   // what the user sees\n        value: shell.id         // what is sent when chosen\n    });\n}\n\n// Send update to dropdown\nmsg.ui_update = {\n    options: options\n};\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 280,
+        "wires": [
+            [
+                "b4a7e14985e2f2c8",
+                "210439059e4537c7"
+            ]
+        ]
+    },
+    {
+        "id": "3a1128e0919c8543",
+        "type": "change",
+        "z": "0fb9b33015556b16",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "dashboardShell",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 560,
+        "y": 280,
+        "wires": [
+            [
+                "82bd023bcea01428",
+                "facb8d536e07c776"
+            ]
+        ]
+    },
+    {
+        "id": "b4a7e14985e2f2c8",
+        "type": "ui-dropdown",
+        "z": "0fb9b33015556b16",
+        "group": "37a6e0ab0382681b",
+        "name": "Shell Dropdown",
+        "label": "Shell wählen:",
+        "tooltip": "",
+        "order": 3,
+        "width": "3",
+        "height": "1",
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": true,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 340,
+        "y": 280,
+        "wires": [
+            [
+                "3a1128e0919c8543"
+            ]
+        ]
+    },
+    {
+        "id": "d422e4405e88b494",
+        "type": "ui-button",
+        "z": "0fb9b33015556b16",
+        "group": "37a6e0ab0382681b",
+        "name": "refresh",
+        "label": "Shells neu laden",
+        "order": 6,
+        "width": "2",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "refresh",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 120,
+        "y": 160,
+        "wires": [
+            [
+                "84d5426423d6d0e4"
+            ]
+        ]
+    },
+    {
+        "id": "210439059e4537c7",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 59",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 260,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "e64e813af07213ee",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "g": "055c4d761b26cd7f",
+        "name": "debug 60",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload.result",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 680,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "8bdcf85bd59b44a8",
+        "type": "comment",
+        "z": "0fb9b33015556b16",
+        "g": "055c4d761b26cd7f",
+        "name": "(ggf.) Liste von bestehenden Shells abfragen",
+        "info": "GET Request, zeigt alle aktuell verfügbaren Shells an.\nDie Split Nodes teilen die Antwort so auf, dass jede Shell in einer eigenen Msg gesendet wird, zur Übersicht.",
+        "x": 470,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "84d5426423d6d0e4",
+        "type": "http request",
+        "z": "0fb9b33015556b16",
+        "g": "736420658e60eb94",
+        "name": "GET shells",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8081/shells",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 390,
+        "y": 160,
+        "wires": [
+            [
+                "e64e813af07213ee",
+                "044be5210f9d2e23"
+            ]
+        ]
+    },
+    {
+        "id": "779ea55264bc5b4c",
+        "type": "ui-dropdown",
+        "z": "0fb9b33015556b16",
+        "group": "37a6e0ab0382681b",
+        "name": "",
+        "label": "Impact Method auswählen:",
+        "tooltip": "",
+        "order": 8,
+        "width": "4",
+        "height": "1",
+        "passthru": false,
+        "multiple": true,
+        "chips": false,
+        "clearable": true,
+        "options": [
+            {
+                "label": "AWARE",
+                "value": "d07113f5-5b74-3af3-84ae-9548cbceafd3 | AWARE",
+                "type": "str"
+            },
+            {
+                "label": "BEES+",
+                "value": "3905f4a1-6244-3748-b0b5-04e03262c5a8 | BEES+",
+                "type": "str"
+            },
+            {
+                "label": "Berger et al 2014 (Water Scarcity)",
+                "value": "f1565e3e-245a-3d5a-9c02-8b792c3cafaa | Berger et al 2014 (Water Scarcity)",
+                "type": "str"
+            },
+            {
+                "label": "Boulay et al 2011 (Human Health)",
+                "value": "3f290cab-a3ac-38af-b940-f31faf74cbe4 | Boulay et al 2011 (Human Health)",
+                "type": "str"
+            },
+            {
+                "label": "Boulay et al 2011 (Water Scarcity)",
+                "value": "3c7418c4-b970-39ea-9ecf-b351266877f6 | Boulay et al 2011 (Water Scarcity)",
+                "type": "str"
+            },
+            {
+                "label": "CML-IA baseline",
+                "value": "effb055a-ad78-39bd-8dc0-341411db4ae7 | CML-IA baseline",
+                "type": "str"
+            },
+            {
+                "label": "CML-IA non-baseline",
+                "value": "46f19b82-ee92-3ff9-b909-d7cab2647b16 | CML-IA non-baseline",
+                "type": "str"
+            },
+            {
+                "label": "Crustal Scarcity Indicator",
+                "value": "f79fcbc9-24b4-4bb7-beba-c839850fe37f | Crustal Scarcity Indicator",
+                "type": "str"
+            },
+            {
+                "label": "Cumulative Energy Demand",
+                "value": "be749018-2f47-3c25-819e-6e0c6fca1cb5 | Cumulative Energy Demand",
+                "type": "str"
+            },
+            {
+                "label": "Cumulative Energy Demand (LHV)",
+                "value": "2f77143f-7956-3d12-9cab-6d9fbfc2f970 | Cumulative Energy Demand (LHV)",
+                "type": "str"
+            },
+            {
+                "label": "Cumulative Exergy Demand",
+                "value": "b0cea729-49fd-334b-ac83-e90fa2202437 | Cumulative Exergy Demand",
+                "type": "str"
+            },
+            {
+                "label": "Eco-costs 2023 V1.0",
+                "value": "4ed61c0b-c06e-47a3-931e-28ec69498a91 | Eco-costs 2023 V1.0",
+                "type": "str"
+            },
+            {
+                "label": "Ecological Scarcity 2006 (Water Scarcity)",
+                "value": "b28b29e5-efb8-3964-8c40-08ad5ce4858a | Ecological Scarcity 2006 (Water Scarcity)",
+                "type": "str"
+            },
+            {
+                "label": "Ecological Scarcity 2013",
+                "value": "b06c6f15-21bc-4dad-a5a9-d399235a3b48 | Ecological Scarcity 2013",
+                "type": "str"
+            },
+            {
+                "label": "Ecosystem Damage Potential",
+                "value": "49beff5f-2ecb-3ce4-82f5-4003815edeaf | Ecosystem Damage Potential",
+                "type": "str"
+            },
+            {
+                "label": "EDIP 2003",
+                "value": "ae266ddc-ff35-3a5b-be2e-5a2021226227 | EDIP 2003",
+                "type": "str"
+            },
+            {
+                "label": "EF 3.0 Method (adapted)",
+                "value": "b4571628-4b7b-3e4f-81b1-9a8cca6cb3f8 | EF 3.0 Method (adapted)",
+                "type": "str"
+            },
+            {
+                "label": "EF Method (adapted)",
+                "value": "b0f6a3ba-a0be-3bfe-ae43-4e23c241e4b6 | EF Method (adapted)",
+                "type": "str"
+            },
+            {
+                "label": "EN 15804 +A2 Method",
+                "value": "a4fa1dc6-317b-30ad-b2eb-6744ff77dcf0 | EN 15804 +A2 Method",
+                "type": "str"
+            },
+            {
+                "label": "Environmental Prices",
+                "value": "27407857-2131-3ba5-883a-8ef69088d36a | Environmental Prices",
+                "type": "str"
+            },
+            {
+                "label": "EPD (2018)",
+                "value": "83812f2a-8272-3244-91a5-20ca745f0902 | EPD (2018)",
+                "type": "str"
+            },
+            {
+                "label": "EPS 2015d",
+                "value": "89c872c4-f1f6-39c3-a49f-f50ded7b632f | EPS 2015d",
+                "type": "str"
+            },
+            {
+                "label": "EPS 2015dx",
+                "value": "aa52ffdd-fd6a-3c50-a10d-dbcb1ba207b2 | EPS 2015dx",
+                "type": "str"
+            },
+            {
+                "label": "Hoekstra et al 2012 (Water Scarcity)",
+                "value": "bfb6bd35-2943-3d22-bcfd-8bfacdddacd8 | Hoekstra et al 2012 (Water Scarcity)",
+                "type": "str"
+            },
+            {
+                "label": "ILCD 2011 Midpoint+",
+                "value": "84b7e3f4-2898-3d5a-980a-faea0b995bdb | ILCD 2011 Midpoint+",
+                "type": "str"
+            },
+            {
+                "label": "IMPACT 2002+",
+                "value": "6b0c5e8a-8e8a-3679-a591-41f944e83bfd | IMPACT 2002+",
+                "type": "str"
+            },
+            {
+                "label": "IPCC 2013 GWP 100a",
+                "value": "787c02f1-d1f2-36d6-8e06-2307cc3ebebc | IPCC 2013 GWP 100a",
+                "type": "str"
+            },
+            {
+                "label": "IPCC 2013 GWP 100a (incl. CO2 uptake)",
+                "value": "357624c3-da2e-4519-b902-9dbbbd1a71f5 | IPCC 2013 GWP 100a (incl. CO2 uptake)",
+                "type": "str"
+            },
+            {
+                "label": "IPCC 2013 GWP 20a",
+                "value": "2d4fec29-3ff5-3499-8dcd-dc085c76c454 | IPCC 2013 GWP 20a",
+                "type": "str"
+            },
+            {
+                "label": "Motoshita et al 2010 (Human Health)",
+                "value": "00348e72-2710-3554-a7ee-a6b36d360701 | Motoshita et al 2010 (Human Health)",
+                "type": "str"
+            },
+            {
+                "label": "Pfister et al 2009 (Eco-indicator 99)",
+                "value": "e222b6d0-1232-386e-ac14-52bc4d18c571 | Pfister et al 2009 (Eco-indicator 99)",
+                "type": "str"
+            },
+            {
+                "label": "Pfister et al 2009 (Water Scarcity)",
+                "value": "347b27b7-9c49-3424-b0ce-bada2fe8df95 | Pfister et al 2009 (Water Scarcity)",
+                "type": "str"
+            },
+            {
+                "label": "Pfister et al 2010 (ReCiPe)",
+                "value": "4c93a729-bc72-3938-b608-cbd95d2318a5 | Pfister et al 2010 (ReCiPe)",
+                "type": "str"
+            },
+            {
+                "label": "ReCiPe 2016 Endpoint (E)",
+                "value": "3b7b6f24-9809-3b46-a0be-2f09892ab9eb | ReCiPe 2016 Endpoint (E)",
+                "type": "str"
+            },
+            {
+                "label": "ReCiPe 2016 Endpoint (H)",
+                "value": "692b670c-b4e9-3ded-b7b0-a84b00d39bdc | ReCiPe 2016 Endpoint (H)",
+                "type": "str"
+            },
+            {
+                "label": "ReCiPe 2016 Endpoint (I)",
+                "value": "183b58c6-44f8-353b-9c75-1cc3d8fe0274 | ReCiPe 2016 Endpoint (I)",
+                "type": "str"
+            },
+            {
+                "label": "ReCiPe 2016 Midpoint (E)",
+                "value": "47461eb7-ac98-3242-97e8-760434380369 | ReCiPe 2016 Midpoint (E)",
+                "type": "str"
+            },
+            {
+                "label": "ReCiPe 2016 Midpoint (H)",
+                "value": "2e5cd15d-d539-3141-a950-56d75df9d579 | ReCiPe 2016 Midpoint (H)",
+                "type": "str"
+            },
+            {
+                "label": "ReCiPe 2016 Midpoint (I)",
+                "value": "cdc94b11-9a31-3229-a2d4-5b78c2dc7e86 | ReCiPe 2016 Midpoint (I)",
+                "type": "str"
+            },
+            {
+                "label": "Selected LCI results",
+                "value": "3a748812-7a13-3d2a-b663-6b62f7878bf9 | Selected LCI results",
+                "type": "str"
+            },
+            {
+                "label": "Selected LCI results, additional",
+                "value": "09e9337a-b9ee-3e88-aaaf-bbff90744119 | Selected LCI results, additional",
+                "type": "str"
+            },
+            {
+                "label": "TRACI 2.1",
+                "value": "d2c781ce-21b4-3218-8fca-78133f2c8d4d | TRACI 2.1",
+                "type": "str"
+            },
+            {
+                "label": "USEtox 2 (recommended + interim)",
+                "value": "5eb764ea-3f85-33f2-b99c-fc8c5b832f99 | USEtox 2 (recommended + interim)",
+                "type": "str"
+            },
+            {
+                "label": "USEtox 2 (recommended only)",
+                "value": "af11ef29-8b3a-37ba-acc5-a7d01a871386 | USEtox 2 (recommended only)",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onClose",
+        "x": 1360,
+        "y": 200,
+        "wires": [
+            [
+                "ee86d0b208491348",
+                "5b375ec393ecb901"
+            ]
+        ]
+    },
+    {
+        "id": "0677ba2f9cb3948e",
+        "type": "ui-button",
+        "z": "0fb9b33015556b16",
+        "group": "37a6e0ab0382681b",
+        "name": "Berechnung starten",
+        "label": "Berechnung starten",
+        "order": 9,
+        "width": "2",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "green",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 1330,
+        "y": 360,
+        "wires": [
+            [
+                "99f7bd762992eb08",
+                "866958ac94be8fc3"
+            ]
+        ]
+    },
+    {
+        "id": "2fbd9ff2f64732d8",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "Format to Markdown",
+        "func": "const results = msg.payload;\nmsg.results = results;\n\nif (!Array.isArray(results) || results.length === 0) {\n    msg.payload = \"<div style='color: var(--md-sys-color-error, #ff0000); font-weight: bold;'>⚠ Keine LCA-Ergebnisse zur Anzeige vorhanden.</div>\";\n    return msg;\n}\n\n// CSS-Styles für eine saubere Dashboard-Tabelle definieren\nlet html = `\n<style>\n    .lca-container { font-family: sans-serif; padding: 8px; }\n    .lca-title { margin-bottom: 4px; font-size: 1.4rem; font-weight: bold; }\n    .lca-meta { font-size: 0.9rem; color: #777; margin-bottom: 16px; }\n    .lca-method-section { margin-top: 24px; }\n    .lca-method-title { font-size: 1.15rem; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }\n    .lca-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; background: transparent; }\n    .lca-table th { text-align: left; padding: 10px; font-weight: bold; border-bottom: 2px solid var(--v-border-color, #ccc); }\n    .lca-table td { padding: 8px 10px; border-bottom: 1px solid var(--v-border-color, #eee); }\n    .lca-table tr:hover { background-color: rgba(0,0,0,0.03); }\n    .text-right { text-align: right; }\n    .text-center { text-align: center; }\n</style>\n<div class=\"lca-container\">\n    <div class=\"lca-title\">📊 Ökobilanz-Auswertung (LCA Results)</div>\n    <div class=\"lca-meta\">\n        <strong>System:</strong> ${results[0].processName}<br>\n        <strong>Menge:</strong> ${results[0].targetOutput}<br>\n        <em>Berechnet am: ${new Date(results[0].calculatedAt).toLocaleString(\"de-DE\")}</em>\n    </div>\n`;\n\n// Schleife generiert NUR Tabellen für Methoden, die tatsächlich im Array stecken\nresults.forEach((res, index) => {\n    const methodName = res.impactMethodName || `Methode (${res.impactMethod.substring(0,8)}...)`;\n    \n    html += `\n    <div class=\"lca-method-section\">\n        <div class=\"lca-method-title\">🌍 ${index + 1}. ${methodName}</div>\n    `;\n    \n    if (!res.allImpacts || res.allImpacts.length === 0) {\n        html += `<p style=\"font-style: italic; color: #888;\">Keine Indikatoren für diese Methode vorhanden.</p></div>`;\n        return;\n    }\n\n    html += `\n        <table class=\"lca-table\">\n            <thead>\n                <tr>\n                    <th>Wirkungskategorie</th>\n                    <th class=\"text-right\">Wert</th>\n                    <th class=\"text-center\">Einheit</th>\n                </tr>\n            </thead>\n            <tbody>\n    `;\n    \n    res.allImpacts.forEach(imp => {\n        let formattedValue = imp.value;\n        if (typeof imp.value === 'number') {\n            if (imp.value === 0) {\n                formattedValue = \"0\";\n            } else if (imp.value < 0.001 && imp.value > 0) {\n                formattedValue = imp.value.toExponential(4);\n            } else {\n                formattedValue = imp.value.toLocaleString(\"de-DE\", { minimumFractionDigits: 2, maximumFractionDigits: 4 });\n            }\n        }\n        \n        html += `\n            <tr>\n                <td><strong>${imp.category}</strong></td>\n                <td class=\"text-right\">${formattedValue}</td>\n                <td class=\"text-center\" style=\"color: #666;\">${imp.unit}</td>\n            </tr>\n        `;\n    });\n    \n    html += `\n            </tbody>\n        </table>\n    </div>\n    `;\n});\n\nhtml += `</div>`;\n\nmsg.payload = html;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1670,
+        "y": 1040,
+        "wires": [
+            [
+                "ca0c4b9c2da45ec4"
+            ]
+        ]
+    },
+    {
+        "id": "ca0c4b9c2da45ec4",
+        "type": "ui-template",
+        "z": "0fb9b33015556b16",
+        "group": "da82d742b8ae8170",
+        "page": "",
+        "ui": "",
+        "name": "Ergebnisse",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1950,
+        "y": 1060,
+        "wires": [
+            [
+                "1d53801ce466a85b"
+            ]
+        ]
+    },
+    {
+        "id": "8f3d5d75021ae734",
+        "type": "base64",
+        "z": "0fb9b33015556b16",
+        "name": "",
+        "action": "str",
+        "property": "ilcdSubmodel",
+        "x": 700,
+        "y": 440,
+        "wires": [
+            [
+                "1b916f28b791d1af"
+            ]
+        ]
+    },
+    {
+        "id": "0ae36dfbe0ec5d55",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 63",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "submodelID",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 660,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "facb8d536e07c776",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "set submodelIDs",
+        "func": "msg.ilcdSubmodel = global.get(\"dashboardShell\") + \"/ILCD\";\nmsg.dsSubmodel = global.get(\"dashboardShell\") + \"/DataSources\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 460,
+        "wires": [
+            [
+                "8f3d5d75021ae734",
+                "0ae36dfbe0ec5d55",
+                "b288da8f3348aaa9"
+            ]
+        ]
+    },
+    {
+        "id": "82bd023bcea01428",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 64",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 780,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "a02869036e4113b1",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "refill submodel",
+        "func": "// Ergebnisse robust holen (falls msg.results an dieser Stelle nicht mehr vorhanden ist)\nconst results = msg.results || flow.get('aggregatedPcfResults') || [];\n\nmsg.ilcdSubmodel = flow.get('ilcdSubmodel');\n\nif (msg.payload && msg.payload.submodelElements && msg.payload.submodelElements[0]) {\n\n    const lcaIteration = msg.payload.submodelElements[0].value[0];\n\n    // set SMC id\n    lcaIteration.idShort = \"PLM\";\n\n    // set SMC elements\n    lcaIteration.value[0].value = \"PLM\";                        // DataSource\n    lcaIteration.value[1].value = results[0]?.calculatedAt;     // TimeOfLCA\n    lcaIteration.value[2].value = msg.partWeight;               // WeightOfPart\n    lcaIteration.value[3].value = results[0]?.targetOutput;     // TargetOutput\n    // lcaIteration.value[2] -> WeightOfPart, ggf. separat befüllen\n\n    // Einfügen der SML für jede genutzte LCIA Method\n    const lciaMethodsSML = lcaIteration.value.find(el => el.idShort === \"LCIAMethods\");\n\n    if (lciaMethodsSML) {\n        lciaMethodsSML.value = results.map(result => {\n            const methodName = sanitizeIdShort(result.impactMethodName || result.impactMethod);\n\n            return {\n                modelType: \"SubmodelElementCollection\",\n                idShort: methodName,\n                value: (result.allImpacts || []).map(impact => ({\n                    modelType: \"SubmodelElementCollection\",\n                    idShort: sanitizeIdShort(impact.category),\n                    value: [\n                        {\n                            modelType: \"Property\",\n                            valueType: \"xs:double\",\n                            idShort: \"Value\",\n                            value: impact.value != null ? String(impact.value) : \"\"\n                        },\n                        {\n                            modelType: \"Property\",\n                            valueType: \"xs:string\",\n                            idShort: \"Unit\",\n                            value: impact.unit || \"\"\n                        }\n                    ]\n                }))\n            };\n        });\n    } else {\n        node.warn(\"SML 'LCIAMethods' im Submodell nicht gefunden!\");\n    }\n}\n\nreturn msg;\n\n// Hilfsfunktion: erzeugt gültige idShort-Werte (AAS: keine Leerzeichen/Sonderzeichen, nicht mit Ziffer beginnend)\nfunction sanitizeIdShort(str) {\n    if (!str) return \"Unbekannt\";\n    return str.toString()\n        .trim()\n        .replace(/[^A-Za-z0-9_]/g, \"_\")\n        .replace(/^[0-9]/, \"_$&\");\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3240,
+        "y": 680,
+        "wires": [
+            [
+                "dd9ad5cbe4eca94e",
+                "ed5d2d61df6289ed"
+            ]
+        ]
+    },
+    {
+        "id": "dd9ad5cbe4eca94e",
+        "type": "http request",
+        "z": "0fb9b33015556b16",
+        "name": "PUT submodel",
+        "method": "PUT",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8081/submodels/{{{ilcdSubmodel}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "Content-Type",
+                "keyValue": "",
+                "valueType": "application/json",
+                "valueValue": ""
+            }
+        ],
+        "x": 3420,
+        "y": 680,
+        "wires": [
+            [
+                "a5e0f4201af86039"
+            ]
+        ]
+    },
+    {
+        "id": "ee86d0b208491348",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "function 1",
+        "func": "const uuids = [];\nconst methodNames = [];\n\nmsg.payload.forEach(item => {\n    const parts = item.split(\" | \");\n    uuids.push(parts[0]);\n    methodNames.push(parts[1]);\n});\n\nflow.set(\"selectedMethods\", uuids);\nflow.set(\"selectedMethodNames\", methodNames);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1610,
+        "y": 180,
+        "wires": [
+            [
+                "334afb7a9f537bb2"
+            ]
+        ]
+    },
+    {
+        "id": "334afb7a9f537bb2",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 65",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1790,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "866958ac94be8fc3",
+        "type": "change",
+        "z": "0fb9b33015556b16",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "Berechnung wird ausgeführt...",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1570,
+        "y": 360,
+        "wires": [
+            [
+                "ca0c4b9c2da45ec4"
+            ]
+        ]
+    },
+    {
+        "id": "5b375ec393ecb901",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 66",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1530,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "1d53801ce466a85b",
+        "type": "switch",
+        "z": "0fb9b33015556b16",
+        "name": "if global.dashboardShell",
+        "property": "dashboardShell",
+        "propertyType": "global",
+        "rules": [
+            {
+                "t": "nempty"
+            },
+            {
+                "t": "empty"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 2260,
+        "y": 760,
+        "wires": [
+            [
+                "23279efa0b9e21fc"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "a5e0f4201af86039",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 67",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 3580,
+        "y": 640,
+        "wires": []
+    },
+    {
+        "id": "1b916f28b791d1af",
+        "type": "change",
+        "z": "0fb9b33015556b16",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ilcdSubmodel",
+                "pt": "flow",
+                "to": "ilcdSubmodel",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 910,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2bc2a2df89eeb827",
+        "type": "http request",
+        "z": "0fb9b33015556b16",
+        "name": "GET ILCDsubmodel",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8081/submodels/{{{ilcdSubmodel}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 3020,
+        "y": 640,
+        "wires": [
+            [
+                "9274271ae6944517",
+                "a02869036e4113b1"
+            ]
+        ]
+    },
+    {
+        "id": "9274271ae6944517",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 62",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 3200,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "23279efa0b9e21fc",
+        "type": "change",
+        "z": "0fb9b33015556b16",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "ilcdSubmodel",
+                "pt": "msg",
+                "to": "ilcdSubmodel",
+                "tot": "flow"
+            },
+            {
+                "t": "set",
+                "p": "dsSubmodel",
+                "pt": "msg",
+                "to": "dsSubmodel",
+                "tot": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 2510,
+        "y": 720,
+        "wires": [
+            [
+                "24b0f62991f7ef1f"
+            ]
+        ]
+    },
+    {
+        "id": "ed5d2d61df6289ed",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 68",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 3380,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "b288da8f3348aaa9",
+        "type": "base64",
+        "z": "0fb9b33015556b16",
+        "name": "",
+        "action": "str",
+        "property": "dsSubmodel",
+        "x": 700,
+        "y": 500,
+        "wires": [
+            [
+                "bda27b516091b52d"
+            ]
+        ]
+    },
+    {
+        "id": "bda27b516091b52d",
+        "type": "change",
+        "z": "0fb9b33015556b16",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "dsSubmodel",
+                "pt": "flow",
+                "to": "dsSubmodel",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 900,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24b0f62991f7ef1f",
+        "type": "http request",
+        "z": "0fb9b33015556b16",
+        "name": "GET DSsubmodel",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "http://localhost:8081/submodels/{{{dsSubmodel}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2710,
+        "y": 720,
+        "wires": [
+            [
+                "81e6be51cc761e47",
+                "19b6415cfee82124"
+            ]
+        ]
+    },
+    {
+        "id": "81e6be51cc761e47",
+        "type": "function",
+        "z": "0fb9b33015556b16",
+        "name": "setze msg.partWeight",
+        "func": "msg.partWeight = msg.payload.submodelElements[0].value[2].value[1].value;\nmsg.payload = \"\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2960,
+        "y": 740,
+        "wires": [
+            [
+                "2bc2a2df89eeb827"
+            ]
+        ]
+    },
+    {
+        "id": "19b6415cfee82124",
+        "type": "debug",
+        "z": "0fb9b33015556b16",
+        "name": "debug 69",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2860,
+        "y": 800,
+        "wires": []
+    },
+    {
+        "id": "37a6e0ab0382681b",
+        "type": "ui-group",
+        "name": "Berechnungs Interface",
+        "page": "70d92f243583c778",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "da82d742b8ae8170",
+        "type": "ui-group",
+        "name": "📊 Ökobilanz-Ergebnisse (LCA-Auswertung)",
+        "page": "70d92f243583c778",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "70d92f243583c778",
+        "type": "ui-page",
+        "name": "OpenLCA API",
+        "ui": "5ccf679c7b70e876",
+        "path": "/olca-api",
+        "icon": "lightbulb",
+        "layout": "grid",
+        "theme": "6aefcfbd4a5f8194",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "5ccf679c7b70e876",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "temporary",
+        "titleBarStyle": "fixed",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 1,
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "6aefcfbd4a5f8194",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094ce",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    }
+]
