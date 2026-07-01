@@ -1,0 +1,32 @@
+<appinfo integration-version="SOLIDWORKS Link 15.19.1.0" occ-variant="0" occ-variant-uptodate="yes" parameterhash="21723ebe074312e809de59a227395f92">
+  <boms/>
+  <properties>
+    <property id="CAD-FileVersion" type="string" value="SolidWorks 2022"/>
+    <property id="CAD-Version" type="string" value="SolidWorks 2023:5.0"/>
+    <property id="CDB_ADDITIONAL_NAME" type="string" value=""/>
+    <property id="CDB_DISPLAYNAME" type="string" value="000053-1--"/>
+    <property id="CDB_DOCUMENT_INDEX" type="string" value=""/>
+    <property id="CDB_DOCUMENT_NO" type="string" value="000053-1"/>
+    <property id="CDB_NAME_DE" type="string" value="Bolzen"/>
+    <property id="CDB_NAME_EN" type="string" value=""/>
+    <property id="Description" type="string" value="Bolzen"/>
+    <property id="Summary-Author" type="string" value=""/>
+    <property id="Summary-Comment" type="string" value=""/>
+    <property id="Summary-CreateDate" type="string" value="Montag, 22. Januar 2024 18:51:14"/>
+    <property id="Summary-CreateDate2" type="string" value="1705945874"/>
+    <property id="Summary-Keywords" type="string" value=""/>
+    <property id="Summary-SaveDate" type="string" value="Freitag, 21. November 2025 13:57:57"/>
+    <property id="Summary-SaveDate2" type="float" value="1763729877"/>
+    <property id="Summary-SavedBy" type="string" value="siay"/>
+    <property id="Summary-Subject" type="string" value=""/>
+    <property id="Summary-Title" type="string" value=""/>
+  </properties>
+  <variants>
+    <variant id="0" active="yes" desc="Standard" name="Standard" uptodate="yes">
+      <parameters>
+        <parameter id="PARENT_VARIANT_ID" type="string" value=""/>
+        <parameter id="PARENT_VARIANT_NAME" type="string" value=""/>
+      </parameters>
+    </variant>
+  </variants>
+</appinfo>

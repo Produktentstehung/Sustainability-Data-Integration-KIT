@@ -1,0 +1,7 @@
+﻿Position,Komponentennummer,Name,Menge,Einheit,Gewicht(kg),Material,Baugruppenart,Kategorie
+50,000119,"Druckfeder",1,Stk,0.001,Federstahl,None,Einzelteil Fremdbez
+30,000117,"Hülse Aluminium",1,Stk,0.005,Aluminiumlegierung AlMg1SiCu,None,Einzelteil
+20,000116,"Bolzen Aluminium",1,Stk,0.003,Aluminiumlegierung AlMg1SiCu,None,Einzelteil
+10,000115,"Mine",1,Stk,0.002,Polypropylene (PP),None,Einzelteil
+60,000120,"Stiftspitze Helix PLA",1,Stk,0.003,PLA Basic BambuLab Filament,None,Einzelteil
+40,000118,"Schraube M4",1,Stk,0.001,Edelstahl,None,Einzelteil

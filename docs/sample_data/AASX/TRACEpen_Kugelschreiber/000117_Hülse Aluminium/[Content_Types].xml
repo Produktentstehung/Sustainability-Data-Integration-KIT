@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="xml" ContentType="text/xml" />
+  <Default Extension="png" ContentType="image/png" />
+  <Default Extension="svg" ContentType="text/plain" />
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" />
+  <Default Extension="pdf" ContentType="application/pdf" />
+  <Default Extension="step" ContentType="application/step" />
+  <Default Extension="JPG" ContentType="image/jpeg" />
+  <Default Extension="xlsx" ContentType="text/plain" />
+  <Default Extension="csv" ContentType="text/csv" />
+  <Default Extension="sldasm" ContentType="application/octet-stream" />
+  <Default Extension="sldprt" ContentType="application/octet-stream" />
+  <Override PartName="/aasx/aasx-origin" ContentType="text/plain" />
+</Types>

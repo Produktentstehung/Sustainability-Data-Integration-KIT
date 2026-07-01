@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Type="http://www.admin-shell.io/aasx/relationships/aas-spec" Target="Schraube_M4.aas.xml" Id="r1"/>
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/attachments" Target="../../files/000055-1.SLDPRT" Id="r2"/>
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/attachments" Target="../../files/000055-1.SLDPRT.jpg" Id="r3"/>
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/attachments" Target="../../files/4.JPG" Id="r4"/>
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/attachments" Target="../../files/9.JPG" Id="r5"/>
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/attachments" Target="../../files/BOM_000118.csv" Id="r6"/>
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/attachments" Target="../../files/Thumbs.db" Id="r7"/>
+  <Relationship Type="http://schemas.openxmlformats.org/package/2006/relationships/attachments" Target="../../files/UPB_HNI.png" Id="r8"/>
+</Relationships>
