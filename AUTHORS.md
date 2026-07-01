@@ -5,6 +5,7 @@ The following people (in alphabetical order) have [contributed to this repositor
 | Name |  Company Role | Company |
 |--|--|--|
 | Aydin, Simon | Research Associate | Heinz Nixdorf Institute |
+| de Buhr, Yven| Research Assistant | Heinz Nixdorf Institute |
 | De Groote, Carmen| Research Associate | Heinz Nixdorf Institute |
 | Iris, Graessler| Professor, Chair of Product Creation | Heinz Nixdorf Institute |
 | Pottebaum, Jens | Chief Engineer | Heinz Nixdorf Institute |
