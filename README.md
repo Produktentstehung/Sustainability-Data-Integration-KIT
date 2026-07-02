@@ -28,6 +28,8 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
   - [Sample Data: TRACEpen](#sample-data-tracepen)
   - [Demonstrator Implementation in the Laboratory](#demonstrator-implementation-in-the-laboratory)
   - [The AAS Data Model, Submodels and Custom Submodels](#the-aas-data-model-submodels-and-custom-submodels)
+  - [Decision support for sustainable product engineering](#decision-support-for-sustainable-product-engineering)
+    - [Dashboards for decision support](#dashboards-for-decision-support)
 - [Documentation](#documentation)
   - [Copyright Notice](#copyright-notice)
   - [Changelog](#changelog)
