@@ -1,0 +1,71 @@
+{
+  "idShort": "ILCD",
+  "id": "localhost/demo/aas/Kugelschreiber/ILCD",
+  "kind": "Template",
+  "submodelElements": [
+    {
+      "idShort": "LCAIteration",
+      "typeValueListElement": "SubmodelElement",
+      "value": [
+        {
+          "idShort": "\u003CDataSource\u003E",
+          "value": [
+            {
+              "idShort": "DataSource",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Name of the data source of the data used for the LCA"
+                }
+              ],
+              "valueType": "xs:string",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "TimeOfLCA",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "Timestamp of the start of the LCA calculation"
+                }
+              ],
+              "valueType": "xs:dateTime",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "WeightOfPart",
+              "valueType": "xs:string",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "TargetOutput",
+              "description": [
+                {
+                  "language": "en",
+                  "text": "TargetOutput of the calculation"
+                }
+              ],
+              "valueType": "xs:string",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "LCIAMethods",
+              "typeValueListElement": "SubmodelElement",
+              "value": [
+                {
+                  "idShort": "\u003CLCIAMethodName\u003E",
+                  "value": [],
+                  "modelType": "SubmodelElementCollection"
+                }
+              ],
+              "modelType": "SubmodelElementList"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    }
+  ],
+  "modelType": "Submodel"
+}

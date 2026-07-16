@@ -1,0 +1,541 @@
+{
+  "idShort": "DataSources",
+  "displayName": [
+    {
+      "language": "en",
+      "text": "Simulation and manufacturing data sources"
+    }
+  ],
+  "description": [
+    {
+      "language": "en",
+      "text": "Saves data from different manufacturing processes and process simulations "
+    }
+  ],
+  "id": "https://example.com/ids/sm/7282_8020_6062_1526",
+  "kind": "Template",
+  "submodelElements": [
+    {
+      "idShort": "Data Sources",
+      "displayName": [
+        {
+          "language": "en",
+          "text": "Data Sources"
+        },
+        {
+          "language": "de",
+          "text": "Datenquellen"
+        }
+      ],
+      "semanticId": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-1#02-ABM221#001"
+          }
+        ]
+      },
+      "supplementalSemanticIds": [
+        {
+          "type": "ExternalReference",
+          "keys": [
+            {
+              "type": "GlobalReference",
+              "value": "https://api.eclass-cdp.com/0173-1-02-ABM221-001"
+            }
+          ]
+        }
+      ],
+      "qualifiers": [
+        {
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "https://admin-shell.io/SubmodelTemplates/SMT/Cardinality/1/0"
+              }
+            ]
+          },
+          "type": "SMT/Cardinality",
+          "valueType": "xs:string",
+          "value": "ZeroToMany"
+        }
+      ],
+      "semanticIdListElement": {
+        "type": "ExternalReference",
+        "keys": [
+          {
+            "type": "GlobalReference",
+            "value": "0173-1#02-ABM221#001/0173-1#01-AHY912#001"
+          }
+        ]
+      },
+      "typeValueListElement": "SubmodelElementCollection",
+      "value": [
+        {
+          "idShort": "Manufacturing",
+          "displayName": [
+            {
+              "language": "en",
+              "text": "Manufacturing"
+            },
+            {
+              "language": "de",
+              "text": "Fertigung"
+            }
+          ],
+          "semanticId": {
+            "type": "ExternalReference",
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "0173-1#02-ABM221#001/0173-1#01-AHY912#001"
+              }
+            ]
+          },
+          "supplementalSemanticIds": [
+            {
+              "type": "ExternalReference",
+              "keys": [
+                {
+                  "type": "GlobalReference",
+                  "value": "0173-1#02-ABM221#001~0/0173-1#01-AHY912#001"
+                },
+                {
+                  "type": "GlobalReference",
+                  "value": "https://api.eclass-cdp.com/0173-1-02-ABM221-001/0173-1-01-AHY912-001"
+                }
+              ]
+            }
+          ],
+          "qualifiers": [
+            {
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SubmodelTemplates/Naming/1/0"
+                  }
+                ]
+              },
+              "type": "Naming",
+              "valueType": "xs:string",
+              "value": "Name of SMC is use case or application"
+            }
+          ],
+          "value": [
+            {
+              "idShort": "Manufacturing_Processes",
+              "description": [],
+              "semanticId": {
+                "type": "ExternalReference",
+                "keys": [
+                  {
+                    "type": "GlobalReference",
+                    "value": "https://admin-shell.io/SMT/General/Arbitrary"
+                  }
+                ]
+              },
+              "qualifiers": [
+                {
+                  "semanticId": {
+                    "type": "ExternalReference",
+                    "keys": [
+                      {
+                        "type": "GlobalReference",
+                        "value": "https://admin-shell.io/SubmodelTemplates/SMT/Cardinality/1/0"
+                      }
+                    ]
+                  },
+                  "type": "SMT/Cardinality",
+                  "valueType": "xs:string",
+                  "value": "ZeroToMany"
+                }
+              ],
+              "typeValueListElement": "SubmodelElement",
+              "value": [
+                {
+                  "idShort": "ProzessFr\u00E4sen",
+                  "displayName": [
+                    {
+                      "language": "de",
+                      "text": "ProzessFr\u00E4sen"
+                    }
+                  ],
+                  "value": [
+                    {
+                      "idShort": "Roboter_im_Einsatz",
+                      "valueType": "xs:time",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "time_process_start",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "time_process_end",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "duration_process",
+                      "valueType": "xs:time",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "average_power",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "CO2_eq",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "Server_IP",
+                      "valueType": "xs:string",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                },
+                {
+                  "idShort": "ProzessDrehen",
+                  "displayName": [
+                    {
+                      "language": "de",
+                      "text": "ProzessDrehen"
+                    }
+                  ],
+                  "value": [
+                    {
+                      "idShort": "Roboter_l\u00E4uft",
+                      "valueType": "xs:time",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "CO2_eq",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "time_process_start",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "time_process_end",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "duration_process",
+                      "valueType": "xs:time",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "average_power",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "Server_IP",
+                      "valueType": "xs:string",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                },
+                {
+                  "idShort": "Baxter",
+                  "displayName": [
+                    {
+                      "language": "de",
+                      "text": "Baxter"
+                    }
+                  ],
+                  "value": [
+                    {
+                      "idShort": "time_process_start",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "time_process_end",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "duration_process",
+                      "valueType": "xs:time",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "CO2_eq",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "average_power",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "threshold_high",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "threshold_low",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "Server_IP",
+                      "valueType": "xs:string",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                },
+                {
+                  "idShort": "3D_Drucker",
+                  "displayName": [
+                    {
+                      "language": "de",
+                      "text": "3D_Drucker"
+                    }
+                  ],
+                  "value": [
+                    {
+                      "idShort": "time_process_start",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "threshold_low",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "time_process_end",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "duration_process",
+                      "valueType": "xs:time",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "average_power",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "threshold_high",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "print_file",
+                      "contentType": "application/json",
+                      "modelType": "File"
+                    },
+                    {
+                      "idShort": "LCIA_Methods",
+                      "value": [
+                        {
+                          "idShort": "Acidification",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Climate Change",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Ecotoxicity, freshwater",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Eutrophication, freshwater",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Eutrophication, marine",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Eutrophication, terrestrial",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Human toxicity, cancer",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Human toxicity, non-cancer",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Ionising radiation, human health",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Land use",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Ozone depletion",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Particulate matter",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Photochemical ozone formation, human health",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Resource use, fossils",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Resource use, minerals and metals",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Water use",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        },
+                        {
+                          "idShort": "Environmental Footprint",
+                          "valueType": "xs:string",
+                          "modelType": "Property"
+                        }
+                      ],
+                      "modelType": "SubmodelElementCollection"
+                    },
+                    {
+                      "idShort": "Server_IP",
+                      "valueType": "xs:string",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                },
+                {
+                  "idShort": "Montrac",
+                  "displayName": [
+                    {
+                      "language": "de",
+                      "text": "Montrac"
+                    }
+                  ],
+                  "value": [
+                    {
+                      "idShort": "time_process_start",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "threshold_low",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "time_process_end",
+                      "valueType": "xs:dateTime",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "duration_process",
+                      "valueType": "xs:time",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "CO2_eq",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "average_power",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "threshold_high",
+                      "valueType": "xs:double",
+                      "modelType": "Property"
+                    },
+                    {
+                      "idShort": "Server_IP",
+                      "valueType": "xs:string",
+                      "modelType": "Property"
+                    }
+                  ],
+                  "modelType": "SubmodelElementCollection"
+                }
+              ],
+              "modelType": "SubmodelElementList"
+            },
+            {
+              "idShort": "time_manufacturing_start",
+              "valueType": "xs:dateTime",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "time_manufacturing_end",
+              "valueType": "xs:dateTime",
+              "modelType": "Property"
+            },
+            {
+              "idShort": "manufacturing_duration",
+              "valueType": "xs:time",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        },
+        {
+          "idShort": "Simulation",
+          "displayName": [
+            {
+              "language": "en",
+              "text": "Simulation"
+            },
+            {
+              "language": "de",
+              "text": "Simulation"
+            }
+          ],
+          "modelType": "SubmodelElementCollection"
+        }
+      ],
+      "modelType": "SubmodelElementList"
+    }
+  ],
+  "modelType": "Submodel"
+}
