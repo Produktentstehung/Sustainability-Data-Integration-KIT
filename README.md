@@ -300,6 +300,7 @@ Dashboards are visual overviews that summarize key metrics and data, for example
 
 <img src="docs/img/Sampledashboards.svg" alt="Icon" width="1000">
 <em>Sample dashboards for different roles</em>
+
 Engineers need product data, production data, and sustainability data to make decisions during product engineering. Key decision points during product creation are project release, concept release, design freeze, validation release, and production release. The data is constantly updated at every phase and used as a basis for decision-making. Depending on the specific use case, the dashboard contains different sections.
 # Documentation
 
