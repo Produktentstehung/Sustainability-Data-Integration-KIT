@@ -288,8 +288,7 @@ Data collection and integration across various systems, such as LCA databases an
 <img src="docs/img/Metadatamodel.svg" alt="Icon" width="1000">
 <em>Metadatamodel for the knowledge graph</em>
 
-The knowledge graph was created using Neo4j. Neo4j is a graph database that stores data not in tables, but as nodes (entities) and edges (relationships). This makes it particularly well-suited for highly interconnected data, that can be analyzed and navigated directly along the relationships. The defined nodes and edges represent the structure of the knowledge graph. This graph still needs to be filled with data from the laboratory demonstrator or other data sources. Data is exchanged via the Asset Administration Shell (AAS) exchange format and through a system model of the product in a model-based systems engineering (MBSE) tool. The AAS contains sustainability metrics, product data, and material data. Requirements and functions can be derived from the system model.
-List the exchange format and interface
+The knowledge graph was created using Neo4j. Neo4j is a graph database that stores data not in tables, but as nodes (entities) and edges (relationships). This makes it particularly well-suited for highly interconnected data, that can be analyzed and navigated directly along the relationships. The defined nodes and edges represent the structure of the knowledge graph. This graph still needs to be filled with data from the laboratory demonstrator or other data sources. Data is exchanged via the Asset Administration Shell (AAS) exchange format and through a system model of the product in a model-based systems engineering (MBSE) tool. The AAS contains sustainability metrics, product data, and material data. Requirements and functions can be derived from the system model. The interface between AAS and knowledge graph is provided.
 Once the data is stored in the knowledge graph, the actual use and visualization of the data can take place. Dashboards are created in Neo4j for this purpose. The dashboards are populated using queries in the knowledge graph. Queries in Neo4j are written in Cypher. The results are displayed to the user on the dashboard, and the query runs in the background without the user seeing the code. This allows engineers without an IT background to interpret the knowledge graph using the dashboards and consult it when making decisions. The data is not lost but can be utilized in an integrated manner.
 
 <img src="docs/img/Dataimplementationfordecisionsupport.svg" alt="Icon" width="1000">
@@ -301,7 +300,7 @@ Dashboards are visual overviews that summarize key metrics and data, for example
 
 <img src="docs/img/Sampledashboards.svg" alt="Icon" width="1000">
 <em>Sample dashboards for different roles</em>
-
+Engineers need product data, production data, and sustainability data to make decisions during product engineering. Key decision points during product creation are project release, concept release, design freeze, validation release, and production release. The data is constantly updated at every phase and used as a basis for decision-making. Depending on the specific use case, the dashboard contains different sections.
 # Documentation
 
 ## Copyright Notice
