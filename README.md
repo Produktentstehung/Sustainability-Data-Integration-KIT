@@ -34,6 +34,7 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
       - [Calculation of environmental impacts](#calculation-of-environmental-impacts)
       - [Displaying Hotspots](#displaying-hotspots)
       - [Analysis of effect chains](#analysis-of-effect-chains)
+    - [Sample Data: Gripper of a robotic arm](#Sample-Data-Gripper-of-a-robotic-arm)
 - [Documentation](#documentation)
   - [Copyright Notice](#copyright-notice)
   - [Changelog](#changelog)
@@ -337,6 +338,9 @@ The effect chain analysis examines effects of requirements on other requirements
 
 <img src="docs/img/GraphEffectChain.svg" alt="Icon" width="500">
 
+### Sample Data: Gripper of a robotic arm
+
+Sample files are provided to assist with the use of the knowledge graph. The exemplary product is a gripper of a robotic arm. All nodes, properties and relation of the knowledge graph are given in JSON format. This structure does not yet contain any product data. In Neo4j, a knowledge graph is populated with data using CSV files. The CSV files are uploaded to Neo4j and assigned to the nodes and relationships based on their labels. This allows the knowledge graph to be tested with the dashboards independently of the reference implementation of the data integration. To implement the knowledge graph, you can use Neo4j Aura (web version) or Neo4j (desktop version). After creating an instance, import the provided graph model. Then import the CSV files into the graph model. The dashboards for the knowledge graph are created in Neo4j’s NeoDash application. First, the dashboard must be connected to the knowledge graph. NeoDash uses the programming language Cypher to perform queries. The entire dashboard is available in JSON format and can be imported into NeoDash.
 # Documentation
 
 ## Copyright Notice
