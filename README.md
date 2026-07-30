@@ -313,7 +313,7 @@ An engineer needs to get insights into the product data stored in the knowledge 
 
 The second table displays the product's assemblies along with their corresponding parts to provide an overview of the product's structure. If there are two product variants, a separate table can be created for each variant. The corresponding Cypher query is:
 
-The third table includes sustainability information. Part of the product data is the percentage of recycled material used in the components. This information can be summarized in a table showing the variant, the artifact, the material, and the percentage of recycled material. The table can be supplemented with a bar chart, which makes the comparison of recycling rates easier to follow. The corresponding Cypher query is given below:
+The third table includes sustainability information. Part of the product data is the percentage of recycled material used in the components. This information can be summarized in a table showing the variant, the artifact, the material, and the percentage of recycled material. The table can be supplemented with a bar chart, which makes the comparison of recycling rates easier to follow. The corresponding Cypher query is provided as a JSON format.
 
 #### Calculation of environmental impacts
 
