@@ -30,6 +30,10 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
   - [The AAS Data Model, Submodels and Custom Submodels](#the-aas-data-model-submodels-and-custom-submodels)
   - [Decision support for sustainable product engineering](#decision-support-for-sustainable-product-engineering)
     - [Dashboards for decision support](#dashboards-for-decision-support)
+      - [Viewing product data and comparing product variants](#viewing-product-data-and-comparing-product-variants)
+      - [Calculation of environmental impacts](#calculation-of-environmental-impacts)
+      - [Displaying Hotspots](#displaying-hotspots)
+      - [Analysis of effect chains](#analysis-of-effect-chains)
 - [Documentation](#documentation)
   - [Copyright Notice](#copyright-notice)
   - [Changelog](#changelog)
@@ -302,6 +306,28 @@ Dashboards are visual overviews that summarize key metrics and data, for example
 <em>Sample dashboards for different roles</em>
 
 Engineers need product data, production data, and sustainability data to make decisions during product engineering. Key decision points during product creation are project release, concept release, design freeze, validation release, and production release. The data is constantly updated at every phase and used as a basis for decision-making. Depending on the specific use case, the dashboard contains different sections.
+
+#### Viewing product data and comparing product variants
+
+An engineer needs to get insights into the product data stored in the knowledge graph. The product data can refer to one or more variants. To display the data, the nodes of the relevant artifacts are queried for their stored properties. In this use case, the product data is retrieved from three different tables. The first table displays general product data from the properties. These properties include the product’s ID, name, description, type, manufacturer, version, and life cycle phase. The related Cypher query is:
+
+The second table displays the product's assemblies along with their corresponding parts to provide an overview of the product's structure. If there are two product variants, a separate table can be created for each variant. The corresponding Cypher query is:
+
+The third table includes sustainability information. Part of the product data is the percentage of recycled material used in the components. This information can be summarized in a table showing the variant, the artifact, the material, and the percentage of recycled material. The table can be supplemented with a bar chart, which makes the comparison of recycling rates easier to follow. The corresponding Cypher query is given below:
+
+#### Calculation of environmental impacts
+
+By building the knowledge graph based on the metadata model presented earlier, environmental impacts can be calculated. Since the knowledge graph contains both product information linked to related processes and sustainability methods with metrics and environmental effects, the environmental impacts applicable to the product can be calculated. To perform the calculation, the desired assessment method must be stored in the knowledge graph along with the metric’s calculation formula and the relevant environmental effects. In the implementation shown, the carbon footprint [kg CO2eq], water footprint [m3worldeq], and acidification [kgSO2eq] can be calculated. The environmental impacts are presented as single values. The different environmental impacts enable a flexible comparison to assess different environmental risks. The Cypher queries used for the calculation are as follows:
+
+#### Displaying Hotspots
+
+Based on the calculation of environmental impacts, hotspot analyses can be conducted. Hotspot analyses compare areas such as components, assemblies, or processes to identify where the highest environmental impacts occur. Based on these findings, measures can be planned and implemented to enable targeted improvements in environmental impacts at these hotspots. During implementation, the carbon footprint values of the assemblies are compared using a bar chart. This allows hotspots to be identified and potential measures to be developed. The intended Cypher query is:
+
+#### Analysis of Effect Chains
+
+The effect chain analysis examines effects of requirements on other requirements and system elements. If a requirement is changed, other system elements must be adjusted accordingly based on those effects. The dependencies between requirements, specifications, functions, artifacts, and parts are modeled in the knowledge graph. In the dashboard, a requirement is selected using the select parameter type. Depending on the selection, the corresponding visualizations are displayed. A table displays all dependencies along with the corresponding descriptions of the selected requirement in text form. The next section shows the relevant close-up of the graph, making it possible to identify the dependent nodes through their relationships. The exact number of dependent functions, artifacts and so on, are shown as single values. All necessary Cypher queries are shown:
+
+
 # Documentation
 
 ## Copyright Notice
