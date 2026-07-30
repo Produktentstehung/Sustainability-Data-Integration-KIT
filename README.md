@@ -325,6 +325,8 @@ The third table includes sustainability information. Part of the product data is
 
 By building the knowledge graph based on the metadata model presented earlier, environmental impacts can be calculated. Since the knowledge graph contains both product information linked to related processes and sustainability methods with metrics and environmental effects, the environmental impacts applicable to the product can be calculated. To perform the calculation, the desired assessment method must be stored in the knowledge graph along with the metric’s calculation formula and the relevant environmental effects. In the implementation shown, the carbon footprint [kg CO2eq], water footprint [m3worldeq], and acidification [kgSO2eq] can be calculated. The environmental impacts are presented as single values. The different environmental impacts enable a flexible comparison to assess different environmental risks. The Cypher queries are provided as JSON format. An example is shown:
 
+<img src="docs/img/ValueCarbonFootprint.svg" alt="Icon" width="1000">
+
 #### Displaying Hotspots
 
 Based on the calculation of environmental impacts, hotspot analyses can be conducted. Hotspot analyses compare areas such as components, assemblies, or processes to identify where the highest environmental impacts occur. Based on these findings, measures can be planned and implemented to enable targeted improvements in environmental impacts at these hotspots. During implementation, the carbon footprint values of the assemblies are compared using a bar chart. This allows hotspots to be identified and potential measures to be developed. The intended Cypher query is:
