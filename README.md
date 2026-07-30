@@ -311,13 +311,19 @@ Engineers need product data, production data, and sustainability data to make de
 
 An engineer needs to get insights into the product data stored in the knowledge graph. The product data can refer to one or more variants. To display the data, the nodes of the relevant artifacts are queried for their stored properties. In this use case, the product data is retrieved from three different tables. The first table displays general product data from the properties. These properties include the product’s ID, name, description, type, manufacturer, version, and life cycle phase. The related Cypher query is:
 
+<img src="docs/img/TableProductData.svg" alt="Icon" width="1000">
+
 The second table displays the product's assemblies along with their corresponding parts to provide an overview of the product's structure. If there are two product variants, a separate table can be created for each variant. The corresponding Cypher query is:
+
+<img src="docs/img/TableAssemblyData.svg" alt="Icon" width="1000">
 
 The third table includes sustainability information. Part of the product data is the percentage of recycled material used in the components. This information can be summarized in a table showing the variant, the artifact, the material, and the percentage of recycled material. The table can be supplemented with a bar chart, which makes the comparison of recycling rates easier to follow. The corresponding Cypher query is provided as a JSON format.
 
+<img src="docs/img/BarChartRecycling.svg" alt="Icon" width="500">
+
 #### Calculation of environmental impacts
 
-By building the knowledge graph based on the metadata model presented earlier, environmental impacts can be calculated. Since the knowledge graph contains both product information linked to related processes and sustainability methods with metrics and environmental effects, the environmental impacts applicable to the product can be calculated. To perform the calculation, the desired assessment method must be stored in the knowledge graph along with the metric’s calculation formula and the relevant environmental effects. In the implementation shown, the carbon footprint [kg CO2eq], water footprint [m3worldeq], and acidification [kgSO2eq] can be calculated. The environmental impacts are presented as single values. The different environmental impacts enable a flexible comparison to assess different environmental risks. The Cypher queries used for the calculation are as follows:
+By building the knowledge graph based on the metadata model presented earlier, environmental impacts can be calculated. Since the knowledge graph contains both product information linked to related processes and sustainability methods with metrics and environmental effects, the environmental impacts applicable to the product can be calculated. To perform the calculation, the desired assessment method must be stored in the knowledge graph along with the metric’s calculation formula and the relevant environmental effects. In the implementation shown, the carbon footprint [kg CO2eq], water footprint [m3worldeq], and acidification [kgSO2eq] can be calculated. The environmental impacts are presented as single values. The different environmental impacts enable a flexible comparison to assess different environmental risks. The Cypher queries are provided as JSON format. An example is shown:
 
 #### Displaying Hotspots
 
@@ -325,8 +331,9 @@ Based on the calculation of environmental impacts, hotspot analyses can be condu
 
 #### Analysis of Effect Chains
 
-The effect chain analysis examines effects of requirements on other requirements and system elements. If a requirement is changed, other system elements must be adjusted accordingly based on those effects. The dependencies between requirements, specifications, functions, artifacts, and parts are modeled in the knowledge graph. In the dashboard, a requirement is selected using the select parameter type. Depending on the selection, the corresponding visualizations are displayed. A table displays all dependencies along with the corresponding descriptions of the selected requirement in text form. The next section shows the relevant close-up of the graph, making it possible to identify the dependent nodes through their relationships. The exact number of dependent functions, artifacts and so on, are shown as single values. All necessary Cypher queries are shown:
+The effect chain analysis examines effects of requirements on other requirements and system elements. If a requirement is changed, other system elements must be adjusted accordingly based on those effects. The dependencies between requirements, specifications, functions, artifacts, and parts are modeled in the knowledge graph. In the dashboard, a requirement is selected using the select parameter type. Depending on the selection, the corresponding visualizations are displayed. A table displays all dependencies along with the corresponding descriptions of the selected requirement in text form. The next section shows the relevant close-up of the graph, making it possible to identify the dependent nodes through their relationships. The exact number of dependent functions, artifacts and so on, are shown as single values. All necessary Cypher queries are provided as JSON format. The graph close-up in the dashboard is shown as an example:
 
+<img src="docs/img/GraphEffectChain.svg" alt="Icon" width="500">
 
 # Documentation
 
