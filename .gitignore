@@ -1,0 +1,21 @@
+# OS artefacts
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Node-RED runtime state — must never be committed, contains credentials
+flows_cred.json
+.node-red/
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
