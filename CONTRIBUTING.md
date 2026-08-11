@@ -21,3 +21,11 @@ Once this KIT is contributed to the Eclipse Tractus-X organization, all contribu
 ## Contact
 
 Contact the project developers via the project's ["dev" mailing list](https://accounts.eclipse.org/mailing-list/tractusx-dev) or the [Tractus-X Matrix chat](https://chat.eclipse.org/#/room/#tractusx:matrix.eclipse.org). For questions specific to this KIT, please open a GitHub issue.
+
+# NOTICE
+This work is licensed under the CC-BY-4.0.
+* SPDX-License-Identifier: CC-BY-4.0
+* SPDX-FileCopyrightText: 2025 Heinz Nixdorf Institute
+* SPDX-FileCopyrightText: 2025 Paderborn University
+* SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation
+* Source URL: https://github.com/eclipse-tractusx/Sustainability-Data-Integration-KIT
