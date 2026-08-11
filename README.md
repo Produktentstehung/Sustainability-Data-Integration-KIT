@@ -330,7 +330,7 @@ By building the knowledge graph based on the metadata model presented earlier, e
 
 #### Displaying Hotspots
 
-Based on the calculation of environmental impacts, hotspot analyses can be conducted. Hotspot analyses compare areas such as components, assemblies, or processes to identify where the highest environmental impacts occur. Based on these findings, measures can be planned and implemented to enable targeted improvements in environmental impacts at these hotspots. During implementation, the carbon footprint values of the assemblies are compared using a bar chart. This allows hotspots to be identified and potential measures to be developed. The intended Cypher query is:
+Based on the calculation of environmental impacts, hotspot analyses can be conducted. Hotspot analyses compare areas such as components, assemblies, or processes to identify where the highest environmental impacts occur. Based on these findings, measures can be planned and implemented to enable targeted improvements in environmental impacts at these hotspots. During implementation, the carbon footprint values of the assemblies are compared using a bar chart. This allows hotspots to be identified and potential measures to be developed. The intended Cypher query is part of the provided JSON format of the dashboard.
 
 #### Analysis of Effect Chains
 
@@ -338,9 +338,14 @@ The effect chain analysis examines effects of requirements on other requirements
 
 <img src="docs/img/GraphEffectChain.svg" alt="Icon" width="500">
 
+#### Assessment of Repairability
+
+
+
 ### Sample Data: Gripper of a robotic arm
 
 Sample files are provided to assist with the use of the knowledge graph. The exemplary product is a gripper of a robotic arm. All nodes, properties and relation of the knowledge graph are given in JSON format. This structure does not yet contain any product data. In Neo4j, a knowledge graph is populated with data using CSV files. The CSV files are uploaded to Neo4j and assigned to the nodes and relationships based on their labels. This allows the knowledge graph to be tested with the dashboards independently of the reference implementation of the data integration. To implement the knowledge graph, you can use Neo4j Aura (web version) or Neo4j (desktop version). After creating an instance, import the provided graph model. Then import the CSV files into the graph model. The dashboards for the knowledge graph are created in Neo4j’s NeoDash application. First, the dashboard must be connected to the knowledge graph. NeoDash uses the programming language Cypher to perform queries. The entire dashboard is available in JSON format and can be imported into NeoDash.
+
 # Documentation
 
 ## Copyright Notice
