@@ -1,0 +1,84 @@
+version = 1
+SPDX-PackageName = "Sustainability Data Integration KIT (SDI-KIT)"
+SPDX-PackageSupplier = "Heinz Nixdorf Institute, Paderborn University"
+SPDX-PackageDownloadLocation = "https://github.com/eclipse-tractusx/Sustainability-Data-Integration-KIT"
+
+# ---------------------------------------------------------------------------
+# Source code (Apache-2.0)
+# Node-RED flow exports are JSON and cannot carry comment headers, so their
+# licensing is declared here instead of in the files themselves.
+# ---------------------------------------------------------------------------
+
+[[annotations]]
+path = ["src/**.json"]
+precedence = "closest"
+SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
+SPDX-License-Identifier = "Apache-2.0"
+
+# ---------------------------------------------------------------------------
+# Documentation images (CC-BY-4.0)
+# ---------------------------------------------------------------------------
+
+[[annotations]]
+path = ["docs/img/**.svg", "docs/img/**.png", "docs/img/**.jpg"]
+precedence = "closest"
+SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# ---------------------------------------------------------------------------
+# Third-party asset: the Eclipse Tractus-X logo is a project trademark and is
+# not covered by the copyright of this repository. Declared separately so the
+# blanket annotation above does not claim ownership of it.
+# ---------------------------------------------------------------------------
+
+[[annotations]]
+path = ["docs/img/Tractus-X-Logo.png"]
+precedence = "override"
+SPDX-FileCopyrightText = "Contributors to the Eclipse Foundation"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# ---------------------------------------------------------------------------
+# Sample data (CC-BY-4.0)
+# AASX packages, CAD files, spreadsheets and CSV exports are binary or
+# structured formats without a comment mechanism.
+# ---------------------------------------------------------------------------
+
+[[annotations]]
+path = ["docs/sample_data/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# ---------------------------------------------------------------------------
+# Plain-text documentation (CC-BY-4.0)
+# ---------------------------------------------------------------------------
+
+[[annotations]]
+path = ["docs/**.txt"]
+precedence = "closest"
+SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# ---------------------------------------------------------------------------
+# Markdown documentation (CC-BY-4.0)
+# Each Markdown file additionally carries a visible NOTICE section, as
+# required by TRG 7.07 ("attributions for non-code artifacts have to be
+# visible for the receiver"). This annotation is the machine-readable
+# counterpart for the automated IP check.
+# ---------------------------------------------------------------------------
+
+[[annotations]]
+path = ["**.md"]
+precedence = "closest"
+SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
+SPDX-License-Identifier = "CC-BY-4.0"
+
+# ---------------------------------------------------------------------------
+# Repository configuration and license texts
+# ---------------------------------------------------------------------------
+
+[[annotations]]
+path = [".gitignore", "LICENSE", "LICENSE_non-code"]
+precedence = "closest"
+SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
+SPDX-License-Identifier = "CC-BY-4.0"
