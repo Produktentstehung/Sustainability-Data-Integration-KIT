@@ -29,6 +29,7 @@ Vulnerabilities in third-party components used together with this KIT are to be 
 | Node-RED | <https://nodered.org/> |
 | Eclipse BaSyx | <https://github.com/eclipse-basyx> |
 | openLCA | <https://www.openlca.org/> |
+| Odoo (ERP) | <https://github.com/odoo/odoo> |
 | Tractus-X EDC | <https://github.com/eclipse-tractusx/tractusx-edc> |
 | Neo4j | <https://neo4j.com/> |
 
