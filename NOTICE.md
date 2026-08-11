@@ -39,3 +39,11 @@ The sample data in `docs/sample_data` (TRACEpen case study) was created by the H
 ## Cryptography
 
 Content may contain encryption software. The country in which you are currently may have restrictions on the import, possession, and use, and/or re-export to another country, of encryption software. BEFORE using any encryption software, please check the country's laws, regulations and policies concerning the import, possession, or use, and re-export of encryption software, to see if this is permitted.
+
+# NOTICE
+This work is licensed under the CC-BY-4.0.
+* SPDX-License-Identifier: CC-BY-4.0
+* SPDX-FileCopyrightText: 2025 Heinz Nixdorf Institute
+* SPDX-FileCopyrightText: 2025 Paderborn University
+* SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation
+* Source URL: https://github.com/eclipse-tractusx/Sustainability-Data-Integration-KIT
