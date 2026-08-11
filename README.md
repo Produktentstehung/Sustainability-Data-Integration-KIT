@@ -340,7 +340,7 @@ The effect chain analysis examines effects of requirements on other requirements
 
 #### Assessment of Repairability
 
-
+Repairability is assessed based on defined criteria, which are assigned weightings. The criteria include, for example, the effort required for disassembly, the cost and availability of replacement parts, documentation, and interfaces. The weighting is defined in advance and expressed as a percentage. The criteria are evaluated on a scale from 1 (especially low) to 10 (especially high). Once the engineer has evaluated and entered all criteria in the dashboard, the total score is calculated based on the weighting. The total score is displayed as a single value.
 
 #### Representation of data quality
 
