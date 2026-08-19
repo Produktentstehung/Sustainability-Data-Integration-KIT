@@ -1,0 +1,30 @@
+Tractus-X KIT Deployment Guide
+Requirements: 
+•	Docker 
+•	Node.js
+
+1.	EDC for data space connection
+a.	To participate in a data space, you have to registrate with a data space provider such as Catena-X. In Decide4ECO as Tractus-X-based data space was provided by SmartSystemsHub. 
+b.	To access and use the EDC your provider should provide you with an API documentation. You can deploy the EDC as a backend component or build a UI for frontend access. 
+2.	Basyx set up for AAS server
+a.	You can configure and download the setup for the Basyx AAS server at https://basyx.org/ 
+b.	Click “Get Started” to start the configuration. The BaSyx Starter Kit guides you through a short set of decisions and generates a ready-to-run setup with Docker Compose, infrastructure configuration and optional visualization add-ons. Note: Eventing and Time Series Data is not required. 
+c.	Start up the containers in the compose stack “basyx-setup” 
+3.	Neo4J?
+4.	Node-RED
+a.	To run Node-RED the latest verison of Node.js is required. You can download it here: https://nodejs.org/en/ Check for correct installation by requesting the node.js version via Powershell node --version; npm –version or via cmd node --version && npm –version
+b.	To install Node-RED follow the instructions at https://nodered.org/docs/getting-started/ 
+c.	Start Node-RED. In Decode4ECO, the browser verison of Node-RED is used. To start Node-RED in the browser type node-red in cmd. Node-RED runs under //localhost:1880. The UI runs under //localhost:1880/ui or //localhost:1880/dashboard depending on your dashboard package
+5.	Download and Import in Node-RED
+a.	To import the flows from the GIT, the following node packages are required:
+i.	node-red-contrib-XLSX-to-json
+ii.	@flowfuse/node-red-dashboard
+iii.	@flowfuse/node-red-dashboard-2-ui-iframe
+iv.	node-red
+v.	node-red-contrib-ui-led2
+vi.	node-red-dashboard
+vii.	node-red-node-base64
+viii.	node-red-node-sqlite
+b.	Import the flows. The import function can be found in the burger menu on the right of the Node-RED interface. 
+6.	Configuration of Node-Red Flows
+a.	Configure the flows to your paths, APIs, URLs etc. Nodes that need configuration are marked in the flows. 
