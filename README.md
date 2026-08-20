@@ -3,7 +3,6 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
 
 <img src="docs/img/Tractus-X-Logo.png" alt="Icon" width="450">
 
-
 ---
 
 ## Table of Contents
@@ -32,7 +31,7 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
 - [Development View](#development-view)
   - [Architecture View](#architecture-view)
     - [What is the reference implementation, and what is the demonstrator](#what-is-the-reference-implementation-and-what-is-the-demonstrator)
-    - [The workflows at a glance](#the-workflows-at-a-glance)
+    - [The workflows one by one](#the-workflows-one-by-one)
     - [Interfaces and the dataspace](#interfaces-and-the-dataspace)
   - [Sequence View](#sequence-view)
   - [API Documentation](#api-documentation)
@@ -195,7 +194,6 @@ Overall, the SDI-KIT is positioned as a cross-cutting sustainability integration
 | EDC | Main gateway to the network. In this use case, two EDCs need to exist: one connected to the Digital Product Pass (EcoPass KIT) as EDC Consumer, and another connected to the provider Catena-X components as EDC Provider. | Tractus-X EDC, provided by Smart Systems Hub | CX-0018 |
 | PLM/ERP Integration | Connection to internal enterprise systems for managing part types, part instances, data chains, and links between twins. | Part Type, Part Instance, Data Chains, Linking of Twins | Industry Core KIT |
 
-
 ## Business Value
 
 The SDI-KIT creates business value by enabling solution providers and adopters to transform heterogeneous engineering, simulation, ERP, production and supplier data into structured, interoperable and source-attributed sustainability information. Rather than prescribing a fixed toolchain or a single assessment method, the KIT provides reusable integration patterns for building sustainability data pipelines that can be adapted to different industrial environments and business models. In this way, the SDI-KIT supports the implementation of commercial and non-profit solutions in the Tractus-X and Manufacturing-X ecosystem that depend on reliable, shareable and assessment-ready sustainability data.
@@ -312,7 +310,6 @@ IT departments, platform operators and system integrators gain a technical found
 
 **Internal sustainability**, compliance and engineering teams benefit from a shared data foundation that connects technical product data with sustainability-related assessment results. This improves collaboration between traditionally separated domains and supports the consistent preparation of information for internal analyses, customer communication and regulatory-facing processes.
 
-
 ## Standards
 
 The Sustainability Data Integration KIT (SDI-KIT) does not define new dataspace standards. It applies the existing Catena-X standardisation framework to the integration of sustainability-relevant product, process and operational data. The KIT acts as an **upstream data-integration layer**: it produces AAS-based, source-attributed sustainability data that downstream KITs (PCF Exchange, EcoPass, Circularity) consume through their own standardised aspect models.
@@ -423,38 +420,236 @@ workflows carry real data end to end. Everything in it that is specific to that
 laboratory — server addresses, file paths, the machine-to-part assignment, the
 script that builds the shells from PLM data — is configuration, not KIT content.
 
-### The workflows at a glance
+### The workflows one by one
 
-The nine tabs of the reference implementation, as they appear in the editor. They are exports of the flow files under `src/`, so they show the shipped state rather than a screenshot that ages: whoever changes a flow regenerates the diagram from it.
+The nine tabs of the reference implementation, each described in the order in
+which its steps run, followed by a diagram of the tab as it appears in the
+editor. The diagrams are exported from the flow files under `src/`, so they
+show the shipped state rather than a screenshot that ages: whoever changes a
+flow regenerates the diagram from it. Three of them are laid out as long
+horizontal chains and are illegible at page width; open the image itself to
+read the node names.
 
-Three of them are laid out as long horizontal chains and are illegible at page width. Open the image itself to read the node names.
+The flow `PLM.json` provides the functionality to retrieve part and document
+data from the PLM system and use this data to generate an Asset Administration
+Shell (AAS). The flow is triggered by an inject node and first extracts the
+relevant part information, including the part name, article number, ERP number,
+status, navigation ID, unit, category, weight, material, and the PLM UI link. The
+flow also retrieves the URLs of the related bill of material and of the documents
+from the part data.
 
-<a href="docs/img/Flow_PLM_product.svg"><img src="docs/img/Flow_PLM_product.svg" alt="PLM flow (product)" width="1000"></a>
-<em><strong>PLM flow (product).</strong> Reads part, bill of material, material and CAD document for the assembled product and hands the collected data to the script that builds the shell.</em>
+The bill of material is resolved before the documents. The flow requests the
+positions and reads each of them in turn, resolving the material of every
+position through a second request. These requests are deliberately sent one per
+second: the PLM system of the reference installation does not answer the material
+lookups when they arrive in parallel, and for a large bill of material the rate
+limit is what keeps the run from being refused altogether. Every position
+contributes quantity, unit, weight and material, and every position is counted,
+a failed one included — otherwise the join at the end of the branch waits for a
+message that never arrives.
 
-<a href="docs/img/Flow_PLM_part.svg"><img src="docs/img/Flow_PLM_part.svg" alt="PLM flow (part)" width="1000"></a>
-<em><strong>PLM flow (part).</strong> The same for each component. It is entered once per bill-of-material line; a purchased part without a CAD document takes the short branch and still produces a shell.</em>
+The document-related information is then resolved through a sequence of REST API
+requests. First, the flow retrieves the available document links and selects the
+first document. Its metadata is retrieved and used to determine the file ID,
+version, title, classification, consuming application, and UI link. The
+associated file list is then requested via the Files API. From this list, the
+first target is treated as the CAD file and, if available, the second target as a
+preview image. Both files are downloaded as binary data and temporarily stored
+for further processing. A part without a document is not an error: purchased
+parts frequently carry no CAD model, and the flow takes a second output past the
+document chain so that a shell is produced regardless.
 
-<a href="docs/img/Flow_Odoo_ERP.svg"><img src="docs/img/Flow_Odoo_ERP.svg" alt="Odoo ERP to AAS" width="1000"></a>
-<em><strong>Odoo ERP to AAS.</strong> Bill of material, quantities and the manufacturing order over JSON-RPC, written as the data source "ERP".</em>
+After retrieving the part, bill-of-material and document data, the flow prepares
+a job-specific working directory and stores the CAD and preview files as binary
+files. It also loads the available MaxBOM CSV file and determines the path to the
+corresponding AAS XML template. All collected information, including the part
+data, document metadata, file paths, MaxBOM data, and template path, is combined
+into a data.json file. This JSON file serves as the interface between Node-RED
+and the subsequent Python-based AAS generation. The flow then executes the script
+named in `SDI_PLM_SCRIPT` via an Exec node and passes the generated JSON file as
+an input parameter. Finally, the Python output and return code are evaluated and
+a status containing the result and output path is provided through the Node-RED
+debug interface.
 
-<a href="docs/img/Flow_ema_simulation.svg"><img src="docs/img/Flow_ema_simulation.svg" alt="Simulation to AAS" width="1000"></a>
-<em><strong>Simulation to AAS.</strong> The export of the plant simulation becomes the assembly energy under the data source "Simulation".</em>
+The flow therefore combines data retrieval from the PLM system, resolution and
+download of associated CAD documents, and automated AAS generation. This enables
+PLM master data and associated engineering documents to be transferred into an
+AAS-based information structure without requiring manual extraction and
+preparation of the individual data sources.
 
-<a href="docs/img/Flow_machine_data.svg"><img src="docs/img/Flow_machine_data.svg" alt="Machine data to the part shell" width="1000"></a>
-<em><strong>Machine data to the part shell.</strong> Power and duration from OPC UA become energy per piece, written into the shell of the part that was produced - with the serial number of that piece where a booked assembly names it.</em>
+<a href="docs/img/Flow_PLM_product.svg"><img src="docs/img/Flow_PLM_product.svg" alt="Icon" width="1000"></a>
+<em>The PLM flow extracts data from a PLM system, creates an AAS and writes the data to the corresponding submodel</em>
 
-<a href="docs/img/Flow_openLCA_calculation.svg"><img src="docs/img/Flow_openLCA_calculation.svg" alt="openLCA calculation" width="1000"></a>
-<em><strong>openLCA calculation.</strong> Collects the parameters from the shells, runs the calculation for every selected impact method and writes the total result and the share of each part back into the ILCD submodels.</em>
+The second tab of the same file is entered once per position of the bill of
+material, through a link node rather than through a wire, so that the two passes
+stay legible side by side. It repeats the document chain for the individual
+component and builds a shell of its own for it. The part data it works on already
+comes from the bill-of-material position, which is why this tab is the shorter of
+the two.
 
-<a href="docs/img/Flow_dashboard.svg"><img src="docs/img/Flow_dashboard.svg" alt="Dashboard" width="1000"></a>
-<em><strong>Dashboard.</strong> The operating surface at /dashboard/kit: it starts the chain, checks each step, and shows the footprint, the state of every source and the machine runs of the selected piece.</em>
+<a href="docs/img/Flow_PLM_part.svg"><img src="docs/img/Flow_PLM_part.svg" alt="Icon" width="1000"></a>
+<em>The second pass of the PLM flow, entered once per component</em>
 
-<a href="docs/img/Flow_assembly_booking.svg"><img src="docs/img/Flow_assembly_booking.svg" alt="Assembly booking" width="1000"></a>
-<em><strong>Assembly booking.</strong> Books one assembled piece in Odoo, draws the serial numbers of its components and records which piece was built from which pieces.</em>
+The flow `Odoo_ERP.json` provides the functionality to retrieve product,
+bill-of-material and order data from the ERP system and to write them into the
+AAS as the data source `ERP`. All addresses and credentials are read from
+environment variables and are deliberately not stored in the flow, so that a
+flow exported from one installation and imported into another carries none of
+them with it.
 
-<a href="docs/img/Flow_assembly_backfill.svg"><img src="docs/img/Flow_assembly_backfill.svg" alt="Assembly backfill" width="1000"></a>
-<em><strong>Assembly backfill.</strong> Restores those records from completed manufacturing orders, for a shell that was rebuilt.</em>
+The flow authenticates against the JSON-RPC endpoint and searches for the bill of
+material of the configured product. The product is found by name, by article
+number or by part of the name, so that the search works whether the
+configuration holds the designation or the number. The positions of the bill of
+material are then read, followed by the product templates and the product
+variants of every position. Flow uuid and weight are taken from the template and
+overridden by the variant wherever the variant carries a value of its own; the
+total mass of a position is the weight per piece multiplied by the quantity.
+Positions without a flow uuid or without a valid weight are skipped and named
+rather than silently omitted.
+
+Finally the flow asks for the open manufacturing order over the product and
+writes the result — positions, quantities, materials, process assignment and the
+order — into the `DataSources` submodel. When it rebuilds its own block it
+carries over the entries that do not belong to it: the assembly records that
+another flow keeps in the same place would otherwise be lost, and nothing would
+report the loss.
+
+<a href="docs/img/Flow_Odoo_ERP.svg"><img src="docs/img/Flow_Odoo_ERP.svg" alt="Icon" width="1000"></a>
+<em>The ERP flow reads the bill of material, the quantities and the manufacturing order from Odoo and writes them into the AAS</em>
+
+The flow `EMA.json` provides the functionality to read an export of the ema
+Plant Designer and to integrate the simulated production sequence into the AAS as
+the data source `Simulation`. A simulation results file is provided as part of
+the sample data.
+
+The flow is started manually via an inject node and hands the export to
+`ema_export_to_json.py`, which reads the spreadsheet and returns the operations
+as JSON. Keeping the spreadsheet outside the flow is deliberate: the export
+format of the simulation changes independently of the workflow, and a Node-RED
+node that parses spreadsheets would tie the two to one another. Each operation
+carries its number, its name, the workstation, the cycle time, the processing
+time and the energy per unit.
+
+The operations are then assigned to the openLCA processes they act on. In the
+reference product the simulation covers the assembly — the robot arm placing the
+parts and the final inspection — so its energy belongs in full to the assembly
+process of the pen, while the energy of manufacturing the individual parts is
+measured at the machines instead. The assignment is held in one place in the flow
+and is the only thing that has to be adjusted when the production sequence
+changes. The result is written into the `DataSources` submodel over the REST
+interface of the AAS server.
+
+<a href="docs/img/Flow_ema_simulation.svg"><img src="docs/img/Flow_ema_simulation.svg" alt="Icon" width="1000"></a>
+<em>The ema flow reads the simulation export and writes the operations into the AAS as the data source Simulation</em>
+
+The flow `OPCUA_Manufacturing.json` provides the functionality to turn
+recorded machine measurements into the energy per piece and to write it into the
+shell of the part that was produced, as the data source `MachineData`.
+
+The measurements are read from the submodel that the OPC UA connection fills.
+Every collection carrying a power reading is treated as a machine; the entries
+are searched for rather than addressed by position, because the layout of that
+submodel may change. The energy per piece follows from the average power
+multiplied by the process duration, divided by one million and by the number of
+pieces of the run. A machine without an entry in the assignment is skipped and
+named — the robot arm and the transport system belong to the assembly, whose
+energy comes from the simulation, and recording it here as well would count it
+twice.
+
+The assignment states which machine produces which part and which openLCA
+parameter the measured energy acts on. One machine can produce two different
+parts: the lathe turns both the bolt and the sleeve, and the measurement carries
+the part name in its identifier so that both can stand side by side instead of
+the newer one replacing the older.
+
+Where a booked assembly is available, the runs are given the serial number of the
+piece they produced, taken from the assembly records in the shell of the
+assembled product. Where it is not, the numbers are assigned by article and by
+the order in which they were given out, and the entry says so: the origin of the
+assignment stands beside it rather than being passed over in silence.
+
+<a href="docs/img/Flow_machine_data.svg"><img src="docs/img/Flow_machine_data.svg" alt="Icon" width="1000"></a>
+<em>The machine flow forms the energy per piece from power and duration and writes it into the shell of the part that was produced</em>
+
+The flow `OpenLCA_to_AAS.json` manages the configuration and initiation of
+LCA calculations via the openLCA IPC interface and writes the results back into
+the AAS. Unlike earlier versions the flow carries no operating elements of its
+own: the shell, the impact method and the manufactured piece are selected in the
+dashboard, and the flow reads that selection from the shared context.
+
+The flow first reads the quantities and the process assignment from the
+`DataSources` submodel of the product and adds the manufacturing energy of every
+part from the shells of the parts. It then works through the selected impact
+methods one after another. For each method it starts the calculation, waits until
+the result is ready, requests the total impacts and releases the result again.
+Where the method carries a normalisation and weighting set, the weighted single
+score is formed from it; methods that carry none — EN 15804 among them — produce
+no single score, and none is written rather than an empty one.
+
+The total result is written into the `ILCD` submodel of the product as an
+iteration named after the data sources that actually went into it, so that
+results of differing data quality can stand side by side. The flow then asks
+openLCA for the share of each part and writes it into the `ILCD` submodel of that
+part. The source list of the product holds for a part only in part: machine data
+always concerns one particular part, and where none was measured for it, the
+machines are not named in its result even though they did go into the total.
+
+<a href="docs/img/Flow_openLCA_calculation.svg"><img src="docs/img/Flow_openLCA_calculation.svg" alt="Icon" width="1000"></a>
+<em>The openLCA flow collects the parameters, runs the calculation per impact method and writes the total and the share of each part back into the AAS</em>
+
+The flow `Dashboard.json` provides the operating surface of the KIT at
+`/dashboard/kit`. It brings its own dashboard configuration with it, so importing
+the file is enough.
+
+One button runs the whole chain. The steps are worked through one after another —
+ERP, simulation, machine data, calculation — because the calculation needs the
+quantities from the ERP and the energies from the other two. After each step the
+dashboard reads the shell back and checks whether the data was written after the
+run started; data that was already there does not count as a success. A step that
+delivers nothing stops the run rather than calculating on incomplete data. The
+machine data is the exception: nothing is manufactured on a purchased part, so a
+missing measurement is noted and the run carries on without it, and the closing
+message states which source was left out.
+
+The page shows the footprint with its reference quantity, the state of every data
+source together with the shell it came from, the result broken down by part, and
+the machine runs that produced the parts of the selected piece. A dropdown
+selects one manufactured piece: a product passport applies to a piece and not to
+a type, and the machine table then shows only the runs that belong to it.
+
+<a href="docs/img/Flow_dashboard.svg"><img src="docs/img/Flow_dashboard.svg" alt="Icon" width="1000"></a>
+<em>The dashboard runs the chain, checks every step and shows the result with the state of each data source</em>
+
+The flow `Assembly_Booking.json` books one assembled piece in Odoo and
+records in the shell which piece was built from which pieces. Without it a
+footprint remains a statement about a type.
+
+The flow creates a manufacturing order over exactly one piece — one, because a
+serial number names exactly one piece — confirms it, and has Odoo produce the
+serial number of the assembled product from the number sequence configured for
+the article. Composing the number inside the flow would be a second route beside
+Odoo's own, and two routes drift apart. For every component under serial tracking
+the flow then draws a number of its own and assembles it from the article of the
+assembled product, its instance, the article of the component and the counter of
+that component. Purchased parts stay without a number: that is not an omission
+but the truth, since they are not manufactured here.
+
+What is booked gets written, and only that. If Odoo refuses to close the order,
+the flow reports it and carries on: the assignment is then in the shell, the
+closing is not, and both are visible.
+
+<a href="docs/img/Flow_assembly_booking.svg"><img src="docs/img/Flow_assembly_booking.svg" alt="Icon" width="1000"></a>
+<em>The booking flow creates the manufacturing order, draws the serial numbers and records the linkage in the shell</em>
+
+The flow `Assembly_Backfill.json` reads every completed manufacturing order
+from Odoo and restores the assembly records in the shell. It is needed after the
+ERP block was rebuilt or a shell was recreated — the bookings still exist in
+Odoo, but the record of them in the shell does not.
+
+<a href="docs/img/Flow_assembly_backfill.svg"><img src="docs/img/Flow_assembly_backfill.svg" alt="Icon" width="1000"></a>
+<em>The backfill flow restores the assembly records from completed manufacturing orders</em>
+
 ### Interfaces and the dataspace
 
 All interfaces of the KIT rest on dataspace technologies. Data is held in Asset
@@ -546,7 +741,7 @@ The reference implementation was developed and implemented at the Smart Automati
 <img src="docs/img/Component diagram of the Decide4ECO KIT, including third party software.svg" alt="Icon" width="1000">
 <em>Component diagram of the Decide4ECO KIT, including third party software</em>
 
-The architecture of the Decide4ECO Reference implementation is structured around the data management tool, which is implemented using the low code plattform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI).
+The architecture of the Decide4ECO Reference implementation is structured around the data management tool, which is implemented using the low code plattform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI). The EDC Connector takes a special role in the system as it connects the systeme to the data space, therefore enabling it to receive data from external sources. This is especially important since LCA results increase in quality as more high-quality data becomes available, eg through exchange with value chain partners.
 
 <img src="docs/img/Sequence view of the Decide4ECO KIT.svg" alt="Icon" width="1000">
 <em>Sequence view of the Decide4ECO KIT</em>
@@ -1244,8 +1439,6 @@ The effect chain analysis examines effects of requirements on other requirements
 #### Assessment of Repairability
 
 Repairability is assessed based on defined criteria, which are assigned weightings. The criteria include, for example, the effort required for disassembly, the cost and availability of replacement parts, documentation, and interfaces. The weighting is defined in advance and expressed as a percentage. The criteria are evaluated on a scale from 1 (especially low) to 10 (especially high). Once the engineer has evaluated and entered all criteria in the dashboard, the total score is calculated based on the weighting. The rating is multiplied by the weighting factor and then summed across all criteria. The total score is displayed as a single value.
-
-#### Representation of data quality
 
 ### Sample Data: Gripper of a robotic arm
 
