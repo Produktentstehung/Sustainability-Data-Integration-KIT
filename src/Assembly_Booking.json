@@ -1,0 +1,998 @@
+[
+    {
+        "id": "sdimont00tab0001",
+        "type": "tab",
+        "label": "Assembly booking",
+        "disabled": false,
+        "info": "Creates a manufacturing order for one piece, assigns serial numbers to the produced part and to the components consumed, and records the assembly in the administration shell. Writes to Odoo.",
+        "env": []
+    },
+    {
+        "id": "sdimont0001",
+        "type": "inject",
+        "z": "sdimont00tab0001",
+        "name": "Book an assembly",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 80,
+        "wires": [
+            [
+                "sdimont0002"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0002",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Log in",
+        "func": "// Anmeldung.\nconst cfg = {\n    url: env.get('SDI_ODOO_URL') || '',\n    db: env.get('SDI_ODOO_DB') || '',\n    user: env.get('SDI_ODOO_USER') || '',\n    key: env.get('SDI_ODOO_APIKEY') || '',\n    aas: env.get('SDI_AAS_URL') || 'http://localhost:8081',\n    basis: env.get('SDI_AAS_BASE') || 'localhost/demo/aas'\n};\nif (!cfg.key) { node.error('Kein Odoo-Schluessel in der Umgebung.'); return null; }\nflow.set('cfg', cfg);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'common', method: 'login', args: [cfg.db, cfg.user, cfg.key] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 80,
+        "wires": [
+            [
+                "sdimont0003"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0003",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 540,
+        "y": 80,
+        "wires": [
+            [
+                "sdimont0004"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0004",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Fetch variants",
+        "func": "// Fetches the variants - order and consumption hang off them, not off the\n// product template.\nconst cfg = flow.get('cfg');\nconst uid = (msg.payload || {}).result;\nif (!uid) { node.error('Login failed'); return null; }\nflow.set('uid', uid);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'product.product', 'search_read',\n           [[]], { fields: ['default_code', 'name', 'tracking'], limit: 100 }] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 80,
+        "wires": [
+            [
+                "sdimont0005"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0005",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 900,
+        "y": 80,
+        "wires": [
+            [
+                "sdimont0006"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0006",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Find order",
+        "func": "// Creates a manufacturing order over exactly one piece.\n//\n// One piece, because a serial number names exactly one piece. The existing\n// order over 25 pieces is left untouched - it comes from the sample setup\n// and describes a quantity, not an instance.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Odoo reports: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst varianten = (msg.payload || {}).result || [];\nflow.set('varianten', varianten);\nconst ERZEUGNIS = env.get('SDI_ASSEMBLY_ARTICLE') || '000114';\nconst stift = varianten.find(function (v) { return v.default_code === ERZEUGNIS; });\nif (!stift) { node.error('Assembled product ' + ERZEUGNIS + ' not found in Odoo'); return null; }\nflow.set('stift', stift);\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\n// First look whether an open order over one piece is already there.\n// Otherwise every call creates another one, and after a few attempts Odoo\n// holds orders that never corresponded to a piece.\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'search_read',\n           [[['product_id', '=', stift.id], ['product_qty', '=', 1],\n             ['state', 'in', ['draft', 'confirmed', 'progress', 'to_close']]]],\n           { fields: ['name', 'state'], limit: 1 }] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 160,
+        "wires": [
+            [
+                "sdimont0007"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0007",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 160,
+        "wires": [
+            [
+                "sdimont0037"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0037",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Reuse order or create",
+        "func": "// Takes the open order, or creates one.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Finding the order: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst vorhanden = ((msg.payload || {}).result || [])[0];\nif (vorhanden) {\n    node.warn('Reusing the open order: ' + vorhanden.name);\n    flow.set('mo', vorhanden.id);\n    return [null, { topic: 'bestaetigt' }];\n}\nconst stift = flow.get('stift');\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'create',\n           [{ product_id: stift.id, product_qty: 1 }]] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 160,
+        "wires": [
+            [
+                "sdimont0038"
+            ],
+            [
+                "sdimont0010"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0038",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 920,
+        "y": 160,
+        "wires": [
+            [
+                "sdimont0008"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0008",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Confirm",
+        "func": "// Confirms the order - only then does Odoo keep the consumption lines.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Creating the order: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst mo = (msg.payload || {}).result;\nflow.set('mo', mo);\nnode.warn('Manufacturing order created, id=' + mo);\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'action_confirm',\n           [[mo]]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 200,
+        "wires": [
+            [
+                "sdimont0009"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0009",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 920,
+        "y": 160,
+        "wires": [
+            [
+                "sdimont0010"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0010",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Draw serial number",
+        "func": "// Has Odoo produce the serial number of the assembled product.\n//\n// It is drawn from the number sequence of the article, so it follows the\n// pattern that was configured there. Composing it here would be a second\n// route beside Odoo's own - and two routes drift apart.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Confirming: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'action_generate_serial',\n           [[flow.get('mo')]]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 240,
+        "wires": [
+            [
+                "sdimont0011"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0011",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 580,
+        "y": 240,
+        "wires": [
+            [
+                "sdimont0012"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0012",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Read order",
+        "func": "// Reads the order with its number and consumption lines.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.warn('Producing the serial number: '\n            + ((msg.payload.error.data) || {}).message\n            + ' - the order is processed further regardless.');\n}\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'read',\n           [[flow.get('mo')],\n            ['name', 'state', 'qty_producing', 'lot_producing_ids',\n             'move_raw_line_ids']]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 240,
+        "wires": [
+            [
+                "sdimont0013"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0013",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 940,
+        "y": 240,
+        "wires": [
+            [
+                "sdimont0014"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0014",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Read lines",
+        "func": "// Fetches the consumption lines in order to assign serial numbers to them.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Reading the order: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst mo = ((msg.payload || {}).result || [])[0] || {};\nflow.set('moDaten', mo);\nnode.warn('Order ' + mo.name + ' | state ' + mo.state\n        + ' | quantity ' + mo.qty_producing\n        + ' | numbers ' + JSON.stringify(mo.lot_producing_ids)\n        + ' | consumption lines ' + (mo.move_raw_line_ids || []).length);\n\nif (!(mo.move_raw_line_ids || []).length) {\n    node.warn('No consumption lines - Odoo creates them once stock '\n            + 'is reserved. The linkage then stays incomplete.');\n    return [null, { topic: 'aas' }];\n}\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.move.line', 'read',\n           [mo.move_raw_line_ids, ['product_id', 'lot_id', 'quantity']]] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 320,
+        "wires": [
+            [
+                "sdimont0015"
+            ],
+            [
+                "sdimont0017"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0015",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 580,
+        "y": 320,
+        "wires": [
+            [
+                "sdimont0016"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0016",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Show lines",
+        "func": "// Shows which components are consumed under which number.\nif ((msg.payload || {}).error) {\n    node.error('Consumption lines: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst zeilen = (msg.payload || {}).result || [];\nflow.set('verbrauch', zeilen);\nfor (const z of zeilen) {\n    node.warn('   consumed: ' + JSON.stringify(z.product_id)\n            + ' | quantity ' + z.quantity + ' | number ' + JSON.stringify(z.lot_id));\n}\nreturn { topic: 'aas' };\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 320,
+        "wires": [
+            [
+                "sdimont0022"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0022",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Fetch pen number",
+        "func": "// Fetches the number Odoo gave the assembled product.\n//\n// The first two blocks of the component numbers come from it: they say\n// which pen the part sits in.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nconst mo = flow.get('moDaten') || {};\nconst los = (mo.lot_producing_ids || [])[0];\nif (!los) {\n    node.warn('The order carries no serial number - components therefore '\n            + 'get no complete number.');\n    return [null, { topic: 'aas' }];\n}\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.lot', 'read', [[los], ['name']]] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 560,
+        "wires": [
+            [
+                "sdimont0023"
+            ],
+            [
+                "sdimont0017"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0023",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 560,
+        "wires": [
+            [
+                "sdimont0024"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0024",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Keep number",
+        "func": "// Keeps the number of the pen and starts the round over the components.\nif ((msg.payload || {}).error) {\n    node.error('Reading the number: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst l = ((msg.payload || {}).result || [])[0] || {};\nflow.set('stiftNummer', l.name || '');\nnode.warn('Assembled product carries ' + l.name);\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 560,
+        "wires": [
+            [
+                "sdimont0025"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0025",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Collect components",
+        "func": "// Prepares the numbering for every tracked component.\n//\n// Only components under serial tracking get one. For purchased parts the\n// line stays without a number - that is not an omission but the truth: we\n// do not manufacture them.\nconst varianten = flow.get('varianten') || [];\nconst verbrauch = flow.get('verbrauch') || [];\nconst offen = [];\nfor (const z of verbrauch) {\n    const v = varianten.find(function (x) { return x.id === (z.product_id || [])[0]; });\n    if (!v || v.tracking !== 'serial') { continue; }\n    if ((z.lot_id || [])[0]) { continue; }\n    offen.push({ zeile: z.id, artikel: v.default_code, produkt: v.id });\n}\nflow.set('offen', offen);\nflow.set('n', 0);\nnode.warn('Tracked components still without a number: ' + offen.length);\nreturn { topic: 'naechstes' };\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 560,
+        "wires": [
+            [
+                "sdimont0026"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0026",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Fetch sequence",
+        "func": "// Fetches the number sequence of the next component.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nconst offen = flow.get('offen') || [];\nconst n = flow.get('n') || 0;\nif (n >= offen.length) { return [null, { topic: 'abschliessen' }]; }\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'product.template', 'search_read',\n           [[['default_code', '=', offen[n].artikel]]],\n           { fields: ['lot_sequence_id'], limit: 1 }] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 640,
+        "wires": [
+            [
+                "sdimont0027"
+            ],
+            [
+                "sdimont0043"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0027",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 640,
+        "wires": [
+            [
+                "sdimont0028"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0028",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Compose number",
+        "func": "// Composes the complete number and creates it.\n//\n// The component instance comes from the number sequence of the component -\n// it counts the pieces manufactured of that kind. The leading blocks come\n// from the product being assembled here. Only at assembly are both known.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Number sequence: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst tmpl = ((msg.payload || {}).result || [])[0] || {};\nconst kreis = tmpl.lot_sequence_id;\nconst offen = flow.get('offen') || [];\nconst n = flow.get('n') || 0;\nconst stiftNummer = flow.get('stiftNummer') || '';\nconst stiftInstanz = stiftNummer.split('-')[1] || '001';\n\nif (!kreis) {\n    node.warn('No number sequence for ' + offen[n].artikel + ' - skipped.');\n    flow.set('n', n + 1);\n    return [null, { topic: 'naechstes' }];\n}\nflow.set('kreis', kreis[0]);\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'ir.sequence', 'read',\n           [[kreis[0]], ['padding', 'number_next_actual']]] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 640,
+        "wires": [
+            [
+                "sdimont0029"
+            ],
+            [
+                "sdimont0026"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0029",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 920,
+        "y": 640,
+        "wires": [
+            [
+                "sdimont0030"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0030",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Create number",
+        "func": "// Creates the serial number of the component.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Reading the sequence: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst k = ((msg.payload || {}).result || [])[0] || {};\nconst offen = flow.get('offen') || [];\nconst n = flow.get('n') || 0;\nconst ERZEUGNIS = env.get('SDI_ASSEMBLY_ARTICLE') || '000114';\nconst stiftInstanz = (flow.get('stiftNummer') || '').split('-')[1] || '001';\n\nfunction stellen(wert, anzahl) {\n    let s = String(wert);\n    while (s.length < anzahl) { s = '0' + s; }\n    return s;\n}\nconst nummer = ERZEUGNIS + '-' + stiftInstanz + '-' + offen[n].artikel + '-'\n             + stellen(k.number_next_actual, k.padding || 3);\nflow.set('neueNummer', nummer);\nflow.set('naechsteZahl', (k.number_next_actual || 1) + 1);\nnode.warn('   ' + offen[n].artikel + ' gets ' + nummer);\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.lot', 'create',\n           [{ name: nummer, product_id: offen[n].produkt }]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 720,
+        "wires": [
+            [
+                "sdimont0031"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0031",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 720,
+        "wires": [
+            [
+                "sdimont0032"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0032",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Set the line",
+        "func": "// Traegt die Nummer in die Verbrauchszeile ein.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Nummer anlegen: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst los = (msg.payload || {}).result;\nconst offen = flow.get('offen') || [];\nconst n = flow.get('n') || 0;\nflow.set('losId', los);\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.move.line', 'write',\n           [[offen[n].zeile], { lot_id: los }]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 720,
+        "wires": [
+            [
+                "sdimont0033"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0033",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 920,
+        "y": 720,
+        "wires": [
+            [
+                "sdimont0034"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0034",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Advance sequence",
+        "func": "// Advances the number sequence and moves on to the next component.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Setting the line: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'ir.sequence', 'write',\n           [[flow.get('kreis')],\n            { number_next_actual: flow.get('naechsteZahl') }]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 800,
+        "wires": [
+            [
+                "sdimont0035"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0035",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 800,
+        "wires": [
+            [
+                "sdimont0036"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0036",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Next component",
+        "func": "// Naechstes Bauteil.\nflow.set('n', (flow.get('n') || 0) + 1);\nreturn { topic: 'naechstes' };\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 800,
+        "wires": [
+            [
+                "sdimont0026"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0043",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Close order",
+        "func": "// Closes the order.\n//\n// Only with this is the piece manufactured and the linkage booked - before\n// that it is a declaration of intent. If Odoo refuses to close, because\n// stock is missing for instance, that is reported and the flow carries on:\n// the assignment is then in the shell, the closing is not, and both are\n// visible.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\n// With extra entries in the context: otherwise Odoo asks back - too little\n// consumed, create a backorder? - and returns a dialog instead of an error.\n// The call then looks successful while the order stays open.\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'button_mark_done',\n           [[flow.get('mo')]],\n           { context: { skip_consumption: true, skip_immediate: true,\n                        skip_backorder: true } }] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 840,
+        "wires": [
+            [
+                "sdimont0044"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0044",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 840,
+        "wires": [
+            [
+                "sdimont0046"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0046",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Check closing",
+        "func": "// Looks whether the order really is closed.\n//\n// The return value is no evidence: Odoo answers without an error even when\n// it would in truth have opened a dialog. The state is therefore read back.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.warn('Closing refused: '\n            + ((msg.payload.error.data) || {}).message);\n}\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'read',\n           [[flow.get('mo')], ['name', 'state']]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 840,
+        "wires": [
+            [
+                "sdimont0047"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0047",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 920,
+        "y": 840,
+        "wires": [
+            [
+                "sdimont0045"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0045",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Report closing",
+        "func": "// Reports the actual state.\nconst a = (((msg.payload || {}).result) || [])[0] || {};\nif (a.state === 'done') {\n    node.warn('Order ' + a.name + ' closed.');\n} else {\n    node.warn('Order ' + a.name + ' stays open (state ' + a.state\n            + '). The booking stands, the closing does not - the next run '\n            + 'would take the same order again.');\n}\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 900,
+        "wires": [
+            [
+                "sdimont0039"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0039",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Re-read consumption",
+        "func": "// Reads the consumption lines once more - now with their numbers.\n//\n// Earlier the shell went into the write with the state from before the\n// assignment and reported \"0 components with a number\", although three had\n// just been given out. What goes into the shell has to come from the\n// server, not from the memory of the flow.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nconst mo = flow.get('moDaten') || {};\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.move.line', 'read',\n           [mo.move_raw_line_ids || [], ['product_id', 'lot_id', 'quantity']]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 880,
+        "wires": [
+            [
+                "sdimont0040"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0040",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 880,
+        "wires": [
+            [
+                "sdimont0041"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0041",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Take over consumption",
+        "func": "// Takes over the fresh state.\nif ((msg.payload || {}).error) {\n    node.error('Reading the consumption: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst zeilen = (msg.payload || {}).result || [];\nflow.set('verbrauch', zeilen);\nlet mitNummer = 0;\nfor (const z of zeilen) { if ((z.lot_id || [])[0]) { mitNummer = mitNummer + 1; } }\nnode.warn('Consumption after the assignment: ' + mitNummer + ' of '\n        + zeilen.length + ' lines carry a number.');\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 880,
+        "wires": [
+            [
+                "sdimont0017"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0017",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Read the AAS",
+        "func": "// Records the linkage in the shell of the assembled product.\n//\n// What is booked gets written - and only that. What Odoo did not confirm is\n// not in the shell either; a linkage nobody can produce evidence for would\n// be worse than none.\nconst cfg = flow.get('cfg');\nconst mo = flow.get('moDaten') || {};\nconst verbrauch = flow.get('verbrauch') || [];\nconst varianten = flow.get('varianten') || [];\nfunction artikelVon(id) {\n    const v = varianten.find(function (x) { return x.id === id; });\n    return v ? v.default_code : '';\n}\n\nconst eintraege = [];\nfor (const z of verbrauch) {\n    const nummer = (z.lot_id || [])[1] || '';\n    if (!nummer) { continue; }\n    eintraege.push({ artikel: artikelVon((z.product_id || [])[0]),\n                     nummer: nummer, menge: z.quantity });\n}\nflow.set('verbaut', eintraege);\nnode.warn('Installed pieces with a number: ' + eintraege.length);\n\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .split('+').join('-').split('/').join('_').split('=').join('');\n}\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nflow.set('produktKennung', b64(cfg.basis + '/' + PRODUKT + '/DataSources'));\nmsg.url = cfg.aas + '/submodels/' + flow.get('produktKennung');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 400,
+        "wires": [
+            [
+                "sdimont0018"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0018",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "AAS",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 400,
+        "wires": [
+            [
+                "sdimont0019"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0019",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Record the linkage",
+        "func": "// Puts the installed pieces under the ERP data source.\nconst cfg = flow.get('cfg');\nconst mo = flow.get('moDaten') || {};\nconst verbaut = flow.get('verbaut') || [];\nconst sm = msg.payload;\nif (!sm || !sm.submodelElements) {\n    node.error('DataSources of the assembled product cannot be read');\n    return null;\n}\nconst prop = function (id, v, t) {\n    return { modelType: 'Property', idShort: id, valueType: t || 'xs:string',\n             value: v === null || v === undefined ? '' : String(v) };\n};\nconst smc = function (id, v) {\n    return { modelType: 'SubmodelElementCollection', idShort: id, value: v };\n};\n// Elements directly inside a list carry no idShort. The specification\n// forbids it (AASd-120): in a list the order counts, not the name. With a\n// name the package is rejected.\nconst listenglied = function (v) {\n    return { modelType: 'SubmodelElementCollection', value: v };\n};\nconst sml = function (id, v) {\n    return { modelType: 'SubmodelElementList', idShort: id,\n             typeValueListElement: 'SubmodelElementCollection',\n             orderRelevant: false, value: v };\n};\n\nlet liste = null;\nfor (const e of sm.submodelElements) {\n    if (e.idShort === 'DataSources') { liste = e; }\n}\nconst erp = ((liste || {}).value || []).find(function (e) {\n    return e.idShort === 'ERP' || e.idShort === 'ERPData';\n});\nif (!erp) { node.error('No ERP data source in the shell'); return null; }\n\nconst stuecke = verbaut.map(function (v) {\n    return listenglied([\n        prop('ArticleNumber', v.artikel),\n        prop('SerialNumber', v.nummer),\n        prop('Quantity', v.menge, 'xs:double')\n    ]);\n});\nconst neuWerte = [\n    prop('ManufacturingOrder', mo.name || ''),\n    // The number of the assembled piece itself. An expression stood here\n    // that came out empty in both cases - a field that is always empty\n    // catches nobody's eye and makes the entry worthless.\n    prop('SerialNumber', flow.get('stiftNummer') || ''),\n    prop('TimeOfBooking', new Date().toISOString(), 'xs:dateTime'),\n    prop('BookedComponents', String(stuecke.length), 'xs:int'),\n    sml('InstalledComponents', stuecke)\n];\n\n// A list, not a single entry.\n//\n// Earlier every booking replaced the previous one - the shell then knew only\n// the piece assembled last. A product passport should give information on\n// every piece, including the one from the day before yesterday. Only the\n// entry with the same number is replaced, so a second run creates no\n// duplicate.\nlet sammlung = (erp.value || []).find(function (x) {\n    return x && x.idShort === 'AssemblyRecords';\n});\nif (!sammlung) {\n    sammlung = sml('AssemblyRecords', []);\n    erp.value.push(sammlung);\n}\n// The former single entry moves into the list instead of being lost.\nconst alt = (erp.value || []).find(function (x) {\n    return x && x.idShort === 'AssemblyRecord';\n});\nif (alt) {\n    erp.value = erp.value.filter(function (x) { return x !== alt; });\n    const altNummer = (alt.value || []).find(function (y) {\n        return y.idShort === 'SerialNumber';\n    });\n    if (altNummer && altNummer.value\n        && altNummer.value !== flow.get('stiftNummer')) {\n        delete alt.idShort;\n        sammlung.value.push(alt);\n    }\n}\nconst neu = listenglied(neuWerte);\nsammlung.value = (sammlung.value || []).filter(function (x) {\n    const n = (x.value || []).find(function (y) { return y.idShort === 'SerialNumber'; });\n    return !(n && n.value === flow.get('stiftNummer'));\n});\nsammlung.value.push(neu);\n\nmsg.url = cfg.aas + '/submodels/' + flow.get('produktKennung');\nmsg.method = 'PUT';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = sm;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 400,
+        "wires": [
+            [
+                "sdimont0020"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0020",
+        "type": "http request",
+        "z": "sdimont00tab0001",
+        "name": "AAS",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 360,
+        "y": 480,
+        "wires": [
+            [
+                "sdimont0021"
+            ]
+        ]
+    },
+    {
+        "id": "sdimont0021",
+        "type": "function",
+        "z": "sdimont00tab0001",
+        "name": "Result",
+        "func": "// Reports the result.\nconst mo = flow.get('moDaten') || {};\nconst verbaut = flow.get('verbaut') || [];\nnode.warn('Assembly booked: order ' + (mo.name || '?') + ', '\n        + verbaut.length + ' components with a number in the shell.');\nfor (const v of verbaut) { node.warn('   ' + v.artikel + ' ' + v.nummer); }\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 560,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    }
+]

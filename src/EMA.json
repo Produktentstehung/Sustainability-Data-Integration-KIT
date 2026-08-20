@@ -1,0 +1,243 @@
+[
+    {
+        "id": "b1c2d3e4f5a60001",
+        "type": "tab",
+        "label": "ema Simulation → AAS",
+        "disabled": false,
+        "info": "Reads an export of the ema Plant Designer and writes its operations as the data source \"Simulation\" into the DataSources submodel."
+    },
+    {
+        "id": "b1c2d3e4f5a60000",
+        "type": "inject",
+        "z": "b1c2d3e4f5a60001",
+        "name": "▶ Read simulation data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 100,
+        "wires": [
+            [
+                "b1c2d3e4f5a6000a"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a6000a",
+        "type": "function",
+        "z": "b1c2d3e4f5a60001",
+        "name": "⚙️ Configuration",
+        "func": "// ═══════════════════════════════════════════════════════════\n// CONFIGURATION\n// ═══════════════════════════════════════════════════════════\nconst cfg = {\n    python:     env.get('SDI_PYTHON')      || 'python',\n    script:     env.get('SDI_EMA_SCRIPT')  || 'ema_export_to_json.py',\n    export:     env.get('SDI_EMA_EXPORT')  || '',\n    scenario:   env.get('SDI_EMA_SCENARIO') || '',\n    aasUrl:     env.get('SDI_AAS_URL')     || 'http://localhost:8081',\n    submodelId: env.get('SDI_AAS_DATASOURCES_ID')\n                || 'localhost/demo/aas/Kugelschreiber_TracePEN/DataSources'\n};\n\nif (!cfg.export) {\n    node.error('SDI_EMA_EXPORT has to point at the export file of the simulation', msg);\n    return null;\n}\nflow.set('cfg', cfg);\n\nmsg.payload = '\"' + cfg.python + '\" \"' + cfg.script + '\" \"' + cfg.export + '\"'\n            + (cfg.scenario ? ' \"' + cfg.scenario + '\"' : '');\nnode.status({ fill: 'blue', shape: 'dot', text: 'reading export' });\nflow.set('emaExport', env.get('SDI_EMA_EXPORT'));\nnode.log('Simulation export: ' + env.get('SDI_EMA_EXPORT'));\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 100,
+        "wires": [
+            [
+                "b1c2d3e4f5a60002"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a60002",
+        "type": "exec",
+        "z": "b1c2d3e4f5a60001",
+        "name": "🐍 Evaluate the export",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "120",
+        "winHide": true,
+        "oldrc": false,
+        "x": 650,
+        "y": 100,
+        "wires": [
+            [
+                "b1c2d3e4f5a60003"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a60003",
+        "type": "function",
+        "z": "b1c2d3e4f5a60001",
+        "name": "📊 Assign operations",
+        "func": "// ═══════════════════════════════════════════════════════════\n// Evaluate the simulation data and assign it to the openLCA processes.\n//\n// The export names operations, openLCA keeps one process per part with an\n// energy parameter. The assignment sits here and is the only place that\n// has to be touched when the production sequence changes.\n// ═══════════════════════════════════════════════════════════\nconst MONTAGE_PROZESS   = '5c609b0a-d929-4789-9024-e3dc11aff29f';\nconst MONTAGE_PARAMETER = 'Energieverbrauch_Montage_Kugelschreiber';\n\n// The simulation covers the assembly: the robot arm placing the parts and\n// the final inspection. Its energy therefore belongs in full to the\n// assembly process of the pen.\n//\n// The energy of manufacturing the individual parts (bolt, sleeve, pen tip)\n// is not simulated. It is measured at the machines and comes in through\n// the data source \"Manufacturing\".\n// Refill, spring and screw are purchased parts and carry no energy of\n// their own for now.\nconst ZUORDNUNG = {};   // empty = every operation goes to the assembly\n\nif (msg.payload === undefined || msg.payload === '') {\n    node.error('The evaluation script produced no output', msg);\n    return null;\n}\n// Depending on its content the exec node hands the output over as text or\n// as a buffer. A buffer does not pass the test for a string and would be\n// passed on unread - the flow then reported an empty file although the\n// script had done its work properly.\nlet roh = msg.payload;\nif (roh && typeof roh === 'object' && typeof roh.toString === 'function'\n        && !Array.isArray(roh) && roh.length !== undefined) {\n    roh = roh.toString('utf8');\n}\n\nlet daten;\ntry {\n    daten = typeof roh === 'string' ? JSON.parse(roh) : roh;\n} catch (e) {\n    node.error('The output of the evaluation script is not JSON: ' + String(roh).slice(0, 200), msg);\n    return null;\n}\n\nconst ops = daten.operations || [];\nif (ops.length === 0) {\n    // What the script delivered belongs in the message - otherwise an empty\n    // file cannot be told apart from a call that failed.\n    node.error('The export holds no operations. Read from: '\n    + (flow.get('emaExport') || env.get('SDI_EMA_EXPORT') || '(no path set)')\n    + '. For a relative path, start Node-RED through start-nodered.ps1, '\n    + 'which resolves it.', msg);\n    return null;\n}\n\nconst ohneZuordnung = [];\nops.forEach(op => {\n    const z = ZUORDNUNG[op.operationNumber];\n    op.lcaProcessId = z ? z.prozess : MONTAGE_PROZESS;\n    op.lcaParameterName = z ? z.parameter : MONTAGE_PARAMETER;\n});\nif (ohneZuordnung.length > 0) {\n    node.warn('Operations without an openLCA assignment: ' + ohneZuordnung.join(', '));\n}\n\nconst summe = ops.reduce((s, o) => s + (o.energyPerUnitMJ || 0), 0);\nflow.set('sim', {\n    scenario: daten.scenario || '',\n    exportFile: (flow.get('cfg').export || '').split(/[\\\\/]/).pop(),\n    operations: ops,\n    totalEnergyMJ: summe,\n    retrievedAt: new Date().toISOString()\n});\nnode.log(ops.length + ' operations, ' + summe.toFixed(6) + ' MJ per piece');\n\n// Load the DataSources submodel\nconst cfg = flow.get('cfg');\nconst b64 = Buffer.from(cfg.submodelId, 'utf8').toString('base64')\n    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\nflow.set('submodelB64', b64);\nmsg.method = 'GET';\nmsg.url = cfg.aasUrl + '/submodels/' + b64;\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nflow.set('emaExport', env.get('SDI_EMA_EXPORT'));\nnode.log('Simulation export: ' + env.get('SDI_EMA_EXPORT'));\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 100,
+        "wires": [
+            [
+                "b1c2d3e4f5a60004"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a60004",
+        "type": "http request",
+        "z": "b1c2d3e4f5a60001",
+        "name": "GET DataSources submodel",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 280,
+        "y": 200,
+        "wires": [
+            [
+                "b1c2d3e4f5a60005"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a60005",
+        "type": "function",
+        "z": "b1c2d3e4f5a60001",
+        "name": "🔧 Map simulation into the AAS",
+        "func": "// ═══════════════════════════════════════════════════════════\n// MAPPING simulation -> AAS\n// Target: DataSources submodel -> SML \"DataSources\" -> SMC \"Simulation\"\n// ═══════════════════════════════════════════════════════════\nconst sim = flow.get('sim');\nconst sm = msg.payload;\n\nif (!sm || !Array.isArray(sm.submodelElements)) {\n    node.error('The DataSources submodel could not be read', msg);\n    return null;\n}\n\nfunction idShort(str) {\n    let s = String(str || '')\n        .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')\n        .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue').replace(/ß/g, 'ss')\n        .replace(/[^A-Za-z0-9_]/g, '_').replace(/__+/g, '_').replace(/_+$/, '');\n    if (!/^[a-zA-Z]/.test(s)) { s = 'AG_' + s; }\n    return s.substring(0, 128) || 'Undefined';\n}\nconst prop = (id, v, t) => ({ modelType: 'Property', idShort: id,\n    valueType: t || 'xs:string', value: v === null || v === undefined ? '' : String(v) });\nconst smc = (id, v) => ({ modelType: 'SubmodelElementCollection', idShort: id, value: v });\nconst byId = (arr, id) => (arr || []).find(e => e && e.idShort === id);\n\nconst belegt = {};\nconst prozesse = sim.operations.map(op => {\n    let id = idShort(op.operationNumber + '_' + op.operationName);\n    if (belegt[id]) { belegt[id] += 1; id = id + '_' + belegt[id]; } else { belegt[id] = 1; }\n    return smc(id, [\n        prop('OperationNumber', op.operationNumber),\n        prop('OperationName', op.operationName),\n        prop('WorkStation', op.workstation),\n        prop('CycleTime', op.cycleTimeSeconds, 'xs:double'),\n        prop('CycleTimeUnit', 's'),\n        prop('ProcessDuration', op.processingTimeHours, 'xs:double'),\n        prop('ProcessDurationUnit', 'h'),\n        prop('EnergyPerUnit', op.energyPerUnitMJ, 'xs:double'),\n        prop('EnergyPerUnitUnit', 'MJ'),\n        prop('LCAProcessId', op.lcaProcessId),\n        prop('LCAParameterName', op.lcaParameterName)\n    ]);\n});\n\nconst simValue = [\n    prop('DataSource', 'Simulation'),\n    prop('SourceSystem', 'ema Plant Designer'),\n    prop('TimeOfSimulation', sim.retrievedAt, 'xs:dateTime'),\n    prop('Scenario', sim.scenario),\n    prop('ExportFile', sim.exportFile),\n    prop('TotalEnergyPerUnit', sim.totalEnergyMJ, 'xs:double'),\n    prop('TotalEnergyPerUnitUnit', 'MJ'),\n    smc('SimulationProcesses', prozesse)\n];\n\nlet list = byId(sm.submodelElements, 'DataSources')\n        || byId(sm.submodelElements, 'Data Sources')\n        || sm.submodelElements.find(e => e.modelType === 'SubmodelElementList');\nif (!list) {\n    node.error('SubmodelElementList \"DataSources\" not found', msg);\n    return null;\n}\nif (!Array.isArray(list.value)) { list.value = []; }\n\nconst pos = list.value.findIndex(e => e && e.idShort === 'Simulation');\nconst neu = smc('Simulation', simValue);\nif (pos >= 0) { list.value[pos] = neu; node.log('Simulation updated'); }\nelse { list.value.push(neu); node.log('Simulation newly created'); }\n\nmsg.method = 'PUT';\nmsg.url = flow.get('cfg').aasUrl + '/submodels/' + flow.get('submodelB64');\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = sm;\nnode.status({ fill: 'blue', shape: 'dot', text: 'writing AAS' });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 200,
+        "wires": [
+            [
+                "b1c2d3e4f5a60006"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a60006",
+        "type": "http request",
+        "z": "b1c2d3e4f5a60001",
+        "name": "PUT DataSources submodel",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 810,
+        "y": 200,
+        "wires": [
+            [
+                "b1c2d3e4f5a60007"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a60007",
+        "type": "function",
+        "z": "b1c2d3e4f5a60001",
+        "name": "✅ Status",
+        "func": "// Ergebnis melden\nconst sim = flow.get('sim') || {};\nif (msg.statusCode && msg.statusCode >= 400) {\n    node.error('AAS-Schreibvorgang fehlgeschlagen: HTTP ' + msg.statusCode, msg);\n    node.status({ fill: 'red', shape: 'ring', text: 'HTTP ' + msg.statusCode });\n    return null;\n}\nmsg.payload = {\n    status: 'ok', dataSource: 'Simulation', scenario: sim.scenario,\n    operations: (sim.operations || []).length,\n    totalEnergyMJ: sim.totalEnergyMJ, exportFile: sim.exportFile\n};\nnode.status({ fill: 'green', shape: 'dot',\n              text: (sim.operations || []).length + ' Arbeitsgaenge' });\nnode.log('Simulationsdaten in AAS geschrieben');\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 300,
+        "wires": [
+            [
+                "b1c2d3e4f5a6ff02"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a6ff02",
+        "type": "debug",
+        "z": "b1c2d3e4f5a60001",
+        "name": "Result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "b1c2d3e4f5a60090",
+        "type": "catch",
+        "z": "b1c2d3e4f5a60001",
+        "name": "Catch errors",
+        "scope": null,
+        "uncaught": false,
+        "x": 300,
+        "y": 380,
+        "wires": [
+            [
+                "b1c2d3e4f5a6ff01"
+            ]
+        ]
+    },
+    {
+        "id": "b1c2d3e4f5a6ff01",
+        "type": "debug",
+        "z": "b1c2d3e4f5a60001",
+        "name": "Error",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "error",
+        "targetType": "msg",
+        "statusVal": "error.message",
+        "statusType": "msg",
+        "x": 520,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "b1c2d3e4f5a60091",
+        "type": "comment",
+        "z": "b1c2d3e4f5a60001",
+        "name": "Configuration through environment variables",
+        "info": "SDI_EMA_EXPORT, SDI_EMA_SCENARIO, SDI_EMA_SCRIPT, SDI_PYTHON,\\nSDI_AAS_URL, SDI_AAS_DATASOURCES_ID",
+        "x": 250,
+        "y": 40,
+        "wires": []
+    }
+]

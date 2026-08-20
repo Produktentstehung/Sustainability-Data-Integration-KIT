@@ -19,3 +19,21 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# Filled-in configuration containing credentials
+.env
+
+# Working directory created by the setup script
+getting-started/nodered/
+getting-started/.env
+
+# Intermediate files of the PLM flow: CAD, preview and job JSON per part.
+# Written on every run and rebuilt from the PLM, so there is nothing here
+# to keep.
+getting-started/jobs/
+
+# Log files
+*.log
+
+# Generated packages - they are produced by export_aasx.py, not maintained
+getting-started/export/

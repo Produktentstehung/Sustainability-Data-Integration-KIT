@@ -1,0 +1,1228 @@
+[
+    {
+        "id": "ae88e0c42828bbd4",
+        "type": "tab",
+        "label": "PLM flow (product)",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d360832dd00ed241",
+        "type": "inject",
+        "z": "ae88e0c42828bbd4",
+        "name": "Start",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "000114",
+        "payloadType": "str",
+        "x": 150,
+        "y": 280,
+        "wires": [
+            [
+                "a74d76a3788f59af"
+            ]
+        ]
+    },
+    {
+        "id": "a74d76a3788f59af",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Prepare URL",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst BASE = env.get('SDI_PLM_URL') || 'https://plm.example.org';\nmsg.baseUrl = BASE;\nmsg.url = BASE + '/api/v1/collection/part/' + msg.payload;\nmsg.headers = { 'Authorization': plmAuth(), 'Accept':'application/json'};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 280,
+        "wires": [
+            [
+                "d9cc2ee1aec045c8"
+            ]
+        ]
+    },
+    {
+        "id": "d9cc2ee1aec045c8",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET Part",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 280,
+        "wires": [
+            [
+                "db3d4a7227bba679"
+            ]
+        ]
+    },
+    {
+        "id": "7eafa87df742e22b",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Start phase 2",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nmsg.headers={'Authorization': plmAuth(), 'Accept':'application/json'};return msg;",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 280,
+        "wires": [
+            [
+                "76be382bf6535baa",
+                "178053a8633e3cff"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "76be382bf6535baa",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Set BOM URL",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nmsg.url=msg.relBomUrl;msg.headers={'Authorization': plmAuth(), 'Accept':'application/json'};return msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 240,
+        "wires": [
+            [
+                "4e35192f462ddc72"
+            ]
+        ]
+    },
+    {
+        "id": "4e35192f462ddc72",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET BOM links",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1390,
+        "y": 240,
+        "wires": [
+            [
+                "263c27859ec73d85"
+            ]
+        ]
+    },
+    {
+        "id": "263c27859ec73d85",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Split BOM items",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst targets = msg.payload.targets || [];\nnode.warn('BOM: ' + targets.length + ' items found');\n\nif (targets.length === 0) {\n    msg.topic = 'bom';\n    msg.payload = [];\n    msg.parts = {id: 0, count: 1, index: 0};\n    return msg;\n}\n\nflow.set('bomTotal', targets.length);\nflow.set('bomCollected', []);\n\nconst msgs = targets.map((u, i) => ({\n    url: typeof u === 'string' ? u : u['@id'],\n    headers: {'Authorization': plmAuth(), 'Accept': 'application/json'},\n    topic: 'bom_item',\n    parts: {id: i, count: targets.length, index: i},\n    partData: msg.partData,\n    baseUrl: msg.baseUrl\n}));\nreturn [msgs];",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1600,
+        "y": 240,
+        "wires": [
+            [
+                "42cf7bcb66f86736"
+            ]
+        ]
+    },
+    {
+        "id": "42cf7bcb66f86736",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET BOM item",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1820,
+        "y": 240,
+        "wires": [
+            [
+                "9a705d220dc5e028"
+            ]
+        ]
+    },
+    {
+        "id": "178053a8633e3cff",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Set documents URL",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nmsg.url=msg.relDocsUrl;msg.headers={'Authorization': plmAuth(), 'Accept':'application/json'};return msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 360,
+        "wires": [
+            [
+                "0be4fba6c26fa139"
+            ]
+        ]
+    },
+    {
+        "id": "0be4fba6c26fa139",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET document links",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1390,
+        "y": 360,
+        "wires": [
+            [
+                "e4862e282247219a"
+            ]
+        ]
+    },
+    {
+        "id": "e4862e282247219a",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Fetch first document",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst t=msg.payload.targets||[];\nnode.warn('Documents: '+t.length+' found');\nif(t.length===0){\n  // Purchased parts often carry no CAD document. Second output: past the\n  // document chain, so that a shell is produced regardless.\n  node.warn('No document present - the shell is built without a model file');\n  msg.topic='doc';\n  msg.payload={docData:null,cadBuffer:null,previewBuffer:null};\n  return [null, msg];\n}\nmsg.url=typeof t[0]==='string'?t[0]:t[0]['@id'];\nmsg.headers={'Authorization': plmAuth(), 'Accept':'application/json'};\nreturn msg;",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1600,
+        "y": 360,
+        "wires": [
+            [
+                "d92fc552326c6a40"
+            ],
+            [
+                "050781d6637ac0bc"
+            ]
+        ]
+    },
+    {
+        "id": "d92fc552326c6a40",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET document metadata",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1820,
+        "y": 360,
+        "wires": [
+            [
+                "a5c54049be300265"
+            ]
+        ]
+    },
+    {
+        "id": "a5c54049be300265",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Prepare files API URL",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst docObj = msg.payload;\nif (!docObj || !docObj['@id']) {\n    node.error('No document metadata received');\n    return null;\n}\n\nmsg.docMetadata = {\n    fileId:             docObj['z_nummer'] || '',\n    fileVersion:        docObj['src_index'] || docObj['z_index'] || '1',\n    title:              docObj['titel'] || docObj['benennung'] || 'Model',\n    fileClassification: docObj['erzeug_system'] || 'CAD model',\n    consumingApp:       docObj['erzeug_system'] || 'SolidWorks',\n    uiLink:             docObj['system:ui_link'] || ''\n};\n\nmsg.url = docObj['@id'] + '/files?data=complete';\nmsg.headers = { 'Authorization': plmAuth(),  'Accept': 'application/json' };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2040,
+        "y": 360,
+        "wires": [
+            [
+                "2d3d91d2bc155086"
+            ]
+        ]
+    },
+    {
+        "id": "2d3d91d2bc155086",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET file list JSON",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2260,
+        "y": 360,
+        "wires": [
+            [
+                "40f7981a3d459975"
+            ]
+        ]
+    },
+    {
+        "id": "40f7981a3d459975",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Extract targets",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst fileCollection = msg.payload;\nconst targets = fileCollection.targets || [];\nnode.warn('Target files found: ' + targets.length);\n\nif (targets.length === 0) {\n    // Second output: without a stored file, straight to the end.\n    node.warn('Document without a stored file - shell without a model file');\n    msg.topic = 'doc';\n    msg.payload = { docData: msg.docMetadata, cadBuffer: null, previewBuffer: null };\n    return [null, msg];\n}\n\nconst t0 = targets[0];\nmsg.cadUrl = typeof t0 === 'string' ? t0 : (t0['@id'] || null);\nmsg.cadName = typeof t0 === 'object' ? (t0['cdbf_name'] || 'model.sldasm') : 'model.sldasm';\n\nconst t1 = targets[1];\nmsg.previewUrl = t1 ? (typeof t1 === 'string' ? t1 : (t1['@id'] || null)) : null;\nmsg.previewName = (t1 && typeof t1 === 'object') ? (t1['cdbf_name'] || 'preview.jpg') : 'preview.jpg';\n\nmsg.url = msg.cadUrl;\nmsg.headers = { 'Authorization': plmAuth(),  'Accept': '*/*' };\nreturn msg;",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2470,
+        "y": 360,
+        "wires": [
+            [
+                "d4a26e94bb7b2d2e"
+            ],
+            [
+                "050781d6637ac0bc"
+            ]
+        ]
+    },
+    {
+        "id": "d4a26e94bb7b2d2e",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "Download CAD (binary)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2700,
+        "y": 360,
+        "wires": [
+            [
+                "213f4af92f458b0c"
+            ]
+        ]
+    },
+    {
+        "id": "213f4af92f458b0c",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Save CAD and load preview",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nif (msg.statusCode === 200 && msg.payload) {\n    msg.cadBuffer = msg.payload;\n} else {\n    node.warn('CAD download incomplete: ' + msg.statusCode);\n    msg.cadBuffer = null;\n}\n\nif (msg.previewUrl) {\n    msg.url = msg.previewUrl;\n    msg.headers = { 'Authorization': plmAuth(),  'Accept': '*/*' };\n    return msg;\n}\n\nmsg.previewBuffer = null;\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    cadName: msg.cadName,\n    previewBuffer: null,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2920,
+        "y": 360,
+        "wires": [
+            [
+                "a246bd2098345897"
+            ]
+        ]
+    },
+    {
+        "id": "a246bd2098345897",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "Download preview (binary)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 3140,
+        "y": 360,
+        "wires": [
+            [
+                "050781d6637ac0bc"
+            ]
+        ]
+    },
+    {
+        "id": "050781d6637ac0bc",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Complete the document branch",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview Download unvollst\u00e4ndig: ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3360,
+        "y": 360,
+        "wires": [
+            [
+                "f62d0a39fc6471d0"
+            ]
+        ]
+    },
+    {
+        "id": "f62d0a39fc6471d0",
+        "type": "join",
+        "z": "ae88e0c42828bbd4",
+        "name": "Join BOM and document",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "useparts": true,
+        "accumulate": false,
+        "timeout": "30",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 3610,
+        "y": 280,
+        "wires": [
+            [
+                "05f305c2c85dd9f4"
+            ]
+        ]
+    },
+    {
+        "id": "05f305c2c85dd9f4",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Write the data as JSON",
+        "func": "const results  = msg.payload;\nconst bom      = results['bom']||[];\nconst docRes   = results['doc']||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = env.get('SDI_PLM_BASE_SHELL') || '';\nconst OUTPUT_PATH = env.get('SDI_PLM_OUTPUT') || '';\nconst PYTHON_SCRIPT = env.get('SDI_PLM_SCRIPT') || '';\n// Working directory with a fallback that actually works.\n//\n// This read 'env.get(...) || WORK_DIR' - the variable referred to itself.\n// With the environment variable unset the node aborts before it starts,\n// complaining about a variable that plainly stands there in the source. In\n// the lab this never shows, because there the variable is set.\nconst WORK_DIR    = env.get('SDI_PLM_WORK_DIR')\n                 || ((env.get('SDI_PLM_JOBDIR') || 'jobs') + '/product');\nconst DATA_JSON   = WORK_DIR + '/cim_aas_data.json';\nconst FILE_BIN    = WORK_DIR + '/cim_cad_file.bin';\nconst PREVIEW_BIN = WORK_DIR + '/cim_preview_file.bin';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\ntry { if(!fs.existsSync(WORK_DIR)) fs.mkdirSync(WORK_DIR,{recursive:true}); } catch(e){}\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD binary written: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the CAD file failed: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview binary written: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the preview failed: ' + e.message); }\n}\n\nlet maxBomCsv = '';\ntry {\n    const csvPath = BASE_PATH.replace(/\\//g,'\\\\') + '\\\\aasx\\\\files\\\\Produktstruktur_MaxBOM_TRACEpen_Kugelschreiber.CSV';\n    if (fs.existsSync(csvPath)) {\n        maxBomCsv = fs.readFileSync(csvPath, 'latin1');\n        node.warn('MaxBOM CSV loaded: ' + csvPath.replace(/.*[\\\\/]/, ''));\n    }\n} catch(e) { node.warn('MaxBOM CSV not loaded: ' + e.message); }\n\nconst partNameSafe = (part && part.name) ? part.name : '';\nconst templateXmlPath = partNameSafe\n    ? OUTPUT_PATH + '/' + partNameSafe + '/aasx/' + partNameSafe + '/' + partNameSafe + '.aas.xml'\n    : '';\nnode.warn('Template: ' + templateXmlPath.replace(/.*[\\\\/]/, ''));\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n  maxBomCsv: maxBomCsv,\n  templateXmlPath: templateXmlPath,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON written: '+DATA_JSON);\n}catch(e){\n  node.error('Writing the JSON failed: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\n// Report the program name and the job only - the full path does not belong\n// in the log, it is held in the configuration.\nnode.warn('Starting ' + String(msg.payload).replace(/.*[\\\\/]/, '')\n        .replace(/\".*/, '') + ' for job ' + (msg.jobId || '?'));\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3830,
+        "y": 280,
+        "wires": [
+            [
+                "6721bb148dc936ce",
+                "963e1ca7c5ac684b"
+            ]
+        ]
+    },
+    {
+        "id": "6721bb148dc936ce",
+        "type": "exec",
+        "z": "ae88e0c42828bbd4",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "60",
+        "winHide": false,
+        "name": "Python: create the AAS",
+        "x": 4060,
+        "y": 280,
+        "wires": [
+            [
+                "d1452aee5ad01152"
+            ],
+            [
+                "d1452aee5ad01152"
+            ],
+            [
+                "d1452aee5ad01152"
+            ]
+        ]
+    },
+    {
+        "id": "d1452aee5ad01152",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Report status",
+        "func": "const out = typeof msg.payload==='string' ? msg.payload : JSON.stringify(msg.payload);\nif(out && out.trim()) node.warn('Python output: '+out.substring(0,2000));\nmsg.payload = {\n  status: msg.rc===0||out.includes('FERTIG') ? 'OK' : 'CHECK',\n  pythonOutput: out,\n  outputPath: msg.outputPath||'?',\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 4280,
+        "y": 280,
+        "wires": [
+            [
+                "32ba64968a3dee43"
+            ]
+        ]
+    },
+    {
+        "id": "32ba64968a3dee43",
+        "type": "debug",
+        "z": "ae88e0c42828bbd4",
+        "name": "Result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 4490,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "ebc0c6b5215f95fa",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "\u2500\u2500 PHASE 1: Part \u2500\u2500",
+        "info": "Basic Auth in 'GET Part' eintragen.",
+        "x": 150,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "68d45ceb932d5835",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "\u2500\u2500 PHASE 2a: BOM \u2500\u2500",
+        "info": "Alle BOM-Items einzeln abrufen.",
+        "x": 1250,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "e8271985888af6f5",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "\u2500\u2500 PHASE 2b: CAD document and files \u2500\u2500",
+        "info": "L\u00f6st erst die Metadaten auf und holt danach sequentiell die Bin\u00e4rdaten ab.",
+        "x": 1300,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c015a068974b8194",
+        "type": "comment",
+        "z": "ae88e0c42828bbd4",
+        "name": "\u2500\u2500 PHASE 3: AAS via Python \u2500\u2500",
+        "info": "Nutzt global.get() f\u00fcr fs und path.",
+        "x": 3830,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "db3d4a7227bba679",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Extract part data",
+        "func": "const p = msg.payload;\nif(msg.statusCode!==200){\n    // Pass the address and the start of the answer along: without them a\n    // fault of the PLM server cannot be told apart from wrong credentials\n    // or an unknown part number.\n    const anfang = typeof msg.payload === 'string'\n        ? msg.payload.substring(0, 200)\n        : JSON.stringify(msg.payload || '').substring(0, 200);\n    node.error('Part HTTP ' + msg.statusCode + ' at ' + msg.url\n             + ' | answer: ' + anfang, msg);\n    return null;\n}\nconst rel = (p['system:relships']&&p['system:relships']['relships'])||{};\nmsg.partData = {\n  name:             p['benennung']||null,\n  articleNumber:    p['teilenummer']||null,\n  erpNumber:        p['materialnr_erp']||null,\n  status:           p['joined_status_name']||null,\n  navigationId:     p['system:navigation_id']||null,\n  uiLink:           p['system:ui_link']||null,\n  unit:             p['mengeneinheit_name']||p['mengeneinheit']||null,\n  category:         p['t_kategorie_name']||p['t_kategorie']||null,\n  maturity:         p['mapped_maturity_name']||null,\n  createdBy:        p['mapped_cpersno_name']||null,\n  createdAt:        p['cdb_cdate']||null,\n  materialObjectId: p['material_object_id']||null,\n  techdaten:        p['techdaten']||null\n};\nmsg.relBomUrl  = rel['BOM']||null;\nmsg.relDocsUrl = rel['Documents']||null;\nnode.warn('Part ok: '+msg.partData.name);\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 100,
+        "wires": [
+            [
+                "a9804040d298b002"
+            ]
+        ]
+    },
+    {
+        "id": "a9804040d298b002",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Parse main technical data and prepare the API call",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst partData = msg.partData;\nif (!partData || !partData.techdaten) {\n    msg.partWeight = 0.0;\n    msg.partMaterialName = \"No material defined\";\n    return [null, msg];\n}\ntry {\n    const parts = partData.techdaten.split(\",\");\n    const materialId = parts[0].trim();\n    const weightKg = parseFloat(parts[1].trim());\n    msg.partWeight = weightKg;\n    msg.partMaterialId = materialId;\n    msg.url = `${env.get('SDI_PLM_URL') || 'https://plm.example.org'}/api/v1/collection/material/${materialId}`;\n    // Empty the body: otherwise the HTTP node sends msg.payload as the body\n    // of the GET request, and the server does not answer that.\n    msg.payload = {};\n    msg.headers = { 'Accept': 'application/json',\n                    'Authorization': plmAuth() };\n    return [msg, null];\n} catch (e) {\n    node.error(\"Error parsing the main technical data: \" + e.message, msg);\n    msg.partWeight = 0.0;\n    msg.partMaterialName = \"Malformed technical data\";\n    return [null, msg];\n}",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 160,
+        "wires": [
+            [
+                "25828761fac70393"
+            ],
+            [
+                "e4959564bbeee04e"
+            ]
+        ]
+    },
+    {
+        "id": "25828761fac70393",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET main material info",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 690,
+        "y": 80,
+        "wires": [
+            [
+                "586a3d9628af086b"
+            ]
+        ]
+    },
+    {
+        "id": "586a3d9628af086b",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Extract the main material name",
+        "func": "const materialData = msg.payload;\nif (msg.statusCode !== 200 || !materialData) {\n    node.error(\"Main material HTTP error \" + msg.statusCode);\n    msg.partMaterialName = \"API Fehler\";\n} else {\n    msg.partMaterialName = materialData.name || \"Unbenanntes Material\";\n}\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 980,
+        "y": 80,
+        "wires": [
+            [
+                "e4959564bbeee04e"
+            ]
+        ]
+    },
+    {
+        "id": "e4959564bbeee04e",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Merge the main data",
+        "func": "msg.partData.weight = msg.partWeight;\nmsg.partData.material = msg.partMaterialName;\n// Payload zur\u00fccksetzen f\u00fcr nachfolgende HTTP-St\u00fccklisten-Aufrufe\nmsg.payload = {}; \nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 160,
+        "wires": [
+            [
+                "7eafa87df742e22b"
+            ]
+        ]
+    },
+    {
+        "id": "c4247cb8e769a2d7",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "Parse BOM item",
+        "func": "const d = msg.basicData || {};\nconst a = msg.payload || {};\n\n// The weight sits in the field techdaten as \"material, weight\". If it is\n// missing the weight stays open - that is no reason to give up on the whole\n// bill of material.\nlet gewicht = null;\nif (d['techdaten']) {\n    const teile = String(d['techdaten']).split(',');\n    gewicht = teile.length > 1 ? teile[1].trim() : null;\n}\n\nconst item = (msg.statusCode !== 200 && msg.statusCode !== undefined) ? null : {\n    position: d['position'] || d['lfd_nr'] || null,\n    partNumber: d['teilenummer'] || null,\n    name: d['benennung'] || d['system:description'] || null,\n    quantity: d['menge'] || null,\n    unit: d['mengeneinheit'] || d['mengeneinheit_name'] || null,\n    assemblyType: d['baugruppenart'] || null,\n    category: d['t_kategorie'] || d['t_kategorie_name'] || null,\n    weight: gewicht,\n    material: a['name'] || null,\n};\n\nif (item && !item.name && !item.partNumber) {\n    node.warn('Bill-of-material line without a name and without a part number - '\n        + 'fields of the answer: ' + Object.keys(d).join(', '));\n}\n\n// Every line is counted, a faulty one included. Otherwise the counter never\n// fills up and the join waits forever.\nconst collected = flow.get('bomCollected') || [];\ncollected.push(item);\nflow.set('bomCollected', collected);\n\nconst total = flow.get('bomTotal') || (msg.parts && msg.parts.count) || 1;\nnode.warn('BOM item ' + collected.length + '/' + total\n    + (item ? '' : ' (failed, HTTP ' + msg.statusCode + ')'));\n\nif (collected.length >= total) {\n    flow.set('bomCollected', []);\n    const verwertbar = collected.filter(x => x !== null);\n    node.warn('Bill of material complete: ' + verwertbar.length + ' of ' + total\n        + ' lines usable');\n    msg.payload = verwertbar;\n    msg.topic = 'bom';\n    msg.bomItems = msg.payload;\n    return msg;\n}\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2570,
+        "y": 240,
+        "wires": [
+            [
+                "f62d0a39fc6471d0"
+            ]
+        ]
+    },
+    {
+        "id": "8887bfc8690faa7f",
+        "type": "http request",
+        "z": "ae88e0c42828bbd4",
+        "name": "GET BOM material info",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2310,
+        "y": 240,
+        "wires": [
+            [
+                "c4247cb8e769a2d7",
+                "43dac87fbdbe9cb5"
+            ]
+        ]
+    },
+    {
+        "id": "9a705d220dc5e028",
+        "type": "function",
+        "z": "ae88e0c42828bbd4",
+        "name": "set request's parameters",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst fields = msg.payload || {};\nmsg.basicData = fields;\n\n// Without technical data there is no material to look up. The node used to\n// abort here with a TypeError that gave no hint of the cause.\nif (!fields['techdaten']) {\n    node.warn('Part \"' + (fields['name'] || fields['id'] || 'unknown')\n        + '\" has no techdaten field - material and weight stay empty.');\n    // Second output: past the material lookup, straight to collecting.\n    msg.payload = {};\n    return [null, msg];\n}\nmsg.url = msg.baseUrl + '/api/v1/collection/material/' + String(fields['techdaten']).split(',')[0].trim();\n// Empty the body: otherwise the HTTP node sends msg.payload as the body of\n// the GET request, and the server does not answer that.\nmsg.payload = {};\n// Build the request headers afresh. At this point msg.headers holds the\n// headers of the previous response; they must not be sent along.\nmsg.headers = { 'Accept': 'application/json', 'Authorization': plmAuth() };\nreturn msg;",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2050,
+        "y": 240,
+        "wires": [
+            [
+                "sdiplmdelay0001"
+            ],
+            [
+                "c4247cb8e769a2d7"
+            ]
+        ]
+    },
+    {
+        "id": "963e1ca7c5ac684b",
+        "type": "debug",
+        "z": "ae88e0c42828bbd4",
+        "name": "debug 61",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 4050,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "43dac87fbdbe9cb5",
+        "type": "link out",
+        "z": "ae88e0c42828bbd4",
+        "name": "PLM flow (part)",
+        "mode": "link",
+        "links": [
+            "e46ff3cf1f2a355b"
+        ],
+        "x": 2505,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "0bf346aa1e637d09",
+        "type": "tab",
+        "label": "PLM flow (part)",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d3f1bab79762c47b",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Set documents URL",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nmsg.url=msg.relDocsUrl;msg.headers={'Authorization': plmAuth(), 'Accept':'application/json'};return msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 260,
+        "wires": [
+            [
+                "9d698cbd5e232fa4"
+            ]
+        ]
+    },
+    {
+        "id": "9d698cbd5e232fa4",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "GET document links",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 930,
+        "y": 260,
+        "wires": [
+            [
+                "8a42d369884f8a4e"
+            ]
+        ]
+    },
+    {
+        "id": "8a42d369884f8a4e",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Fetch first document",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst t=msg.payload.targets||[];\nnode.warn('Documents: '+t.length+' found');\nif(t.length===0){\n  // Purchased parts often carry no CAD document. Second output: past the\n  // document chain, so that a shell is produced regardless.\n  node.warn('No document present - the shell is built without a model file');\n  msg.topic='doc';\n  msg.payload={docData:null,cadBuffer:null,previewBuffer:null};\n  return [null, msg];\n}\nmsg.url=typeof t[0]==='string'?t[0]:t[0]['@id'];\nmsg.headers={'Authorization': plmAuth(), 'Accept':'application/json'};\nreturn msg;",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 260,
+        "wires": [
+            [
+                "616cd83afa6ae2b4"
+            ],
+            [
+                "7f114459b79b8a98"
+            ]
+        ]
+    },
+    {
+        "id": "616cd83afa6ae2b4",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "GET document metadata",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1360,
+        "y": 260,
+        "wires": [
+            [
+                "6c90ac06a47cc23a"
+            ]
+        ]
+    },
+    {
+        "id": "6c90ac06a47cc23a",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Prepare files API URL",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst docObj = msg.payload;\nif (!docObj || !docObj['@id']) {\n    node.error('No document metadata received');\n    return null;\n}\n\nmsg.docMetadata = {\n    fileId:             docObj['z_nummer'] || '',\n    fileVersion:        docObj['src_index'] || docObj['z_index'] || '1',\n    title:              docObj['titel'] || docObj['benennung'] || 'Model',\n    fileClassification: docObj['erzeug_system'] || 'CAD model',\n    consumingApp:       docObj['erzeug_system'] || 'SolidWorks',\n    uiLink:             docObj['system:ui_link'] || ''\n};\n\nmsg.url = docObj['@id'] + '/files?data=complete';\nmsg.headers = { 'Authorization': plmAuth(),  'Accept': 'application/json' };\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1580,
+        "y": 260,
+        "wires": [
+            [
+                "a38e94ced3a99eeb"
+            ]
+        ]
+    },
+    {
+        "id": "a38e94ced3a99eeb",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "GET file list JSON",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1800,
+        "y": 260,
+        "wires": [
+            [
+                "d8b3f971da6a4994"
+            ]
+        ]
+    },
+    {
+        "id": "d8b3f971da6a4994",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Extract targets",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nconst fileCollection = msg.payload;\nconst targets = fileCollection.targets || [];\nnode.warn('Target files found: ' + targets.length);\n\nif (targets.length === 0) {\n    // Second output: without a stored file, straight to the end.\n    node.warn('Document without a stored file - shell without a model file');\n    msg.topic = 'doc';\n    msg.payload = { docData: msg.docMetadata, cadBuffer: null, previewBuffer: null };\n    return [null, msg];\n}\n\nconst t0 = targets[0];\nmsg.cadUrl = typeof t0 === 'string' ? t0 : (t0['@id'] || null);\nmsg.cadName = typeof t0 === 'object' ? (t0['cdbf_name'] || 'model.sldasm') : 'model.sldasm';\n\nconst t1 = targets[1];\nmsg.previewUrl = t1 ? (typeof t1 === 'string' ? t1 : (t1['@id'] || null)) : null;\nmsg.previewName = (t1 && typeof t1 === 'object') ? (t1['cdbf_name'] || 'preview.jpg') : 'preview.jpg';\n\nmsg.url = msg.cadUrl;\nmsg.headers = { 'Authorization': plmAuth(),  'Accept': '*/*' };\nreturn msg;",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2010,
+        "y": 260,
+        "wires": [
+            [
+                "5867dff5f31ee28f",
+                "01e8123ae9e4fc7a"
+            ],
+            [
+                "7f114459b79b8a98"
+            ]
+        ]
+    },
+    {
+        "id": "5867dff5f31ee28f",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "Download CAD (binary)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2240,
+        "y": 260,
+        "wires": [
+            [
+                "9d005c47b83e40f4"
+            ]
+        ]
+    },
+    {
+        "id": "9d005c47b83e40f4",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Save CAD and load preview",
+        "func": "// Credentials from the environment; never stored in the flow.\nfunction plmAuth() {\n    const u = env.get('SDI_PLM_USER'), p = env.get('SDI_PLM_PASSWORD');\n    if (!u || !p) {\n        node.error('SDI_PLM_USER and SDI_PLM_PASSWORD have to be set. Start '\n            + 'Node-RED through start-nodered.ps1, which asks for the '\n            + 'password without echoing it.', msg);\n        return null;\n    }\n    return 'Basic ' + Buffer.from(u + ':' + p).toString('base64');\n}\n\nif (msg.statusCode === 200 && msg.payload) {\n    msg.cadBuffer = msg.payload;\n} else {\n    node.warn('CAD download incomplete: ' + msg.statusCode);\n    msg.cadBuffer = null;\n}\n\nif (msg.previewUrl) {\n    msg.url = msg.previewUrl;\n    msg.headers = { 'Authorization': plmAuth(),  'Accept': '*/*' };\n    return msg;\n}\n\nmsg.previewBuffer = null;\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    cadName: msg.cadName,\n    previewBuffer: null,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2460,
+        "y": 260,
+        "wires": [
+            [
+                "5b07161ca65b1229"
+            ]
+        ]
+    },
+    {
+        "id": "5b07161ca65b1229",
+        "type": "http request",
+        "z": "0bf346aa1e637d09",
+        "name": "Download preview (binary)",
+        "method": "GET",
+        "ret": "bin",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 2680,
+        "y": 260,
+        "wires": [
+            [
+                "7f114459b79b8a98"
+            ]
+        ]
+    },
+    {
+        "id": "7f114459b79b8a98",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Complete the document branch",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview Download unvollst\u00e4ndig: ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 2950,
+        "y": 260,
+        "wires": [
+            [
+                "9148ea21e3697c5d"
+            ]
+        ]
+    },
+    {
+        "id": "9148ea21e3697c5d",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Write the data as JSON",
+        "func": "const bom      = [];\nconst docRes   = msg.payload||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = env.get('SDI_PLM_BASE_SHELL') || '';\nconst OUTPUT_PATH = env.get('SDI_PLM_OUTPUT') || '';\nconst PYTHON_SCRIPT = env.get('SDI_PLM_SCRIPT') || '';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\n// Working directory from the environment, with a fallback next to the\n// working directory of Node-RED. A fixed Windows path stood here before:\n// on Linux and macOS the flow failed, and on Windows the intermediate\n// files ended up outside the project.\nconst JOB = (env.get('SDI_PLM_JOBDIR') || 'jobs') + '/' + msg.jobId;\nfs.mkdirSync(JOB, { recursive: true });\nconst DATA_JSON = JOB + \"/data.json\";\nconst FILE_BIN = JOB + \"/cad.bin\";\nconst PREVIEW_BIN = JOB + \"/preview.jpg\";\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD binary written: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the CAD file failed: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview binary written: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the preview failed: ' + e.message); }\n}\n\nlet maxBomCsv = '';\ntry {\n    const csvPath = BASE_PATH.replace(/\\//g,'\\\\') + '\\\\aasx\\\\files\\\\Produktstruktur_MaxBOM_TRACEpen_Kugelschreiber.CSV';\n    if (fs.existsSync(csvPath)) {\n        maxBomCsv = fs.readFileSync(csvPath, 'latin1');\n        node.warn('MaxBOM CSV loaded: ' + csvPath.replace(/.*[\\\\/]/, ''));\n    }\n} catch(e) { node.warn('MaxBOM CSV not loaded: ' + e.message); }\n\nconst partNameSafe = (part && part.name) ? part.name : '';\nconst templateXmlPath = partNameSafe\n    ? OUTPUT_PATH + '/' + partNameSafe + '/aasx/' + partNameSafe + '/' + partNameSafe + '.aas.xml'\n    : '';\nnode.warn('Template: ' + templateXmlPath.replace(/.*[\\\\/]/, ''));\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n  maxBomCsv: maxBomCsv,\n  templateXmlPath: templateXmlPath,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON written: '+DATA_JSON);\n}catch(e){\n  node.error('Writing the JSON failed: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\n// Report the program name and the job only - the full path does not belong\n// in the log, it is held in the configuration.\nnode.warn('Starting ' + String(msg.payload).replace(/.*[\\\\/]/, '')\n        .replace(/\".*/, '') + ' for job ' + (msg.jobId || '?'));\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3240,
+        "y": 260,
+        "wires": [
+            [
+                "6266dc3adef1f946"
+            ]
+        ]
+    },
+    {
+        "id": "6266dc3adef1f946",
+        "type": "exec",
+        "z": "0bf346aa1e637d09",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "60",
+        "winHide": false,
+        "name": "Python: create the AAS",
+        "x": 3510,
+        "y": 260,
+        "wires": [
+            [
+                "b76d20d619807008"
+            ],
+            [
+                "b76d20d619807008"
+            ],
+            [
+                "b76d20d619807008"
+            ]
+        ]
+    },
+    {
+        "id": "b76d20d619807008",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Report status",
+        "func": "const out = typeof msg.payload==='string' ? msg.payload : JSON.stringify(msg.payload);\nif(out && out.trim()) node.warn('Python output: '+out.substring(0,2000));\nmsg.payload = {\n  status: msg.rc===0||out.includes('FERTIG') ? 'OK' : 'CHECK',\n  pythonOutput: out,\n  outputPath: msg.outputPath||'?',\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 3730,
+        "y": 260,
+        "wires": [
+            [
+                "31b465694e30388a"
+            ]
+        ]
+    },
+    {
+        "id": "31b465694e30388a",
+        "type": "debug",
+        "z": "0bf346aa1e637d09",
+        "name": "Result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 3940,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "90a47fcb38af7341",
+        "type": "comment",
+        "z": "0bf346aa1e637d09",
+        "name": "\u2500\u2500 PHASE 1: Part \u2500\u2500",
+        "info": "Basic Auth in 'GET Part' eintragen.",
+        "x": 440,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c5954831b04a5297",
+        "type": "comment",
+        "z": "0bf346aa1e637d09",
+        "name": "\u2500\u2500 PHASE 2b: CAD document and files \u2500\u2500",
+        "info": "L\u00f6st erst die Metadaten auf und holt danach sequentiell die Bin\u00e4rdaten ab.",
+        "x": 840,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "4ac8f39a03440cb7",
+        "type": "comment",
+        "z": "0bf346aa1e637d09",
+        "name": "\u2500\u2500 PHASE 3: AAS via Python \u2500\u2500",
+        "info": "Nutzt global.get() f\u00fcr fs und path.",
+        "x": 3280,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "682bed30d54ba99b",
+        "type": "function",
+        "z": "0bf346aa1e637d09",
+        "name": "Extract part data",
+        "func": "const d = msg.basicData;\nconst a = msg.payload;\nif(msg.statusCode!==200){\n    // Pass the address and the start of the answer along: without them a\n    // fault of the PLM server cannot be told apart from wrong credentials\n    // or an unknown part number.\n    const anfang = typeof msg.payload === 'string'\n        ? msg.payload.substring(0, 200)\n        : JSON.stringify(msg.payload || '').substring(0, 200);\n    node.error('Part HTTP ' + msg.statusCode + ' at ' + msg.url\n             + ' | answer: ' + anfang, msg);\n    return null;\n}\nconst rel = (d['system:relships']&&d['system:relships']['relships'])||{};\nmsg.partData = {\n  name:             d['benennung']||null,\n  articleNumber:    d['teilenummer']||null,\n  erpNumber:        d['component_materialnr_erp']||null,\n  status:           d['component_status_name']||null,\n  navigationId:     d['system:navigation_id']||null,\n  uiLink:           d['system:ui_link']||null,\n  quantity:         d['menge'] || null,\n  unit:             d['mengeneinheit']||null,\n  category:         d['t_kategorie']||null,\n  weight:           d['techdaten'].split(', ')[1] || null,\n  material:         a['name'] || null,\n};\nmsg.relDocsUrl = rel['Documents']||null;\nnode.warn('Part ok: '+msg.partData.name);\nmsg.jobId = msg.partData.articleNumber + \"_\" + Date.now();\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 260,
+        "wires": [
+            [
+                "d3f1bab79762c47b"
+            ]
+        ]
+    },
+    {
+        "id": "e46ff3cf1f2a355b",
+        "type": "link in",
+        "z": "0bf346aa1e637d09",
+        "name": "PLM flow (product)",
+        "links": [
+            "43dac87fbdbe9cb5"
+        ],
+        "x": 275,
+        "y": 260,
+        "wires": [
+            [
+                "682bed30d54ba99b"
+            ]
+        ]
+    },
+    {
+        "id": "01e8123ae9e4fc7a",
+        "type": "debug",
+        "z": "0bf346aa1e637d09",
+        "name": "debug 63",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 2150,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "sdiplmdelay0001",
+        "type": "delay",
+        "z": "ae88e0c42828bbd4",
+        "name": "Queue the material lookups",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 2180,
+        "y": 300,
+        "wires": [
+            [
+                "8887bfc8690faa7f"
+            ]
+        ]
+    }
+]

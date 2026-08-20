@@ -75,11 +75,11 @@
       "typeValueListElement": "SubmodelElementCollection",
       "value": [
         {
-          "idShort": "Manufacturing",
+          "idShort": "MachineData",
           "displayName": [
             {
               "language": "en",
-              "text": "Manufacturing"
+              "text": "MachineData"
             },
             {
               "language": "de",

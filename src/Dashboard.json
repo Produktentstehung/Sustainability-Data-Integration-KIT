@@ -1,0 +1,1432 @@
+[
+    {
+        "id": "sdiui0000tab0001",
+        "type": "tab",
+        "label": "SDI Dashboard",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5ccf679c7b70e876",
+        "type": "ui-base",
+        "name": "My Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": 5,
+        "showDisconnectNotification": true
+    },
+    {
+        "id": "sdiui0000theme01",
+        "type": "ui-theme",
+        "name": "SDI",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0071e3",
+            "bgPage": "#f5f5f7",
+            "groupBg": "#ffffff",
+            "groupOutline": "#e8e8ed"
+        },
+        "sizes": {
+            "density": "comfortable",
+            "pagePadding": "20px",
+            "groupGap": "18px",
+            "groupBorderRadius": "18px",
+            "widgetGap": "14px"
+        }
+    },
+    {
+        "id": "sdiui0000page001",
+        "type": "ui-page",
+        "name": "SDI-KIT",
+        "ui": "5ccf679c7b70e876",
+        "path": "/kit",
+        "icon": "leaf",
+        "layout": "grid",
+        "theme": "sdiui0000theme01",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 2,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0000grp0000",
+        "type": "ui-group",
+        "name": "",
+        "page": "sdiui0000page001",
+        "width": 12,
+        "height": 1,
+        "order": 1,
+        "showTitle": false,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0000grp0002",
+        "type": "ui-group",
+        "name": "",
+        "page": "sdiui0000page001",
+        "width": 12,
+        "height": 1,
+        "order": 7,
+        "showTitle": false,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0000grp0001",
+        "type": "ui-group",
+        "name": "",
+        "page": "sdiui0000page001",
+        "width": 6,
+        "height": 1,
+        "order": 5,
+        "showTitle": false,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0000grp0005",
+        "type": "ui-group",
+        "name": "",
+        "page": "sdiui0000page001",
+        "width": 6,
+        "height": 1,
+        "order": 6,
+        "showTitle": false,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0000grp0003",
+        "type": "ui-group",
+        "name": "",
+        "page": "sdiui0000page001",
+        "width": 12,
+        "height": 1,
+        "order": 3,
+        "showTitle": false,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0000grp0006",
+        "type": "ui-group",
+        "name": "",
+        "page": "sdiui0000page001",
+        "width": 12,
+        "height": 1,
+        "order": 2,
+        "showTitle": false,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0000grp0004",
+        "type": "ui-group",
+        "name": "",
+        "page": "sdiui0000page001",
+        "width": 12,
+        "height": 1,
+        "order": 4,
+        "showTitle": false,
+        "className": "",
+        "visible": true,
+        "disabled": false
+    },
+    {
+        "id": "sdiui0238",
+        "type": "inject",
+        "z": "sdiui0000tab0001",
+        "name": "On start",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.5",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 60,
+        "wires": [
+            [
+                "sdiui0237"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0237",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Hold the style",
+        "func": "// The style block sits once in flow context and is embedded by the headline view - that way it applies to the whole page.\n// The empty payload also clears the message areas: the dashboard remembers the last content per node id, and after a rebuild an area would otherwise show what an earlier node left behind.\nflow.set('stil', \"<style>\\n/* System font as on macOS and iOS, with a fallback */\\n.sdi, .sdi * {\\n    font-family: -apple-system, BlinkMacSystemFont, \\\"SF Pro Text\\\", \\\"Segoe UI\\\",\\n                 Roboto, Helvetica, Arial, sans-serif;\\n    -webkit-font-smoothing: antialiased;\\n    box-sizing: border-box;\\n}\\n/* Colours by measured contrast, not by example.\\n *\\n * The light grey came from Apple interfaces - where it sits on larger\\n * type. Brought down to 13 pixels, #86868b gave only 3.62:1 against white;\\n * 4.5:1 is required, and it only becomes legible noticeably above that.\\n * Every value below has been measured and is given in brackets, so that\\n * later changes are not chosen by feel again.\\n */\\n.sdi {\\n    --akzent: #0071e3;   /* 4.70 on white */\\n    --gut: #1e8e3e;      /* darker than #34c759, which gave only 2.3 on white */\\n    --warten: #b45309;\\n    --schlecht: #c62828;\\n    --text: #1d1d1f;     /* 16.9 */\\n    --grau: #55565a;     /* 7.33 on white, 6.73 on the card */\\n    --linie: #d2d2d7;\\n    --flaeche: #ffffff;\\n    --hinter: #f5f5f7;\\n    color: var(--text);\\n    font-size: 15px;\\n    line-height: 1.45;\\n}\\n\\n/* --- Headings ---------------------------------------------------------- */\\n.sdi-titel {\\n    font-size: 13px;\\n    font-weight: 600;\\n    letter-spacing: 0.06em;\\n    text-transform: uppercase;\\n    color: var(--grau);\\n    margin: 0 0 14px;\\n}\\n\\n/* --- The big number ---------------------------------------------------- */\\n.sdi-zahl {\\n    font-size: 56px;\\n    font-weight: 600;\\n    letter-spacing: -0.02em;\\n    line-height: 1.05;\\n    font-variant-numeric: tabular-nums;\\n}\\n.sdi-einheit { font-size: 17px; font-weight: 400; color: var(--grau); margin-left: 8px; }\\n.sdi-unterzeile { color: var(--grau); font-size: 13px; margin-top: 6px; }\\n\\n/* --- Attributes as chips ----------------------------------------------- */\\n.sdi-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }\\n.sdi-chip {\\n    font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 100px;\\n    background: var(--hinter); color: var(--text);\\n}\\n.sdi-chip-an { background: rgba(0,113,227,0.1); color: var(--akzent); }\\n\\n/* --- Tables ------------------------------------------------------------ */\\n.sdi-tabelle { width: 100%; border-collapse: collapse; font-size: 14px; }\\n.sdi-tabelle th {\\n    text-align: left; font-weight: 500; font-size: 12px; color: var(--grau);\\n    padding: 0 12px 8px; border-bottom: 1px solid var(--linie);\\n}\\n.sdi-tabelle td {\\n    padding: 11px 12px; border-bottom: 1px solid rgba(210,210,215,0.5);\\n}\\n.sdi-tabelle tr:last-child td { border-bottom: none; }\\n.sdi-rechts { text-align: right; font-variant-numeric: tabular-nums; }\\n/* The general header rule (.sdi-tabelle th) is more specific than\\n * .sdi-rechts and overrode its right alignment: the heading \\\"kg CO2 eq\\\"\\n * stood at the left edge of its column with the figures below at the right,\\n * two finger widths apart. A heading that does not stand over its figures\\n * no longer relates anything to anything. */\\n.sdi-tabelle th.sdi-rechts { text-align: right; }\\n.sdi-name { font-weight: 500; }\\n.sdi-leise { color: var(--grau); font-size: 13px; }\\n\\n/* --- Share bars --------------------------------------------------------- */\\n.sdi-balken {\\n    height: 5px; border-radius: 100px; background: var(--hinter);\\n    overflow: hidden; min-width: 56px;\\n}\\n.sdi-balken > div { height: 100%; border-radius: 100px; background: var(--akzent); }\\n\\n/* --- State dots --------------------------------------------------------- */\\n.sdi-punkt {\\n    display: inline-block; width: 9px; height: 9px; border-radius: 50%;\\n    margin-right: 9px; vertical-align: 1px;\\n}\\n.sdi-punkt-gut { background: var(--gut); }\\n.sdi-punkt-warten { background: var(--warten); }\\n.sdi-punkt-leer { background: var(--linie); }\\n/* Red means: looked and found nothing. Grey means: not looked yet. The\\n * difference matters - in the one case one waits, in the other something\\n * is missing. */\\n.sdi-punkt-fehlt { background: var(--schlecht); }\\n/* Blue: present, but product-wide - it holds for the assembled product, not\\n * for the single part. */\\n.sdi-punkt-produkt { background: var(--akzent); }\\n\\n/* --- Notice areas ------------------------------------------------------- */\\n.sdi-hinweis {\\n    border-radius: 12px; padding: 12px 14px; font-size: 14px;\\n    display: flex; gap: 10px; align-items: flex-start;\\n}\\n.sdi-hinweis-lauf { background: rgba(255,159,10,0.12); }\\n.sdi-hinweis-fehler { background: rgba(255,59,48,0.1); }\\n.sdi-hinweis-ruhe { background: var(--hinter); color: var(--grau); }\\n.sdi-hinweis code {\\n    font-family: \\\"SF Mono\\\", Consolas, monospace; font-size: 12px;\\n    background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 5px;\\n}\\n\\n/* --- Comparison --------------------------------------------------------- */\\n.sdi-vergleich {\\n    margin-top: 18px; padding: 14px; border-radius: 12px;\\n    background: var(--hinter); font-size: 14px;\\n}\\n.sdi-pfeil { color: var(--grau); margin: 0 8px; }\\n.sdi-mehr { color: var(--schlecht); font-weight: 600; }\\n.sdi-weniger { color: var(--gut); font-weight: 600; }\\n\\n/* --- Disclosure rows ---------------------------------------------------- */\\n/* Disclosure rows looked like body text: 13 pixels with a tiny triangle in\\n * front. Anyone not looking for them found the content behind only by\\n * chance - and what is not found might as well not be there. They are now\\n * set-off rows with a border, a surface and a mark at the far right:\\n * recognisable as a control, without pulling attention from what matters. */\\n.sdi details { margin-top: 16px; }\\n.sdi summary {\\n    cursor: pointer; font-size: 14px; color: var(--text, #1d1d1f);\\n    font-weight: 500; padding: 11px 14px; list-style: none;\\n    /* A fixed colour, not a variable: in one of the cards the border was reset\\n     * to the text colour despite a fallback being given - a black border\\n     * between two grey ones. The border is too conspicuous to depend on a\\n     * variable resolving; the dark mode is served by its own rule further\\n     * down. */\\n    border: 1px solid #d2d2d7; border-radius: 10px;\\n    background: var(--flaeche, #ffffff);\\n    display: flex; align-items: center; justify-content: space-between;\\n    gap: 12px;\\n    transition: background 0.15s ease, border-color 0.15s ease;\\n}\\n.sdi summary:hover { background: #f5f5f7; border-color: #55565a; }\\n.sdi summary::-webkit-details-marker { display: none; }\\n/* The mark sits on the right, where nobody overlooks it on a disclosure\\n * row, and turns when it opens. */\\n.sdi summary:after {\\n    content: \\\"\\u2304\\\"; font-size: 15px; line-height: 1; color: var(--grau, #55565a);\\n    transition: transform 0.15s ease;\\n}\\n.sdi details[open] summary { border-color: #55565a; }\\n.sdi details[open] summary:after { transform: rotate(180deg); }\\n.sdi details[open] > *:not(summary) { padding: 4px 2px 0; }\\n\\n/* --- Dark appearance ---------------------------------------------------- */\\n/* In the dark the opposite holds: the same colours that were too pale on\\n * white are too dark here. Blue and the state colours have to be lightened,\\n * otherwise they vanish into the ground - #0071e3 would come to 3.62.\\n *\\n * What counts is the mode of the dashboard, not that of the browser. This\\n * used to read @media (prefers-color-scheme: dark) - and that was exactly\\n * why the text was barely legible: the browser reported dark while the\\n * dashboard painted white. The light greys then stood on white ground at\\n * 2.8:1. Vuetify sets the class on the enclosing element, and that one\\n * tells the truth about the ground we sit on.\\n */\\n.v-theme--dark .sdi,\\n.v-theme--nrdbDark .sdi {\\n        --akzent: #4a9eff;   /* 5.4 on the card, instead of 3.62 */\\n        --gut: #30d158;      /* 8.42 */\\n        --warten: #ffd60a;   /* 12.05 */\\n        --schlecht: #ff453a; /* 4.99 */\\n        --text: #f5f5f7;\\n        --grau: #aeaeb2;     /* 7.69 on the card, 6.30 on the background */\\n        --linie: #38383a;\\n        --flaeche: #1c1c1e; --hinter: #2c2c2e;\\n}\\n/* The tinted chips and notices need more opacity in the dark, otherwise\\n * nothing of the hue is left. */\\n.v-theme--dark .sdi-hinweis code,\\n.v-theme--nrdbDark .sdi-hinweis code { background: rgba(255,255,255,0.08); }\\n.v-theme--dark .sdi-chip-an,\\n.v-theme--nrdbDark .sdi-chip-an { background: rgba(74,158,255,0.22); color: #7ab6ff; }\\n.v-theme--dark .sdi-hinweis-lauf,\\n.v-theme--nrdbDark .sdi-hinweis-lauf { background: rgba(255,214,10,0.14); }\\n.v-theme--dark .sdi-hinweis-fehler,\\n.v-theme--nrdbDark .sdi-hinweis-fehler { background: rgba(255,69,58,0.16); }\\n.sdi-einleitung {\\n    color: var(--grau, #55565a);\\n    font-size: 13px;\\n    line-height: 1.5;\\n    max-width: 620px;\\n    margin-bottom: 14px;\\n}\\n.sdi-bezug {\\n    font-size: 14px;\\n    color: var(--text, #1d1d1f);\\n    margin-top: 2px;\\n}\\n.sdi-verweis {\\n    color: inherit;\\n    text-decoration: none;\\n    border-bottom: 1px solid var(--rand, #e8e8ed);\\n}\\n.sdi-verweis:hover { color: var(--akzent, #0071e3); border-bottom-color: currentColor; }\\n.sdi-schritte { margin-top: 18px; max-width: 620px; }\\n.sdi-schritte > div {\\n    display: flex; gap: 12px; align-items: flex-start;\\n    font-size: 14px; line-height: 1.5; margin-bottom: 10px;\\n}\\n.sdi-schritte p { margin: 0; max-width: 600px; }\\n/* The numbered circles stood in --hinter on a white card: 1.09 to 1, that\\n * is invisible. What was left were loose digits that could not be read as a\\n * sequence. Filled in the accent colour they are clearly visible at 4.70,\\n * and they tie the introduction visually to the button they lead to. */\\n.sdi-schritte span {\\n    flex: 0 0 22px; height: 22px; border-radius: 50%;\\n    background: var(--akzent); color: #fff;\\n    font-size: 12px; font-weight: 600;\\n    display: inline-flex; align-items: center; justify-content: center;\\n}\\n/* A fine line along the steps turns three rows into a path. */\\n.sdi-schritte { position: relative; padding-left: 2px; }\\n.sdi-schritte > div { position: relative; padding-bottom: 4px; }\\n.sdi-schritte > div:not(:last-child):after {\\n    content: \\\"\\\"; position: absolute; left: 11px; top: 24px; bottom: 0;\\n    width: 1px; background: var(--linie);\\n}\\n.sdi-hilfe { margin-top: 8px; }\\n.sdi-hilfe p { margin: 8px 0 0; max-width: 620px; }\\n.sdi-marke {\\n    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;\\n    font-size: 19px; font-weight: 600; letter-spacing: -0.01em;\\n    margin-bottom: 6px;\\n}\\n.sdi-marke span {\\n    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;\\n    padding: 3px 8px; border-radius: 6px;\\n    background: rgba(0,113,227,0.1); color: var(--akzent);\\n}\\n.v-theme--dark .sdi-marke span, .v-theme--nrdbDark .sdi-marke span {\\n    background: rgba(74,158,255,0.22); color: #7ab6ff;\\n}\\n/* A message area with no message should not be left standing as a gap. */\\n.sdi-melde:has(> div:empty) { display: none !important; }\\n/* Moved here out of the control card: rules with an ancestor outside the\\n * card are rewritten there and then apply always. In the dark the logo is\\n * black on dark and hard to see; inverting it would misrepresent the mark,\\n * a light backing plate behind it does not. */\\n.v-theme--dark .sdi-logo, .v-theme--nrdbDark .sdi-logo {\\n    background: #fff; border-radius: 8px; padding: 8px 12px;\\n}\\n</style>\");\n// Output 1 clears the areas that only show something during a run. Output 2 goes to the message area: that one stays visible and says nothing is running. An empty area without an explanation is a question in itself - one goes looking for the text that is missing.\nreturn [{ payload: '' }, { payload: \"<div class=\\\"sdi\\\"><div class=\\\"sdi-hinweis sdi-hinweis-ruhe\\\"><span class=\\\"sdi-punkt sdi-punkt-leer\\\" style=\\\"margin-top:6px\\\"></span><span><strong>No run in progress.</strong> Messages about each step of a run appear here, and stay until the next run starts.</span></div></div>\" }];",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 60,
+        "wires": [
+            [
+                "sdiui0205",
+                "sdiui0210",
+                "sdiui0233",
+                "sdiui0248"
+            ],
+            [
+                "sdiui0235"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0250",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0006",
+        "order": 1,
+        "width": 12,
+        "height": 0,
+        "name": "What to calculate",
+        "format": "<template>\n    <div class=\"sdi sdi-auswahl\">\n        <div class=\"sdi-titel\">What to calculate</div>\n        <div class=\"sdi-erklaerung\">\n            Applies to every run below: the product covers the whole pen, a\n            single shell only that part.\n        </div>\n    </div>\n</template>\n\n<style>\n.sdi-auswahl .sdi-erklaerung {\n    color: var(--grau, #86868b);\n    font-size: 13px;\n    margin: 6px 0 0;\n    max-width: 560px;\n    line-height: 1.5;\n}\n</style>\n",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": false,
+        "x": 140,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0205",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Ask for shells",
+        "func": "// Fetches the list of administration shells for the dropdown.\nconst AAS = env.get('SDI_AAS_URL') || 'http://localhost:8081';\nmsg.url = AAS + '/shells';\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 120,
+        "wires": [
+            [
+                "sdiui0206"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0206",
+        "type": "http request",
+        "z": "sdiui0000tab0001",
+        "name": "Read shells",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 120,
+        "wires": [
+            [
+                "sdiui0207"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0207",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Offer them",
+        "func": "// Builds the dropdown and keeps the preselection.\n//\n// The product is preselected rather than the first shell in the list: a\n// user almost always wants to calculate the assembled product, not a\n// single part.\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nconst schalen = ((msg.payload || {}).result || [])\n    .map(s => s.idShort).filter(Boolean).sort();\n\nmsg.options = schalen.map(s => ({ label: s.replace(/_/g, ' '), value: s }));\n\n// As with the method: always the shell in force as the payload, never the\n// answer of the server. Otherwise the field shows one shell while another\n// one is calculated.\nconst basis = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\nlet gilt = (global.get('dashboardShell') || '').split('/').pop();\nif (!gilt || schalen.indexOf(gilt) < 0) {\n    gilt = schalen.indexOf(PRODUKT) >= 0 ? PRODUKT : schalen[0];\n}\nif (gilt) {\n    global.set('dashboardShell', basis + '/' + gilt);\n    flow.set('gewaehlteSchale', gilt);\n    msg.payload = gilt;\n}\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 120,
+        "wires": [
+            [
+                "sdiui0204"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0204",
+        "type": "ui-dropdown",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0006",
+        "order": 2,
+        "width": 4,
+        "height": 1,
+        "name": "Shell",
+        "label": "Product",
+        "tooltip": "",
+        "options": [],
+        "topic": "",
+        "topicType": "str",
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "className": "",
+        "passthru": false,
+        "wires": [
+            [
+                "sdiui0208"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0208",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Take the shell",
+        "func": "// Takes over the selection. The calculation flow reads it from global\n// context, which is why it is put there and not only here.\nconst basis = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\nconst schale = String(msg.payload || '');\nif (schale) {\n    global.set('dashboardShell', basis + '/' + schale);\n    flow.set('gewaehlteSchale', schale);\n    node.status({ fill: 'blue', shape: 'dot', text: schale });\n}\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0210",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Ask openLCA",
+        "func": "// Fetches the impact methods from openLCA for the dropdown.\nconst OLCA = env.get('SDI_OPENLCA_URL') || 'http://localhost:8080';\nmsg.url = OLCA;\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', id: 1, method: 'data/get/descriptors',\n                params: { '@type': 'ImpactMethod' } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 180,
+        "wires": [
+            [
+                "sdiui0211"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0211",
+        "type": "http request",
+        "z": "sdiui0000tab0001",
+        "name": "Read methods",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 180,
+        "wires": [
+            [
+                "sdiui0212"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0212",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Offer them",
+        "func": "// Builds the dropdown of methods and keeps the preselection.\nconst STANDARD = env.get('SDI_OPENLCA_DEFAULT_METHOD')\n              || 'b4571628-4b7b-3e4f-81b1-9a8cca6cb3f8';\nconst methoden = ((msg.payload || {}).result || [])\n    .filter(m => m && m.name)\n    .sort((a, b) => a.name.localeCompare(b.name));\n\nconst nachId = {};\nmethoden.forEach(m => { nachId[m['@id']] = m.name; });\nglobal.set('methodNamesById', nachId);\n\nmsg.options = methoden.map(m => ({ label: m.name, value: m['@id'] }));\n\n// The payload always has to be the method in force.\n//\n// When one already stood in global context, the answer from openLCA used to\n// stay here as the payload. The dropdown was then given a value it does not\n// know, picked something, and reported that pick back - the calculation then\n// ran with a method nobody had clicked, while the display named a third one.\n// A result whose method cannot be read off it is worthless as evidence.\nlet gilt = (global.get('selectedMethods') || [])[0];\nif (!gilt || !nachId[gilt]) { gilt = STANDARD; }\nglobal.set('selectedMethods', [gilt]);\nglobal.set('selectedMethodNames', [nachId[gilt] || 'default method']);\nmsg.payload = gilt;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 180,
+        "wires": [
+            [
+                "sdiui0209"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0209",
+        "type": "ui-dropdown",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0006",
+        "order": 3,
+        "width": 4,
+        "height": 1,
+        "name": "Method",
+        "label": "Impact method",
+        "tooltip": "",
+        "options": [],
+        "topic": "",
+        "topicType": "str",
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "className": "",
+        "passthru": false,
+        "wires": [
+            [
+                "sdiui0213"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0254",
+        "type": "ui-dropdown",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0006",
+        "order": 4,
+        "width": 4,
+        "height": 1,
+        "name": "Instance",
+        "label": "Piece",
+        "tooltip": "",
+        "options": [],
+        "topic": "",
+        "topicType": "str",
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "className": "",
+        "passthru": false,
+        "wires": [
+            [
+                "sdiui0256"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0256",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Take the piece",
+        "func": "// Uebernimmt die gewaehlte Instanz.\nconst nummer = String(msg.payload || '');\nif (nummer) {\n    flow.set('gewaehlteInstanz', nummer);\n    node.status({ fill: 'blue', shape: 'dot', text: nummer });\n}\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0255",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Offer pieces",
+        "func": "// Builds the dropdown of manufactured pieces.\n//\n// A product passport applies to a piece, not to a type. As long as the user\n// interface knows only \"Kugelschreiber TracePEN\", it does not answer the\n// question \"what is inside this particular pen\" - and that is exactly what\n// someone scanning the QR code on it is asking.\n//\n// What is booked is offered. What was not booked does not exist as far as\n// the passport is concerned; a dropdown with invented numbers would be worse\n// than a short list.\nconst montagen = flow.get('montagen') || [];\n\n// What is offered depends on the shell.\n//\n// For the assembled product it is the pens that were assembled. With a part\n// selected it is that part's own pieces - the numbers that sit inside the\n// pens. Before, the pen numbers always stood there, even under \"Bolzen\n// Aluminium\"; the part being looked at could not be selected at all.\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\n// The article numbers come from the nameplates that the source poll reads\n// anyway - no longer from a table in the source code.\nconst ARTIKEL = flow.get('artikelNachSchale') || {};\nconst schale = flow.get('gewaehlteSchale') || PRODUKT;\n\nlet stuecke;\nif (schale === PRODUKT) {\n    stuecke = montagen.map(function (m) {\n        return { nummer: m.stueck, zeit: m.zeit };\n    });\n} else {\n    const artikel = ARTIKEL[schale] || '';\n    stuecke = montagen.map(function (m) {\n        const teil = (m.teile || []).find(function (k) { return k.artikel === artikel; });\n        return teil ? { nummer: teil.nummer, zeit: m.zeit } : null;\n    }).filter(Boolean);\n}\nstuecke.sort(function (a, b) { return String(b.zeit).localeCompare(String(a.zeit)); });\n\n// The list is sent on every pass.\n//\n// Sending it only on a change was too frugal: after the page is reloaded or\n// the shell is switched, the dropdown holds no entries any more while the\n// string is the same - it then stayed empty. The value is still only set\n// when the previous choice no longer belongs to the list; otherwise it would\n// jump away under the user's hand.\nmsg.options = stuecke.map(function (s, i) {\n    return { label: s.nummer + (i === 0 ? '  (latest)' : ''), value: s.nummer };\n});\nif (!stuecke.length) {\n    msg.options = [{ label: 'no piece booked yet', value: '' }];\n}\n// The value always goes along.\n//\n// Without a value the dropdown sets its display to empty even though the\n// list arrives - one then sees an empty dropdown beside a filled headline.\n// Sending the same value again does no harm; only a different one would\n// jump away under the user's hand.\nconst gewaehlt = flow.get('gewaehlteInstanz');\nconst gilt = stuecke.find(function (s) { return s.nummer === gewaehlt; });\nmsg.payload = gilt ? gilt.nummer : (stuecke[0] ? stuecke[0].nummer : '');\nflow.set('gewaehlteInstanz', msg.payload);\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 240,
+        "wires": [
+            [
+                "sdiui0254"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0213",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Take the method",
+        "func": "// Uebernimmt die gewaehlte Methode.\nconst id = String(msg.payload || '');\nif (id) {\n    const namen = global.get('methodNamesById') || {};\n    global.set('selectedMethods', [id]);\n    global.set('selectedMethodNames', [namen[id] || id]);\n    node.status({ fill: 'blue', shape: 'dot', text: namen[id] || id });\n}\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1120,
+        "y": 180,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0200",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0002",
+        "order": 4,
+        "width": 12,
+        "height": 0,
+        "name": "Controls",
+        "format": "<template>\n    <div class=\"sdi sdi-steuerung\">\n        <div class=\"sdi-titel\">Advanced</div>\n        <div class=\"sdi-erklaerung\">\n            The run above collects ERP, simulation and machine data and then\n            calculates. Each step is checked, and the run stops rather than\n            calculating on missing data. The view refreshes itself every ten\n            seconds.\n            <br><br>\n            <strong>Export AASX</strong> writes one package per shell into the\n            <code>export</code> folder <em>on the machine running\n            Node-RED</em> &mdash; it is not a browser download, so nothing\n            will appear in your downloads. AASX is the exchange format for\n            administration shells; open the files with the AASX Package\n            Explorer. The exact path is shown once the export has run.\n        </div>\n\n        <div class=\"sdi-neben\">\n            <button class=\"sdi-still\" @click=\"start('auffrischen')\">Refresh view</button>\n            <button class=\"sdi-still\" @click=\"start('leer')\">Choose your product</button>\n        </div>\n        <div class=\"sdi-erklaerung\">\n            <strong>Choose your product</strong> clears the display and shows\n            the starting point again &mdash; the state a shell is in before\n            anything has been calculated. It touches no data; the next refresh\n            brings the result back.\n        </div>\n\n        <details>\n            <!-- Der Rahmen steht am Element selbst. In dieser Flaeche greifen\n                 weder die eigene noch die gemeinsame Vorlage auf ihn durch -\n                 er landete auf der Textfarbe und stand schwarz zwischen zwei\n                 grauen Aufklappern. Am Element ist er unabhaengig davon. -->\n            <summary style=\"border:1px solid #d2d2d7\">Run a single step</summary>\n            <div class=\"sdi-erklaerung\" style=\"margin-top:8px\">\n                One source at a time, for fault finding. Same check: a step\n                counts as done only when its data is in the shell. PLM builds\n                the shells from the engineering data, takes a few minutes and\n                writes into a folder, so the dashboard cannot see it finish.\n            </div>\n            <div class=\"sdi-neben\">\n                <button class=\"sdi-still\" @click=\"start('erp')\">ERP</button>\n                <button class=\"sdi-still\" @click=\"start('simulation')\">Simulation</button>\n                <button class=\"sdi-still\" @click=\"start('maschinen')\">Machine data</button>\n                <button class=\"sdi-still\" @click=\"start('rechnung')\">Calculation</button>\n                <button class=\"sdi-still\" @click=\"start('plm')\">PLM</button>\n            </div>\n        </details>\n\n        <div class=\"sdi-fuss\">\n            <div class=\"sdi-fusstext\">\n                <strong>Sustainability Data Integration KIT</strong><br>\n                Developed by the Chair of Product Creation, Heinz Nixdorf\n                Institute, Paderborn University.\n            </div>\n            <img class=\"sdi-logo\" :src=\"logo\"\n                 alt=\"Paderborn University, Heinz Nixdorf Institute\">\n        </div>\n    </div>\n</template>\n\n<script>\nexport default {\n    data() { return { logo: 'data:image/png;base64,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' }; },\n    methods: {\n        start(was) {\n            this.send({ topic: was, payload: was });\n        }\n    }\n}\n</script>\n\n<style>\n.sdi-steuerung .sdi-haupt {\n    background: var(--akzent, #0071e3);\n    color: #fff;\n    border: none;\n    border-radius: 12px;\n    padding: 13px 26px;\n    font-size: 16px;\n    font-weight: 500;\n    cursor: pointer;\n    transition: opacity 0.15s ease;\n}\n.sdi-steuerung .sdi-haupt:hover { opacity: 0.85; }\n.sdi-steuerung .sdi-haupt:active { opacity: 0.7; }\n.sdi-steuerung .sdi-erklaerung {\n    color: var(--grau, #86868b);\n    font-size: 13px;\n    margin: 10px 0 0;\n    max-width: 560px;\n    line-height: 1.5;\n}\n.sdi-steuerung .sdi-neben {\n    display: flex;\n    gap: 8px;\n    flex-wrap: wrap;\n    margin-top: 14px;\n}\n.sdi-steuerung .sdi-still {\n    background: var(--hinter, #f5f5f7);\n    color: var(--text, #1d1d1f);\n    border: none;\n    border-radius: 100px;\n    padding: 7px 16px;\n    font-size: 13px;\n    cursor: pointer;\n    transition: background 0.15s ease;\n}\n.sdi-steuerung .sdi-still:hover { background: #e8e8ed; }\n/* Hier stehen bewusst keine Regeln mit einem Vorfahren ausserhalb dieser\n * Flaeche. Das Dashboard bindet die Vorlage einer Flaeche an die Flaeche und\n * streicht dabei den Vorfahrenteil: aus\n *     .v-theme--dark .sdi-steuerung summary { ... }\n * wurde\n *     .sdi-steuerung summary { ... }\n * und damit galt die Farbe des dunklen Modus staendig - ein schwarzer Rahmen\n * zwischen zwei grauen. Alles, was von aussen abhaengt, steht im\n * gemeinsamen Gestaltungsblock (stil.py). */\n/* Die Herkunft gehoert ans Ende, nicht in den Kopf: sie beantwortet keine\n * Frage, die beim Lesen aufkommt, sondern eine, die man danach stellt. */\n.sdi-fuss {\n    display: flex; align-items: flex-end; justify-content: space-between;\n    gap: 20px; flex-wrap: wrap;\n    margin-top: 26px; padding-top: 16px;\n    border-top: 1px solid var(--linie, #d2d2d7);\n}\n.sdi-logo { height: 62px; width: auto; }\n.sdi-fusstext { font-size: 13px; line-height: 1.6; color: var(--grau, #55565a); }\n.sdi-fusstext strong { color: var(--text, #1d1d1f); }\n\n</style>\n",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": false,
+        "x": 140,
+        "y": 200,
+        "wires": [
+            [
+                "sdiui0201"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0251",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0000",
+        "order": 2,
+        "width": 12,
+        "height": 0,
+        "name": "Primary action",
+        "format": "<template>\n    <div class=\"sdi sdi-kopfaktion\">\n        <button class=\"sdi-haupt\" @click=\"start('kette')\">\n            {{ erstesMal ? 'Calculate the footprint' : 'Recalculate' }}\n        </button>\n        <button class=\"sdi-still\" @click=\"start('export')\">Export AASX</button>\n        <span class=\"sdi-dauer\">takes about a minute</span>\n    </div>\n</template>\n\n<script>\nexport default {\n    data() { return { erstesMal: true }; },\n    watch: {\n        msg(neu) {\n            // Die Kopfansicht meldet, ob schon ein Ergebnis vorliegt. Beim\n            // ersten Mal heisst die Schaltflaeche anders - \"Recalculate\" auf\n            // einer leeren Seite waere eine Zumutung.\n            if (neu && neu.topic === 'gerechnet') { this.erstesMal = !neu.payload; }\n        }\n    },\n    methods: {\n        start(was) { this.send({ topic: was, payload: was }); }\n    }\n}\n</script>\n\n<style>\n.sdi-kopfaktion {\n    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;\n    min-height: 46px;\n}\n.sdi-kopfaktion .sdi-haupt {\n    background: var(--akzent, #0071e3); color: #fff; border: none;\n    border-radius: 12px; padding: 12px 24px; font-size: 15px; font-weight: 500;\n    cursor: pointer; transition: opacity 0.15s ease;\n}\n.sdi-kopfaktion .sdi-haupt:hover { opacity: 0.85; }\n.sdi-kopfaktion .sdi-still {\n    background: var(--hinter, #f5f5f7); color: var(--text, #1d1d1f);\n    border: none; border-radius: 100px; padding: 8px 16px; font-size: 13px;\n    cursor: pointer;\n}\n.sdi-kopfaktion .sdi-dauer { color: var(--grau, #55565a); font-size: 13px; }\n</style>\n",
+        "storeOutMessages": false,
+        "passthru": false,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": false,
+        "x": 140,
+        "y": 260,
+        "wires": [
+            [
+                "sdiui0201"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0201",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "What was pressed",
+        "func": "// Receives whatever was pressed in the control area.\n//\n// Output 1: the chain, or a single step\n// Output 2: the export as AASX\n// Output 3: refresh the display\n// Output 4: back to the initial state\nconst was = String(msg.topic || '');\nif (was === 'export') { return [null, { topic: 'export', payload: 'export' }, null, null]; }\nif (was === 'auffrischen') { return [null, null, { topic: 'start', payload: 'start' }, null]; }\nif (was === 'leer') { return [null, null, null, { topic: 'leer', payload: '' }]; }\nreturn [{ topic: was, payload: was }, null, null, null];\n",
+        "outputs": 4,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 200,
+        "wires": [
+            [
+                "sdiui0240"
+            ],
+            [
+                "sdiui0245"
+            ],
+            [
+                "sdiui0222"
+            ],
+            [
+                "sdiui0253"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0240",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Whole chain",
+        "func": "// Works through the sources one after another and checks every step.\n//\n// Output 1: start the step\n// Output 2: after a short wait, look whether it delivered\n// Output 3: message to the user interface\n//\n// One after another, not at the same time: the calculation needs the\n// quantities from the ERP and the energies from simulation and machines.\nconst ALLE = ['erp', 'simulation', 'maschinen', 'rechnung'];\nconst NAMEN = {\n    erp: 'ERP', simulation: 'Simulation',\n    maschinen: 'Machine data', rechnung: 'Calculation',\n    plm: 'PLM'\n};\n\n// A single step runs through the same machinery as the whole pass - the\n// same check then applies to it. Two routes to the same end would be two\n// routes that can drift apart.\nconst SCHRITTE = (msg.topic === 'kette' || flow.get('ketteEinzeln') === false)\n    ? ALLE : (flow.get('ketteSchritte') || ALLE);\n// How often to look, roughly ten seconds per attempt. The calculation is\n// allowed to take longer than reading a bill of material.\nconst VERSUCHE = { erp: 6, simulation: 6, maschinen: 3, rechnung: 18 };\n\n// Not every missing source is an error. Nothing is manufactured on a\n// purchased part - refill, screw, spring - so there is nothing to measure\n// there either. If the machine data stays away the run therefore carries on\n// and notes that the manufacturing energy is missing; it is only aborted\n// when a source is missing without which the result would be wrong.\n//\n// The ERP is a different matter: without quantities one calculates air.\nconst FREIWILLIG = ['maschinen'];\n\nfunction meldung(art, text) {\n    const klasse = art === 'fehler' ? 'sdi-hinweis-fehler'\n                 : (art === 'lauf' ? 'sdi-hinweis-lauf' : 'sdi-hinweis-ruhe');\n    return { payload: '<div class=\"sdi\"><div class=\"sdi-hinweis ' + klasse\n        + '\">' + text + '</div></div>' };\n}\n\n// --- Start ---------------------------------------------------------------\n// The PLM cannot be checked: it writes packages into a folder, not into the\n// shell. It is only started here, and the user is told plainly that the\n// interface cannot see when it is done.\nif (msg.topic === 'plm') {\n    return [{ topic: 'plm', payload: 'plm' }, null,\n            meldung('lauf', '<span><strong>PLM</strong> is building the shells. '\n                + 'This takes a few minutes, and the dashboard cannot see when '\n                + 'it is done - watch the packages in the output folder.</span>'),\n            null];\n}\n\nif (ALLE.indexOf(msg.topic) >= 0) {\n    flow.set('ketteSchritte', [msg.topic]);\n    flow.set('ketteEinzeln', true);\n    flow.set('ketteIndex', 0);\n    flow.set('ketteVersuch', 0);\n    flow.set('ketteStart', new Date().toISOString());\n    flow.set('ketteFehlend', []);\n    return [{ topic: msg.topic, payload: msg.topic },\n            { topic: 'pruefen', payload: msg.topic },\n            meldung('lauf', '<span><strong>' + NAMEN[msg.topic]\n                + '</strong> &hellip;</span>'),\n            null];\n}\n\nif (msg.topic === 'kette') {\n    flow.set('ketteSchritte', ALLE);\n    flow.set('ketteEinzeln', false);\n    flow.set('ketteIndex', 0);\n    flow.set('ketteVersuch', 0);\n    flow.set('ketteStart', new Date().toISOString());\n    flow.set('ketteFehlend', []);\n    const schritt = SCHRITTE[0];\n    return [{ topic: schritt, payload: schritt },\n            { topic: 'pruefen', payload: schritt },\n            meldung('lauf', '<span><strong>Step 1 of ' + SCHRITTE.length\n                + ':</strong> ' + NAMEN[schritt] + ' &hellip;</span>'),\n            null];\n}\n\n// --- Answer of the check --------------------------------------------------\nconst index = flow.get('ketteIndex');\nif (index === undefined || index === null) { return [null, null, null, null]; }\nconst schritt = SCHRITTE[index];\n\nif (msg.gut) {\n    const naechster = index + 1;\n    if (naechster >= SCHRITTE.length) {\n        flow.set('ketteIndex', null);\n        // Skipped sources belong in the closing message. \"All four steps\n        // delivered\" is wrong when one was empty and was passed over - and\n        // that message is exactly what one reads later to find out what the\n        // result rests on.\n        const fehlend = flow.get('ketteFehlend') || [];\n        const zusatz = fehlend.length\n            ? ' <strong>' + fehlend.join(', ') + '</strong> delivered nothing '\n              + 'and was left out, so the result does not include it.'\n            : '';\n        const wieviele = SCHRITTE.length - fehlend.length;\n        return [null, null, { payload: '' },\n                meldung(fehlend.length ? 'lauf' : 'ruhe',\n                    '<span><strong>Done.</strong> '\n                    + (SCHRITTE.length > 1\n                        ? wieviele + ' of ' + SCHRITTE.length\n                          + ' steps delivered data.'\n                        : NAMEN[schritt] + ' delivered data.')\n                    + zusatz + '</span>')];\n    }\n    flow.set('ketteIndex', naechster);\n    flow.set('ketteVersuch', 0);\n    const weiter = SCHRITTE[naechster];\n    return [{ topic: weiter, payload: weiter },\n            { topic: 'pruefen', payload: weiter },\n            meldung('lauf', '<span><strong>Step ' + (naechster + 1) + ' of '\n                + SCHRITTE.length + ':</strong> ' + NAMEN[weiter]\n                + ' &hellip;</span>'),\n            null];\n}\n\n// --- Nothing there yet: keep looking, but not forever --------------------\nconst versuch = (flow.get('ketteVersuch') || 0) + 1;\nflow.set('ketteVersuch', versuch);\nif (versuch < (VERSUCHE[schritt] || 6)) {\n    return [null, { topic: 'pruefen', payload: schritt }, null, null];\n}\n\n// --- Stayed away: abort, or note it and carry on --------------------------\nif (FREIWILLIG.indexOf(schritt) >= 0) {\n    const uebersprungen = flow.get('ketteFehlend') || [];\n    uebersprungen.push(NAMEN[schritt]);\n    flow.set('ketteFehlend', uebersprungen);\n    const naechster2 = index + 1;\n    if (naechster2 >= SCHRITTE.length) {\n        flow.set('ketteIndex', null);\n        return [null, null, { payload: '' }, meldung('lauf',\n            '<span><strong>' + NAMEN[schritt] + ': nothing found'\n            + (flow.get('pruefSchale') ? ' in ' + flow.get('pruefSchale') : '')\n            + '.</strong> Nothing is manufactured on a purchased part, so this '\n            + 'is not an error. The run finished without it.</span>')];\n    }\n    flow.set('ketteIndex', naechster2);\n    flow.set('ketteVersuch', 0);\n    const weiter2 = SCHRITTE[naechster2];\n    return [{ topic: weiter2, payload: weiter2 },\n            { topic: 'pruefen', payload: weiter2 },\n            meldung('lauf', '<span><strong>' + NAMEN[schritt]\n                + ': nothing found</strong>'\n                + (flow.get('pruefSchale') ? ' in ' + flow.get('pruefSchale') : '')\n                + ' &mdash; continuing without it. Step ' + (naechster2 + 1)\n                + ' of ' + SCHRITTE.length + ': ' + NAMEN[weiter2]\n                + ' &hellip;</span>'),\n            null];\n}\n\nflow.set('ketteIndex', null);\nreturn [null, null, { payload: '' }, meldung('fehler',\n    '<span><strong>' + NAMEN[schritt] + ' delivered no data'\n    + (flow.get('pruefSchale') ? ' in ' + flow.get('pruefSchale') : '')\n    + '.</strong> The run was stopped after ' + versuch + ' attempts, so the '\n    + 'result is not calculated on incomplete data. Check whether the service '\n    + 'is running and look at the messages below.</span>')];\n",
+        "outputs": 4,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 200,
+        "wires": [
+            [
+                "sdiui0202"
+            ],
+            [
+                "sdiui0241"
+            ],
+            [
+                "sdiui0233"
+            ],
+            [
+                "sdiui0235"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0241",
+        "type": "delay",
+        "z": "sdiui0000tab0001",
+        "name": "Ten seconds",
+        "pauseType": "delay",
+        "timeout": "10",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 740,
+        "y": 200,
+        "wires": [
+            [
+                "sdiui0242"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0242",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Read the shell",
+        "func": "// Reads the shell that the step just run must have filled.\nconst AAS = env.get('SDI_AAS_URL') || 'http://localhost:8081';\nconst BASIS = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\n// Where a source lands depends on the source, not on what is selected at\n// the top:\n//\n//   ERP and simulation write into the product shell. A bill of material and\n//   an order quantity concern the assembled product; a single screw has\n//   neither.\n//\n//   Machine data sits in the shell of the part that was measured.\n//\n//   The calculation writes into the shell that was calculated - that is,\n//   the selected one.\n//\n// This used to be the selected shell for everything. Whoever picked a part\n// then got \"ERP delivered no data\", although the ERP had delivered\n// properly - it was simply looked for in the wrong place. An error message\n// pointing at a healthy system costs more time than none at all.\nconst GEWAEHLT = flow.get('gewaehlteSchale')\n              || env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nconst BAUTEIL = env.get('SDI_LCA_MACHINE_PART') || 'Bolzen_Aluminium';\n\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\n}\n\nconst schritt = String(msg.payload || '');\nflow.set('pruefSchritt', schritt);\n\n// The calculation writes into the ILCD, the machine data into the part\n// shell, everything else into the product.\nlet kennung;\nif (schritt === 'rechnung') {\n    kennung = BASIS + '/' + GEWAEHLT + '/ILCD';\n} else if (schritt === 'maschinen') {\n    // With a part selected its own measurement counts; otherwise that of\n    // the configured part.\n    kennung = BASIS + '/' + (GEWAEHLT === PRODUKT ? BAUTEIL : GEWAEHLT)\n            + '/DataSources';\n} else {\n    kennung = BASIS + '/' + PRODUKT + '/DataSources';\n}\nflow.set('pruefSchale', kennung.split('/').slice(-2)[0]);\n\nmsg.url = AAS + '/submodels/' + b64(kennung);\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 940,
+        "y": 200,
+        "wires": [
+            [
+                "sdiui0243"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0243",
+        "type": "http request",
+        "z": "sdiui0000tab0001",
+        "name": "Check the step",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1140,
+        "y": 200,
+        "wires": [
+            [
+                "sdiui0244"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0244",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Delivered?",
+        "func": "// Decides whether the step delivered.\n//\n// It is not enough that data is present - it has to have come into being\n// after the run started. Otherwise what was already there counts as a\n// success, and the run carries on with old figures.\nconst schritt = flow.get('pruefSchritt');\nconst start = flow.get('ketteStart') || '';\nconst sm = msg.payload;\n\nfunction finde(sammlung, name) {\n    return ((sammlung || {}).value || []).find(e => e && e.idShort === name);\n}\nfunction wert(sammlung, name) {\n    const e = finde(sammlung, name);\n    return e ? e.value : null;\n}\n\nlet gut = false;\nlet text = '';\n\nif (schritt === 'rechnung') {\n    const behaelter = ((sm && sm.submodelElements) || [{}])[0];\n    for (const it of (behaelter.value || [])) {\n        const zeit = wert(it, 'TimeOfLCA');\n        if (zeit && String(zeit) >= start) { gut = true; text = String(zeit); }\n    }\n} else {\n    let liste = null;\n    for (const e of (sm && sm.submodelElements) || []) {\n        if (e.idShort === 'DataSources') { liste = e; }\n    }\n    const WO = {\n        erp: [['ERP', 'ERPData'], 'BillOfMaterial'],\n        simulation: [['Simulation'], 'SimulationProcesses'],\n        maschinen: [['MachineData', 'Manufacturing'], 'ManufacturingProcesses']\n    }[schritt] || [[], ''];\n\n    let quelle = null;\n    for (const n of WO[0]) { quelle = quelle || finde(liste, n); }\n    if (quelle) {\n        const inhalt = ((finde(quelle, WO[1]) || {}).value) || [];\n        const zeit = wert(quelle, 'TimeOfRetrieval');\n        gut = inhalt.length > 0 && (!zeit || String(zeit) >= start);\n        text = inhalt.length + ' entries in ' + (flow.get('pruefSchale') || '?')\n             + ', written ' + String(zeit || '?');\n    }\n}\n\nmsg.gut = gut;\nmsg.payload = text;\nnode.status({ fill: gut ? 'green' : 'yellow', shape: 'dot',\n              text: schritt + (gut ? ' ok' : ' waiting') });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1340,
+        "y": 200,
+        "wires": [
+            [
+                "sdiui0240"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0202",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Start the flow",
+        "func": "// Starts a flow through the admin interface of Node-RED.\n// This way the user interface needs no wire into the other tabs - they\n// stay untouched.\nconst KNOTEN = {\n    \"plm\": \"d360832dd00ed241\",\n    \"erp\": \"a1b2c3d4e5f60000\",\n    \"simulation\": \"b1c2d3e4f5a60000\",\n    \"maschinen\": \"c1d2e3f4a5b60000\",\n    \"rechnung\": \"sdikette000001\"\n};\nconst quelle = msg.topic || 'rechnung';\nmsg.url = (env.get('SDI_NODERED_URL') || 'http://localhost:1880')\n        + '/inject/' + KNOTEN[quelle];\nmsg.method = 'POST';\nmsg.headers = {};\nmsg.payload = '';\nnode.status({ fill: 'blue', shape: 'dot', text: quelle });\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 260,
+        "wires": [
+            [
+                "sdiui0203"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0203",
+        "type": "http request",
+        "z": "sdiui0000tab0001",
+        "name": "Trigger",
+        "method": "use",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0245",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Build the command",
+        "func": "// Assembles the command for the export as AASX.\n//\n// The export is a program of its own, not a flow: it runs without Node-RED,\n// and an adopter should be able to call it from the command line. The user\n// interface calls that same program, so that there is only one route.\nconst ORDNER = env.get('SDI_EXPORT_DIR') || 'export';\nconst SKRIPT = env.get('SDI_EXPORT_SCRIPT') || '../src/export_aasx.py';\n// Kept for the reply: the user has to learn where the files were written.\n// They do not appear in the browser but on the machine running Node-RED -\n// whoever expects a download otherwise searches the downloads folder in\n// vain.\nflow.set('exportOrdner', ORDNER);\nmsg.topic = 'export';\nmsg.payload = '\"' + SKRIPT + '\" \"' + ORDNER + '\" --split';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 320,
+        "wires": [
+            [
+                "sdiui0246"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0246",
+        "type": "exec",
+        "z": "sdiui0000tab0001",
+        "command": "python",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "300",
+        "winHide": true,
+        "oldrc": false,
+        "name": "export_aasx.py",
+        "x": 520,
+        "y": 320,
+        "wires": [
+            [
+                "sdiui0247"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "sdiui0247",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Report it",
+        "func": "// Reports what the export wrote.\nconst text = String(msg.payload || '');\nconst zeilen = text.split(/\\r?\\n/).filter(z => z.indexOf('.aasx') >= 0);\nconst anzahl = zeilen.length;\nconst fehler = (msg.rc && msg.rc.code) ? msg.rc.code : 0;\n\nif (fehler || !anzahl) {\n    msg.payload = '<div class=\"sdi\"><div class=\"sdi-hinweis sdi-hinweis-fehler\">'\n        + '<span><strong>Export failed.</strong><br>'\n        + text.substring(0, 300) + '</span></div></div>';\n    // Output 2 raises a notification. A failure belongs in one too: whoever\n    // starts the export and walks away otherwise finds only a folder with\n    // nothing new in it.\n    return [msg, { topic: 'Export failed',\n                   payload: text.substring(0, 160) || 'no output' }];\n}\n\n// The folder as the program reported it, not as we guess it. If it reports\n// none, the configured value stands.\nlet ordner = flow.get('exportOrdner') || 'export';\n// The program reports the full path on a line of its own. Showing it\n// matters more than the guess we would otherwise have to make.\nconst gemeldet = (text.match(/Writing to (.+)/) || [])[1];\nif (gemeldet) { ordner = gemeldet.trim(); }\n\nconst ersteZeile = (zeilen[0] || '').trim();\n// The backslash is fetched through its character code. Written as a\n// character it does not survive the way into the flow file: it is resolved\n// twice on the way, and what is left is an expression that fails on the\n// click - a fault that only shows at the adopter.\nconst BS = String.fromCharCode(92);\nconst trenner = Math.max(ersteZeile.lastIndexOf('/'), ersteZeile.lastIndexOf(BS));\nif (trenner > 0) { ordner = ersteZeile.slice(0, trenner); }\n\nlet liste = '';\nfor (const z of zeilen) {\n    const teile = z.trim().split('/').join(BS).split(BS);\n    liste += '<div class=\"sdi-leise\">' + teile[teile.length - 1] + '</div>';\n}\n\nmsg.payload = '<div class=\"sdi\"><div class=\"sdi-hinweis sdi-hinweis-ruhe\">'\n    + '<span><strong>' + anzahl + ' packages written to '\n    + '<code>' + ordner + '</code></strong> &mdash; on the machine running '\n    + 'Node-RED, not as a browser download. Open them with the AASX Package '\n    + 'Explorer.' + liste + '</span></div></div>';\n\n// The export takes a while, and whoever started it is looking elsewhere in\n// the meantime. The notification brings them back - with the full path,\n// because without it the message is worthless: the files sit on the machine\n// running Node-RED, not in the browser.\nreturn [msg, {\n    topic: 'Export finished',\n    payload: anzahl + ' AASX packages written to<br><b>' + ordner + '</b>'\n           + '<br>on the machine running Node-RED, not a browser download.'\n}];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 320,
+        "wires": [
+            [
+                "sdiui0248"
+            ],
+            [
+                "sdiui0249"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0249",
+        "type": "ui-notification",
+        "z": "sdiui0000tab0001",
+        "ui": "5ccf679c7b70e876",
+        "position": "top right",
+        "colorDefault": true,
+        "color": "",
+        "displayTime": "12",
+        "showCountdown": true,
+        "allowDismiss": true,
+        "dismissText": "OK",
+        "raw": true,
+        "className": "",
+        "name": "Export notice",
+        "outputs": 0,
+        "x": 940,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "sdiui0248",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0002",
+        "order": 4,
+        "width": 12,
+        "height": 0,
+        "name": "Export",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "templateScope": "local",
+        "className": "sdi-melde",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": true,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0214",
+        "type": "inject",
+        "z": "sdiui0000tab0001",
+        "name": "Every 10 seconds",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "10",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "4",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 120,
+        "y": 400,
+        "wires": [
+            [
+                "sdiui0215",
+                "sdiui0239"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0239",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Every third tick",
+        "func": "const runde = (flow.get('ergTakt') || 0) + 1;\nflow.set('ergTakt', runde);\nif (runde % 3 !== 0) { return null; }\nreturn { topic: 'start', payload: 'start' };",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 460,
+        "wires": [
+            [
+                "sdiui0222"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0215",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Read the state",
+        "func": "// Polls what the data sources hold, one shell per pass.\nconst AAS = env.get('SDI_AAS_URL') || 'http://localhost:8081';\nconst BASIS = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\n// Two shells in turn: the product shell carries PLM, ERP and simulation, a\n// part shell carries the machine data.\n//\n// Which part shell depends on the selection. With a part chosen at the top\n// its own measurement counts - otherwise the row showed the values of the\n// configured part while a quite different one was selected above. One then\n// reads a figure that says nothing about the part in view.\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nconst GEWAEHLT = flow.get('gewaehlteSchale') || PRODUKT;\nconst teilGewaehlt = GEWAEHLT !== PRODUKT;\nconst BAUTEIL = teilGewaehlt\n              ? GEWAEHLT\n              : (env.get('SDI_LCA_MACHINE_PART') || 'Bolzen_Aluminium');\n\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\n}\n\n// Round the shells in turn, not just two.\n//\n// The poll used to alternate between the product and one configured part.\n// On the product it then said \"2 machines, checked on Bolzen\" - as though\n// that were the whole of production. Three parts had been measured. Whoever\n// reads the row wants to know how much of the assembled product is backed\n// by measurement, not what happens to sit in one arbitrarily picked shell.\n//\n// With a part selected the alternation between product and that part\n// stands: only that one counts then.\nconst bauteile = flow.get('bauteile') || [];\nconst runde = teilGewaehlt\n    ? [PRODUKT, GEWAEHLT]\n    : [PRODUKT].concat(bauteile.length ? bauteile : [BAUTEIL]);\n\nconst schritt = (flow.get('standSchritt') || 0) % runde.length;\nconst schale = runde[schritt];\nflow.set('standSchale', schale);\nflow.set('standIstProdukt', schritt === 0);\nflow.set('standRunde', runde.length);\n// Pass the list itself along: the evaluation runs in another function and\n// would otherwise not know it.\nflow.set('standListe', runde);\nflow.set('standSchritt', (schritt + 1) % runde.length);\n\n// The nameplate first: it holds the article number of this shell.\n//\n// It used to be a table in the source code - part name to number. Right for\n// the demonstrator, wrong for every other product. It is kept in the\n// nameplate, and that is where it belongs read from.\nmsg.url = AAS + '/submodels/' + b64(BASIS + '/' + schale + '/Nameplate');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 400,
+        "wires": [
+            [
+                "sdiui0216"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0216",
+        "type": "http request",
+        "z": "sdiui0000tab0001",
+        "name": "Read Nameplate",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 400,
+        "wires": [
+            [
+                "sdiui0257"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0257",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Keep the article",
+        "func": "// Holds on to the article number of the shell and then reads the data\n// sources.\nconst AAS = env.get('SDI_AAS_URL') || 'http://localhost:8081';\nconst BASIS = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\nconst schale = flow.get('standSchale');\n\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\n}\n\nconst sm = msg.payload;\nlet nummer = '';\nif (sm && Array.isArray(sm.submodelElements)) {\n    const e = sm.submodelElements.find(function (x) {\n        return x.idShort === 'ProductArticleNumberOfManufacturer';\n    });\n    nummer = e ? String(e.value || '') : '';\n}\nconst tabelle = flow.get('artikelNachSchale') || {};\nif (nummer) { tabelle[schale] = nummer; }\nflow.set('artikelNachSchale', tabelle);\n\nmsg.url = AAS + '/submodels/' + b64(BASIS + '/' + schale + '/DataSources');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 360,
+        "wires": [
+            [
+                "sdiui0258"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0258",
+        "type": "http request",
+        "z": "sdiui0000tab0001",
+        "name": "Read DataSources",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 920,
+        "y": 360,
+        "wires": [
+            [
+                "sdiui0217"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0217",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Evaluate it",
+        "func": "// Records what each source delivered.\n//\n// Every shell answers only for what it is responsible. The product does\n// carry a MachineData container as well, but an empty one - measuring\n// happens on the parts. Evaluating it too would have every second poll wipe\n// out the good entry again.\nconst schale = flow.get('standSchale');\nconst istProdukt = flow.get('standIstProdukt');\nconst sm = msg.payload;\n\nfunction finde(sammlung, name) {\n    return ((sammlung || {}).value || []).find(e => e && e.idShort === name);\n}\nfunction wert(sammlung, name) {\n    const e = finde(sammlung, name);\n    return e ? e.value : null;\n}\n\nlet liste = null;\nfor (const e of (sm && sm.submodelElements) || []) {\n    if (e.idShort === 'DataSources') { liste = e; }\n}\nfunction quelle(namen) {\n    for (const n of namen) {\n        const g = finde(liste, n);\n        if (g) { return g; }\n    }\n    return null;\n}\n\nconst stand = flow.get('quellenstand') || {};\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nconst GEWAEHLT = flow.get('gewaehlteSchale') || PRODUKT;\nconst teilGewaehlt = GEWAEHLT !== PRODUKT;\n\n// Every row records which shell it came from and whether it concerns the\n// selected part at all.\n//\n// With a part selected, ERP and simulation were still read from the product\n// shell and stood there green - as though the screw had an assembly\n// simulation. It has none: assembly concerns the product. Green means\n// \"present for what is selected\"; what only holds product-wide has to say\n// so, otherwise one reads someone else's figures as one's own.\n// The collection is tidied, not emptied.\n//\n// Emptying was wrong: the round goes shell by shell, one per tick. After\n// emptying, the machine table showed only what had been gathered since -\n// two machines one moment, four the next. It is replaced per shell anyway;\n// only what no longer exists is thrown out here.\nif (istProdukt && !teilGewaehlt) {\n    const gueltig = (flow.get('standListe') || []).slice(1);\n    flow.set('maschSammlung', (flow.get('maschSammlung') || [])\n        .filter(function (e) { return gueltig.indexOf(e.schale) >= 0; }));\n    flow.set('maschLaeufe', (flow.get('maschLaeufe') || [])\n        .filter(function (e) { return gueltig.indexOf(e.schale) >= 0; }));\n}\n\nfunction merke(name, eintrag, produktweit) {\n    eintrag.schale = schale;\n    eintrag.produktweit = !!(produktweit && teilGewaehlt);\n    stand[name] = eintrag;\n}\n// The same format as in the machine table. Two spellings of the same thing\n// read as two different statements.\nconst jetzt = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)\n    .toISOString().replace('T', ' ').slice(0, 16);\n\n// The moment the data came into being - not the moment we looked. Only that\n// makes it possible to tell whether a result is older than the data it is\n// supposed to rest on.\nfunction juengster(sammlung, felder) {\n    let neuster = null;\n    for (const f of felder) {\n        const w = wert(sammlung, f);\n        if (w && (!neuster || String(w) > String(neuster))) { neuster = w; }\n    }\n    return neuster;\n}\nfunction merkeDatum(schluessel, datum) {\n    if (!datum) { return; }\n    const alle = flow.get('datenStand') || {};\n    alle[schluessel] = datum;\n    flow.set('datenStand', alle);\n}\n\nif (istProdukt) {\n    // The part names of the interface come from the bill of material. The\n    // idShort of a shell is formed from the part name by the same rule as\n    // in the rest of the KIT.\n    function alsKurzname(text) {\n        return String(text || '')\n            .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')\n            .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue')\n            .replace(/ß/g, 'ss')\n            .replace(/[^A-Za-z0-9_]/g, '_').replace(/__+/g, '_')\n            .replace(/_+$/, '');\n    }\n    for (const name of ['ERP', 'ERPData', 'PLM', 'EngineeringData_PLM']) {\n        const q = finde(liste, name);\n        const stueckliste = q ? finde(q, 'BillOfMaterial') : null;\n        const positionen = ((stueckliste || {}).value) || [];\n        if (positionen.length) {\n            flow.set('bauteile', positionen\n                .map(p => alsKurzname(wert(p, 'ComponentName')))\n                .filter(Boolean));\n            break;\n        }\n    }\n\n    // With a part selected, PLM comes from the part shell - the screw weighs\n    // 1 g, not the 15 g of the whole pen. So only here when the assembled\n    // product itself is selected.\n    const plm = teilGewaehlt\n        ? null : quelle(['PLM', 'EngineeringData_PLM', 'Engineering Data / PLM']);\n    if (plm) {\n        const gewicht = wert(plm, 'Weight');\n        const werkstoff = wert(plm, 'Material');\n        const stueckliste = finde(plm, 'BillOfMaterial');\n        const positionen = ((stueckliste || {}).value || []).length;\n        stand.plm = {\n            text: (gewicht ? gewicht + ' kg' : 'no weight')\n                + (werkstoff ? ', ' + werkstoff : '')\n                + (positionen ? ', ' + positionen + ' positions' : ''),\n            gut: !!gewicht, geprueft: true, zeit: jetzt };\n        stand.plm.schale = schale;\n        merkeDatum('plm', juengster(plm, ['TimeOfRetrieval']));\n    }\n\n    const erp = quelle(['ERP', 'ERPData']);\n    if (erp) {\n        const stueckliste = finde(erp, 'BillOfMaterial');\n        const auftrag = finde(erp, 'ManufacturingOrder');\n        const anzahl = ((stueckliste || {}).value || []).length;\n        const menge = auftrag ? wert(auftrag, 'OrderQuantity') : null;\n        stand.erp = { text: anzahl + ' positions'\n                          + (menge ? ', order over ' + menge + ' pieces' : ''),\n                      gut: anzahl > 0, geprueft: true, zeit: jetzt,\n                      schale: schale, produktweit: teilGewaehlt };\n\n        // The booked assembly: which piece was put together from which\n        // pieces. That is the difference between a statement and evidence -\n        // and it is only there when it was booked.\n        //\n        // Every booked piece, the most recent first, so that the dropdown\n        // above shows what just came off the line.\n        const sammlung = finde(erp, 'AssemblyRecords');\n        const einzeln = finde(erp, 'AssemblyRecord');\n        const roh = sammlung ? (sammlung.value || [])\n                  : (einzeln ? [einzeln] : []);\n        const montagen = roh.map(function (m) {\n            const teile = ((finde(m, 'InstalledComponents') || {}).value) || [];\n            return {\n                auftrag: wert(m, 'ManufacturingOrder') || '',\n                stueck: wert(m, 'SerialNumber') || '',\n                zeit: wert(m, 'TimeOfBooking') || '',\n                teile: teile.map(function (k) {\n                    return { artikel: wert(k, 'ArticleNumber') || '',\n                             nummer: wert(k, 'SerialNumber') || '' };\n                })\n            };\n        }).filter(function (m) { return m.stueck; })\n          .sort(function (a, b) { return String(b.zeit).localeCompare(String(a.zeit)); });\n        flow.set('montagen', montagen);\n\n        // The selected instance, or the most recent one while none is chosen.\n        const gewaehlt = flow.get('gewaehlteInstanz');\n        const treffer = montagen.find(function (m) { return m.stueck === gewaehlt; });\n        flow.set('montage', treffer || montagen[0] || null);\n        merkeDatum('erp', juengster(erp, ['TimeOfRetrieval']));\n    }\n\n    const sim = quelle(['Simulation']);\n    if (sim) {\n        const gaenge = ((finde(sim, 'SimulationProcesses') || {}).value) || [];\n        const summe = gaenge.reduce((s, g) => {\n            const w = parseFloat(wert(g, 'EnergyPerUnit'));\n            return isNaN(w) ? s : s + w;\n        }, 0);\n        stand.simulation = { text: gaenge.length + ' operations, '\n                                 + summe.toFixed(4) + ' MJ',\n                             gut: gaenge.length > 0, geprueft: true,\n                             zeit: jetzt, schale: schale,\n                             produktweit: teilGewaehlt };\n        merkeDatum('simulation', juengster(sim, ['TimeOfRetrieval']));\n    }\n} else {\n    // The PLM entry of the part - weight and material of this one part.\n    if (teilGewaehlt) {\n        const teilPlm = quelle(['PLM', 'EngineeringData_PLM',\n                                'Engineering Data / PLM']);\n        if (teilPlm) {\n            const g = wert(teilPlm, 'Weight');\n            const w = wert(teilPlm, 'Material');\n            stand.plm = {\n                text: (g ? g + ' kg' : 'no weight') + (w ? ', ' + w : ''),\n                gut: !!g, geprueft: true, zeit: jetzt, schale: schale };\n            merkeDatum('plm', juengster(teilPlm, ['TimeOfRetrieval']));\n        }\n    }\n\n    const maschinen = quelle(['MachineData', 'Manufacturing']);\n    if (maschinen) {\n        const prozesse = ((finde(maschinen, 'ManufacturingProcesses') || {}).value) || [];\n        const summe = prozesse.reduce((s, p) => {\n            const w = parseFloat(wert(p, 'EnergyPerUnit'));\n            return isNaN(w) ? s : s + w;\n        }, 0);\n        if (teilGewaehlt) {\n            stand.maschinen = {\n                text: prozesse.length\n                    ? prozesse.length + ' machine(s), ' + summe.toFixed(4) + ' MJ'\n                    : 'nothing measured on ' + schale.replace(/_/g, ' '),\n                gut: prozesse.length > 0, geprueft: true, zeit: jetzt,\n                schale: schale };\n        } else {\n            // Gather across every part. Only \"how many parts were measured\"\n            // says how far production is backed by evidence - a single shell\n            // picked out at random does not answer that.\n            const sammlung = flow.get('maschSammlung') || [];\n            const schon = sammlung.findIndex(e => e.schale === schale);\n            const eintrag = { schale: schale, anzahl: prozesse.length,\n                              energie: summe };\n            if (schon >= 0) { sammlung[schon] = eintrag; } else { sammlung.push(eintrag); }\n            flow.set('maschSammlung', sammlung);\n            const gemessen = sammlung.filter(e => e.anzahl > 0);\n            const gesamt = gemessen.reduce((s, e) => s + e.energie, 0);\n            const teile = (flow.get('bauteile') || []).length || sammlung.length;\n            stand.maschinen = {\n                text: gemessen.length\n                    ? gemessen.length + ' of ' + teile + ' parts measured, '\n                      + gesamt.toFixed(4) + ' MJ total: '\n                      + gemessen.map(e => e.schale.replace(/_/g, ' ')).join(', ')\n                    : 'nothing measured on any part yet',\n                gut: gemessen.length > 0, geprueft: sammlung.length >= teile,\n                zeit: jetzt };\n        }\n        // Take the runs themselves along. The machine table shows them and\n        // needs the part shell for that - the OPC UA submodel holds the raw\n        // recording without a serial number. Two sources for the same table\n        // would be two states that drift apart.\n        const laeufe = flow.get('maschLaeufe') || [];\n        const ohneDiese = laeufe.filter(function (l) { return l.schale !== schale; });\n        for (const pr of prozesse) {\n            ohneDiese.push({\n                schale: schale,\n                maschine: pr.idShort,\n                leistung: parseFloat(wert(pr, 'AveragePower')),\n                dauer: parseFloat(wert(pr, 'ProcessDuration')),\n                stueck: parseFloat(wert(pr, 'PieceCount')) || 1,\n                energie: parseFloat(wert(pr, 'EnergyPerUnit')),\n                ende: wert(pr, 'TimeManufacturingEnd')\n                   || wert(maschinen, 'TimeManufacturingEnd') || '',\n                serie: wert(pr, 'SerialNumbers') || '',\n                auftrag: wert(pr, 'ManufacturingOrder') || '',\n                verteilung: wert(pr, 'EnergyAllocation') || ''\n            });\n        }\n        flow.set('maschLaeufe', ohneDiese);\n\n        let neuste = juengster(maschinen, ['TimeOfRetrieval']);\n        for (const p of prozesse) {\n            const e = juengster(p, ['TimeManufacturingEnd']);\n            if (e && (!neuste || String(e) > String(neuste))) { neuste = e; }\n        }\n        merkeDatum('maschinen', neuste);\n    } else {\n        // No machine-data entry at all in this shell. That too is a complete\n        // answer and not an open question - nothing is manufactured on a\n        // purchased part.\n        if (teilGewaehlt) {\n            stand.maschinen = {\n                text: 'no machine data in ' + schale.replace(/_/g, ' ')\n                    + ' - nothing is manufactured on a purchased part',\n                gut: false, geprueft: true, zeit: jetzt, schale: schale };\n        }\n    }\n}\n\nflow.set('quellenstand', stand);\nmsg.payload = stand;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 400,
+        "wires": [
+            [
+                "sdiui0218",
+                "sdiui0220",
+                "sdiui0227",
+                "sdiui0255",
+                "sdiui0229"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0218",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Sources view",
+        "func": "// Shows, per source, what the shell holds.\nconst stand = msg.payload || {};\nconst QUELLEN = [\n    ['plm', 'PLM', 'weight, material, bill of material'],\n    ['erp', 'ERP', 'quantities and order'],\n    ['simulation', 'Simulation', 'assembly energy'],\n    ['maschinen', 'MachineData', 'measured production energy'],\n];\n\nlet zeilen = '';\nfor (const q of QUELLEN) {\n    const d = stand[q[0]];\n    // Four states, not two: not looked at yet (grey), present (green),\n    // looked at and empty (red) - and blue for what only holds product-wide.\n    // One yellow dot for both of the first two left it open whether\n    // something was still coming; and without the fourth, the assembly\n    // simulation stood green under a screw that nothing is assembled on.\n    const punkt = !d ? 'sdi-punkt-leer'\n                : (d.produktweit ? 'sdi-punkt-produkt'\n                : (d.gut ? 'sdi-punkt-gut'\n                         : (d.geprueft ? 'sdi-punkt-fehlt' : 'sdi-punkt-warten')));\n    zeilen += '<tr>'\n        + '<td><span class=\"sdi-punkt ' + punkt + '\"></span>'\n        + '<span class=\"sdi-name\">' + q[1] + '</span>'\n        + '<div class=\"sdi-leise\">' + q[2] + '</div></td>'\n        + '<td>' + (d ? d.text : 'nothing in the shell')\n        // Where the row came from. Without it one reads the figures of the\n        // assembled product as those of the selected part.\n        + (d && d.schale\n            ? '<div class=\"sdi-leise\">' + (d.produktweit\n                ? 'product level, from ' + d.schale.replace(/_/g, ' ')\n                  + ' &mdash; not part of this part'\n                : 'from ' + d.schale.replace(/_/g, ' ')) + '</div>'\n            : '')\n        + '</td>'\n        + '<td class=\"sdi-rechts sdi-leise\">' + (d ? d.zeit : '') + '</td></tr>';\n}\n\nmsg.payload = '<div class=\"sdi\"><div class=\"sdi-titel\">Data sources</div>'\n    + '<table class=\"sdi-tabelle\"><tbody>' + zeilen + '</tbody></table></div>';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 400,
+        "wires": [
+            [
+                "sdiui0219"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0219",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0001",
+        "order": 1,
+        "width": 6,
+        "height": 0,
+        "name": "Sources",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": true,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0220",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Clear old messages",
+        "func": "// Clears an error message once everything runs again.\n//\n// A message left standing is worse than none: it asserts a state that no\n// longer exists.\nconst letzter = flow.get('letzterFehler') || 0;\nconst abgeraeumt = flow.get('fehlerAbgeraeumt') || 0;\n\nif (!letzter) {\n    if (abgeraeumt) { return null; }\n    flow.set('fehlerAbgeraeumt', Date.now());\n    msg.payload = '<div class=\"sdi\"><div class=\"sdi-hinweis sdi-hinweis-ruhe\">'\n        + 'Everything running.</div></div>';\n    return msg;\n}\nif (abgeraeumt >= letzter) { return null; }\nif (Date.now() - letzter < 30000) { return null; }\nflow.set('fehlerAbgeraeumt', letzter);\nmsg.payload = '<div class=\"sdi\"><div class=\"sdi-hinweis sdi-hinweis-ruhe\">'\n    + 'Everything running again since '\n    + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })\n    + '.</div></div>';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 460,
+        "wires": [
+            [
+                "sdiui0235"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0229",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Pass through",
+        "func": "return msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 520,
+        "wires": [
+            [
+                "sdiui0231"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0231",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Machines view",
+        "func": "// Shows the production runs per machine.\n//\n// Read from the part shells, not from the OPC UA submodel. That holds the\n// raw recording - without a serial number and without an order. A table\n// from two sources would be two states that drift apart; and the statement\n// that matters only comes into being in the shell: this run belongs to this\n// piece.\n//\n// The value per piece follows from power times duration over the number of\n// pieces. It is not held in the shell, because it changes as soon as one of\n// those three is corrected - it is computed where it is needed.\nconst alleLaeufe = flow.get('maschLaeufe') || [];\n\n// Narrow down to the selected piece.\n//\n// A product passport answers \"what is inside this pen\", not \"what have we\n// ever measured\". If a run belongs to a part installed in this piece, it\n// belongs here; otherwise not. Without a booked assembly all runs stand,\n// and the page says so.\n//\n// The filter goes by the selected number. For the assembled product those\n// are the numbers of its parts, for a part its own.\nconst gewaehlteNummer = flow.get('gewaehlteInstanz') || '';\nconst montagen = flow.get('montagen') || [];\nconst alsErzeugnis = montagen.find(function (m) { return m.stueck === gewaehlteNummer; });\nconst nummern = alsErzeugnis\n    ? (alsErzeugnis.teile || []).map(function (k) { return k.nummer; })\n    : (gewaehlteNummer ? [gewaehlteNummer] : []);\nconst montage = alsErzeugnis || (gewaehlteNummer ? { stueck: gewaehlteNummer } : null);\nconst laeufe = nummern.length\n    ? alleLaeufe.filter(function (l) { return nummern.indexOf(l.serie) >= 0; })\n    : alleLaeufe;\n\nlet zeilen = '';\nfor (const l of laeufe) {\n    const leistung = l.leistung;\n    const dauer = l.dauer;\n    const stueck = l.stueck || 1;\n    if (isNaN(leistung) || isNaN(dauer)) { continue; }\n    const energie = isNaN(l.energie) ? (leistung * dauer / 1e6 / stueck) : l.energie;\n    zeilen += '<tr>'\n        + '<td><span class=\"sdi-name\">' + l.maschine.replace(/_/g, ' ') + '</span>'\n        + '<div class=\"sdi-leise\">into ' + l.schale.replace(/_/g, ' ') + '</div>'\n        + '<div class=\"sdi-leise\">' + (l.ende\n            ? String(l.ende).replace('T', ' ').slice(0, 16) : 'no time recorded')\n        + (l.auftrag ? ' &middot; ' + l.auftrag : '') + '</div>'\n        + (l.serie\n            ? '<div class=\"sdi-leise\">piece <code>' + l.serie + '</code></div>'\n            : '<div class=\"sdi-leise\">no serial number</div>')\n        + '</td>'\n        + '<td class=\"sdi-rechts\">' + leistung.toFixed(0) + ' W</td>'\n        + '<td class=\"sdi-rechts\">' + dauer.toFixed(0) + ' s</td>'\n        + '<td class=\"sdi-rechts sdi-leise\">' + stueck.toFixed(0) + '</td>'\n        + '<td class=\"sdi-rechts\"><strong>' + energie.toFixed(4) + '</strong> MJ'\n        + (String(l.verteilung || '').indexOf('average') === 0\n            ? '<div class=\"sdi-leise\">average over the run</div>' : '')\n        + '</td></tr>';\n}\n\nif (!zeilen) {\n    zeilen = '<tr><td colspan=\"5\" class=\"sdi-leise\">No measurements yet. '\n           + 'Record one with record_opcua.py.</td></tr>';\n}\n\nmsg.payload = '<div class=\"sdi\"><div class=\"sdi-titel\">Machine measurements</div>'\n    + '<div class=\"sdi-leise\" style=\"margin:-6px 0 12px\">'\n    + (nummern.length\n        ? 'The runs that produced the parts installed in <code>'\n          + montage.stueck + '</code>. ' + laeufe.length + ' of '\n          + alleLaeufe.length + ' recorded runs belong to this piece.'\n        : 'Every recorded run. Book an assembly to see the runs of one piece.')\n    + '</div>'\n    + '<table class=\"sdi-tabelle\"><thead><tr><th>Machine</th>'\n    + '<th class=\"sdi-rechts\">Power</th><th class=\"sdi-rechts\">Duration</th>'\n    + '<th class=\"sdi-rechts\">Pieces</th><th class=\"sdi-rechts\">Per piece</th>'\n    + '</tr></thead><tbody>' + zeilen + '</tbody></table></div>';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 520,
+        "wires": [
+            [
+                "sdiui0232"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0232",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0005",
+        "order": 1,
+        "width": 6,
+        "height": 0,
+        "name": "Machines",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": true,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0221",
+        "type": "inject",
+        "z": "sdiui0000tab0001",
+        "name": "Show what is there",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "6",
+        "topic": "start",
+        "payload": "start",
+        "payloadType": "str",
+        "x": 120,
+        "y": 600,
+        "wires": [
+            [
+                "sdiui0222"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0222",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Read the results",
+        "func": "// Reads the results of every shell in turn from the ILCD submodel.\nconst AAS = env.get('SDI_AAS_URL') || 'http://localhost:8081';\nconst BASIS = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\nconst PRODUKT = flow.get('gewaehlteSchale')\n             || env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\n// The parts are held in the bill of material of the product - a list of\n// names in the configuration would be a second place for the same truth and\n// would have to be changed for every other product.\nconst BAUTEILE = (flow.get('bauteile') || []).filter(s => s && s !== PRODUKT);\n\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\n}\n\nconst reihe = [PRODUKT].concat(BAUTEILE);\nlet index = flow.get('ergebnisIndex') || 0;\n\n// Two passes at the same time append their results to one another - the\n// parts then stand twice in the table with the product in between. A new\n// start is therefore refused while one is running; only when that one has\n// hung is it replaced, after a minute.\nif (msg.topic === 'start') {\n    const laeuft = flow.get('ergLaeuft') || 0;\n    if (laeuft && Date.now() - laeuft < 60000) { return [null, null]; }\n    flow.set('ergLaeuft', Date.now());\n    index = 0;\n    flow.set('ergebnisse', []);\n}\n\nif (index >= reihe.length) {\n    flow.set('ergebnisIndex', 0);\n    flow.set('ergLaeuft', 0);\n    msg.payload = flow.get('ergebnisse') || [];\n    return [null, msg];\n}\n\nflow.set('ergebnisSchale', reihe[index]);\nflow.set('ergebnisIndex', index + 1);\nmsg.url = AAS + '/submodels/' + b64(BASIS + '/' + reihe[index] + '/ILCD');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nmsg.topic = '';\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 600,
+        "wires": [
+            [
+                "sdiui0223"
+            ],
+            [
+                "sdiui0225",
+                "sdiui0227"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0223",
+        "type": "http request",
+        "z": "sdiui0000tab0001",
+        "name": "Read ILCD",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 520,
+        "y": 600,
+        "wires": [
+            [
+                "sdiui0224"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0224",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Collect",
+        "func": "// Evaluates one ILCD: climate value, sources, every category.\nconst schale = flow.get('ergebnisSchale');\nconst sm = msg.payload;\nconst gesammelt = flow.get('ergebnisse') || [];\n\nfunction wert(sammlung, name) {\n    const e = ((sammlung || {}).value || []).find(x => x && x.idShort === name);\n    return e ? e.value : null;\n}\n\nconst behaelter = ((sm && sm.submodelElements) || [{}])[0];\nconst laeufe = [];\nfor (const it of (behaelter.value || [])) {\n    const methoden = ((it.value || [])\n        .find(x => x && x.idShort === 'LCIAMethods') || {}).value || [];\n    // One list per method. All categories used to go into a single pot - in\n    // a shell calculated with four methods in turn it then read \"All 82\n    // impact categories\" under the name of one of them. Four methods side by\n    // side are four results, not one with four times as many rows.\n    const bloecke = [];\n    for (const m of methoden) {\n        const liste = [];\n        let kl = null, eh = '';\n        for (const k of (m.value || [])) {\n            const w = parseFloat(wert(k, 'Value'));\n            if (isNaN(w)) { continue; }\n            liste.push({ name: k.idShort, wert: w, einheit: wert(k, 'Unit') });\n            // Exactly that category, not merely one starting with Climate:\n            // Climate_change_Land_use is zero and would make a correct\n            // result look empty.\n            if (k.idShort === 'Climate_change') { kl = w; eh = wert(k, 'Unit') || ''; }\n        }\n        if (liste.length) {\n            bloecke.push({ name: m.idShort || '', kategorien: liste,\n                           klima: kl, einheit: eh });\n        }\n    }\n\n    // The method selected above is shown. If this shell has not been\n    // calculated with it yet, the last one that has a climate value - and\n    // failing that, simply the last one.\n    const gewaehlteMethode = String((global.get('selectedMethodNames') || [])[0] || '')\n        .replace(/[^A-Za-z0-9]/g, '').toLowerCase();\n    function passt(b) {\n        return b.name.replace(/[^A-Za-z0-9]/g, '').toLowerCase() === gewaehlteMethode;\n    }\n    const block = bloecke.find(passt)\n               || bloecke.slice().reverse().find(b => b.klima !== null)\n               || bloecke[bloecke.length - 1];\n    if (!block) { continue; }\n    const klima = block.klima;\n    const einheit = block.einheit;\n    const methodenname = block.name;\n    const kategorien = block.kategorien;\n    // A run without a climate category is taken in regardless. It used to\n    // fall out, and the interface reported \"nothing calculated yet\" although\n    // a complete result stood in the shell - it had simply been calculated\n    // with a method that knows no climate value. A display that keeps quiet\n    // about results that are there is worse than an empty one.\n    if (!kategorien.length) { continue; }\n    laeufe.push({\n        name: it.idShort, quellen: wert(it, 'DataSource') || '',\n        zeit: wert(it, 'TimeOfLCA') || '', klima: klima, einheit: einheit,\n        methode: methodenname, kategorien: kategorien,\n        menge: wert(it, 'TargetOutput') || '', gewicht: wert(it, 'WeightOfPart') || ''\n    });\n}\n\n// A shell appears exactly once in the list. Earlier versions appended - if\n// two passes then ran shortly after one another, every part stood twice in\n// the table with the product in between. Replacing instead of appending\n// makes that impossible, however often the page is refreshed.\nconst stelle = gesammelt.findIndex(e => e && e.schale === schale);\nif (stelle >= 0) { gesammelt[stelle] = { schale: schale, laeufe: laeufe }; }\nelse { gesammelt.push({ schale: schale, laeufe: laeufe }); }\nflow.set('ergebnisse', gesammelt);\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 600,
+        "wires": [
+            [
+                "sdiui0222"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0225",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Result view",
+        "func": "// Baut die Ergebnisansicht: Bauteile, Kategorien, Vergleich, Verlauf.\nconst alle = msg.payload || [];\nconst leer = '<div class=\"sdi\"><div class=\"sdi-titel\">Result</div>'\n    + '<div class=\"sdi-hinweis sdi-hinweis-ruhe\">Nothing calculated yet. '\n    + 'Press <strong>Calculate</strong> above.</div></div>';\nif (!alle.length) { msg.payload = leer; return msg; }\n\nconst produkt = alle[0];\nconst letzter = (produkt.laeufe || []).slice(-1)[0];\nif (!letzter) { msg.payload = leer; return msg; }\n\n// Only an assembled product can be broken down. With a single part selected\n// above, the part list of the product beside it makes no sense: the shares\n// were computed against the value of the part and came out at 1872 %, while\n// the assembly energy went negative. A figure that is obviously nonsense\n// damages trust in every other figure on the page.\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nconst istProdukt = produkt.schale === PRODUKT;\n\nfunction zahl(x, n) {\n    return (x === null || x === undefined || isNaN(x))\n        ? '—' : Number(x).toFixed(n === undefined ? 6 : n);\n}\n\n// Without a climate value there are no shares to show - any calculation\n// with it would give NaN. The categories of the method stand further down\n// and are the result in that case.\nconst ohneKlima = (letzter.klima === null || letzter.klima === undefined)\n               || !istProdukt;\n\n// --- Bauteile mit Anteilsbalken -----------------------------------------\nlet summe = 0;\nlet zeilen = '';\nfor (const eintrag of (ohneKlima ? [] : alle.slice(1))) {\n    const lauf = (eintrag.laeufe || []).slice(-1)[0];\n    if (!lauf || lauf.klima === null || lauf.klima === undefined) { continue; }\n    summe += lauf.klima;\n    const anteil = 100 * lauf.klima / letzter.klima;\n    const gemessen = /MachineData|Manufacturing/.test(lauf.quellen);\n    // \"material only\" read like \"measurement still missing\". Purchased parts\n    // are not manufactured here - there is no manufacturing energy of their\n    // own, and that is not a shortcoming but the state of affairs.\n    //\n    // Purchased means what we do not manufacture ourselves - and that is\n    // already held in the setting that also tells Odoo which articles get a\n    // serial number. A second list in the source would be a second truth\n    // that drifts apart with the first product that changes.\n    const SELBST = String(env.get('SDI_SERIAL_ARTICLES') || '')\n        .split(',').map(function (s) { return s.trim(); }).filter(Boolean);\n    const artikelTabelle = flow.get('artikelNachSchale') || {};\n    const artikelNr = artikelTabelle[eintrag.schale] || '';\n    const zugekauft = SELBST.length && artikelNr\n        ? SELBST.indexOf(artikelNr) < 0 : false;\n    const herkunft = gemessen ? 'production energy measured'\n        : (zugekauft ? 'purchased part, material only' : 'material only');\n    // The way from the figure to where it came from. Without it the figure\n    // has to be believed rather than checked - and being checkable is what\n    // the shell is for.\n    const UI = env.get('SDI_AAS_UI_URL') || 'http://localhost:3001';\n    const BASIS = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\n    const verweis = UI + '/?aas=' + encodeURIComponent(BASIS + '/' + eintrag.schale);\n    zeilen += '<tr>'\n        + '<td><a class=\"sdi-name sdi-verweis\" href=\"' + verweis\n        + '\" target=\"_blank\" rel=\"noopener\">' + eintrag.schale.replace(/_/g, ' ')\n        + '</a><div class=\"sdi-leise\">' + herkunft + '</div></td>'\n        + '<td class=\"sdi-rechts\">' + zahl(lauf.klima) + '</td>'\n        + '<td style=\"width:120px\"><div class=\"sdi-balken\"><div style=\"width:'\n        + Math.max(2, Math.min(100, anteil)).toFixed(0) + '%\"></div></div></td>'\n        + '<td class=\"sdi-rechts sdi-leise\">' + anteil.toFixed(1) + ' %</td></tr>';\n}\n\n// If a source was written after the calculation, the result is out of date -\n// and nothing about it shows that. This exact case cost us time while\n// building the chain: the display was consistent, just no longer with the\n// data.\nconst datenStand = flow.get('datenStand') || {};\nlet neuer = [];\nfor (const schluessel of Object.keys(datenStand)) {\n    if (letzter.zeit && String(datenStand[schluessel]) > String(letzter.zeit)) {\n        neuer.push(schluessel);\n    }\n}\n\nlet html = '<div class=\"sdi\"><div class=\"sdi-titel\">Result</div>';\nif (neuer.length) {\n    html += '<div class=\"sdi-hinweis sdi-hinweis-lauf\" style=\"margin-bottom:16px\">'\n        + '<span class=\"sdi-punkt sdi-punkt-warten\" style=\"margin-top:6px\"></span>'\n        + '<span><strong>The result is older than the data.</strong> '\n        + neuer.join(', ') + ' changed after the last calculation. '\n        + 'Press <strong>Calculate</strong> to bring it up to date.</span></div>';\n}\nif (!istProdukt) {\n    html += '<div class=\"sdi-hinweis sdi-hinweis-ruhe\">'\n        + '<span><strong>' + produkt.schale.replace(/_/g, ' ')\n        + '</strong> is a single part, so there is nothing to split. '\n        + (letzter.klima === null || letzter.klima === undefined\n            ? 'The chosen method has no Climate change category. '\n            : 'Its footprint is <strong>' + zahl(letzter.klima) + ' '\n              + (letzter.einheit || '') + '</strong>. ')\n        + 'Choose the product above to see the split by part.'\n        + '</span></div>';\n} else if (ohneKlima) {\n    html += '<div class=\"sdi-hinweis sdi-hinweis-ruhe\">'\n        + '<span>Calculated with <strong>' + (letzter.methode || 'the chosen method')\n        + '</strong>, which has no Climate change category, so there is no '\n        + 'carbon footprint and no split by part. Its '\n        + (letzter.kategorien || []).length + ' categories are listed below.'\n        + '</span></div>';\n}\nhtml += ohneKlima ? '' : ''\n    + '<table class=\"sdi-tabelle\"><thead><tr><th>Part</th>'\n    + '<th class=\"sdi-rechts\">' + (letzter.einheit || '') + '</th>'\n    // \"Share\" belongs over its figures as well. The bar beside it is\n    // decoration; what is read is the percentage at the right edge.\n    + '<th colspan=\"2\" class=\"sdi-rechts\">Share</th></tr></thead><tbody>' + zeilen + '</tbody>'\n    + '<tfoot><tr><td class=\"sdi-name\">Sum of the parts</td>'\n    + '<td class=\"sdi-rechts sdi-name\">' + zahl(summe) + '</td>'\n    + '<td colspan=\"2\" class=\"sdi-leise\">assembly energy adds '\n    + zahl(letzter.klima - summe) + '</td></tr></tfoot></table>'\n    + '<div class=\"sdi-leise\" style=\"margin-top:8px\">Every part name links to '\n    + 'its administration shell, where the input data behind the number can be '\n    + 'checked.</div>';\n\n// --- Comparison with the previous run ------------------------------------\nlet vorher = (produkt.laeufe || []).length > 1\n    ? produkt.laeufe[produkt.laeufe.length - 2] : null;\nconst gemerkt = flow.get('letztesErgebnis');\nif (!vorher && gemerkt && gemerkt.zeit !== letzter.zeit) { vorher = gemerkt; }\nif (letzter.zeit !== (gemerkt || {}).zeit) { flow.set('letztesErgebnis', letzter); }\n\nif (vorher && !ohneKlima && vorher.klima !== null && vorher.klima !== undefined) {\n    const unterschied = letzter.klima - vorher.klima;\n    const klasse = unterschied > 0 ? 'sdi-mehr' : (unterschied < 0 ? 'sdi-weniger' : '');\n    const zeichen = unterschied > 0 ? '+' : '';\n    html += '<div class=\"sdi-vergleich\"><strong>Compared with the run before</strong><br>'\n        + zahl(vorher.klima) + '<span class=\"sdi-pfeil\">&rarr;</span>'\n        + zahl(letzter.klima) + ' <span class=\"' + klasse + '\">'\n        + zeichen + zahl(unterschied) + '</span>'\n        + (vorher.klima ? ' <span class=\"sdi-leise\">(' + zeichen\n            + (100 * unterschied / vorher.klima).toFixed(1) + ' %)</span>' : '')\n        + '<div class=\"sdi-leise\" style=\"margin-top:4px\">before: '\n        + (vorher.quellen || '—') + '<br>now: ' + (letzter.quellen || '—')\n        + '</div></div>';\n}\n\n// --- Alle Wirkungskategorien, aufklappbar --------------------------------\nconst kategorien = letzter.kategorien || [];\nif (kategorien.length) {\n    let katzeilen = '';\n    for (const k of kategorien) {\n        katzeilen += '<tr><td>' + k.name.replace(/_/g, ' ') + '</td>'\n            + '<td class=\"sdi-rechts\">' + Number(k.wert).toPrecision(6) + '</td>'\n            + '<td class=\"sdi-leise\">' + (k.einheit || '') + '</td></tr>';\n    }\n    html += '<details><summary>All ' + kategorien.length\n        + ' impact categories of ' + (letzter.methode || 'the method') + '</summary>'\n        + '<table class=\"sdi-tabelle\"><tbody>' + katzeilen\n        + '</tbody></table></details>';\n}\n\n// --- History of the runs -------------------------------------------------\nif ((produkt.laeufe || []).length > 1) {\n    let verlauf = '';\n    for (const l of produkt.laeufe) {\n        verlauf += '<tr><td class=\"sdi-leise\">'\n            + String(l.zeit).replace('T', ' ').slice(0, 16) + '</td>'\n            + '<td class=\"sdi-rechts\">' + zahl(l.klima) + '</td>'\n            + '<td class=\"sdi-leise\">' + (l.quellen || '') + '</td></tr>';\n    }\n    html += '<details><summary>History of ' + produkt.laeufe.length\n        + ' runs in this shell</summary><table class=\"sdi-tabelle\"><tbody>'\n        + verlauf + '</tbody></table></details>';\n}\n\nmsg.payload = html + '</div>';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 660,
+        "wires": [
+            [
+                "sdiui0226"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0226",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0003",
+        "order": 1,
+        "width": 12,
+        "height": 0,
+        "name": "Result",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": true,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0227",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Headline",
+        "func": "// Builds the headline area: result, origin, state of the sources.\nconst daten = flow.get('ergebnisse') || [];\nconst stand = flow.get('quellenstand') || {};\n// The name comes from the dropdown; before anything is picked it sits in\n// global context, which the calculation flow reads anyway.\nconst gewaehlt = global.get('dashboardShell') || '';\nconst schale = flow.get('gewaehlteSchale')\n            || gewaehlt.split('/').pop()\n            || env.get('SDI_LCA_PRODUCT') || '—';\nconst STIL = flow.get('stil') || '';\n\n// The same precision as in the result table. Two different roundings of the\n// same quantity on one page read as two different values.\nfunction zahl(x, n) {\n    return (x === null || x === undefined || isNaN(x))\n        ? '—' : Number(x).toFixed(n === undefined ? 6 : n);\n}\n\nconst produkt = daten[0];\nconst lauf = produkt ? (produkt.laeufe || []).slice(-1)[0] : null;\n\n// A figure without a reference quantity cannot be quoted. Quantity and\n// weight are in the result (TargetOutput, WeightOfPart) - they belong next\n// to the figure, not in a submodel that has to be unfolded first.\nconst bezug = [];\n// Older shells hold the quantity in German (\"1 Stueck\"). The shell is left\n// as it is - the translation happens for the display only. Shells written\n// by the current flow already say \"piece(s)\", and then this does nothing.\nif (lauf && lauf.menge) {\n    // Older shells hold the quantity in German (\"1 Stueck\"). The shell is\n    // left as it is - the translation happens for the display only.\n    bezug.push('per ' + String(lauf.menge).split('Stueck').join('piece'));\n}\nif (lauf && lauf.gewicht) { bezug.push(lauf.gewicht + ' kg'); }\nbezug.push('cradle-to-gate');\n\nconst QUELLEN = [['plm', 'PLM'], ['erp', 'ERP'],\n                 ['simulation', 'Simulation'], ['maschinen', 'MachineData']];\nlet chips = '';\nfor (const q of QUELLEN) {\n    const d = stand[q[0]];\n    const an = d && d.gut;\n    chips += '<span class=\"sdi-chip' + (an ? ' sdi-chip-an' : '') + '\">'\n           + q[1] + '</span>';\n}\n\n// One sentence on what the page is - and behind it, unfoldable, the longer\n// explanation. Help has to remain findable later, when the question\n// actually comes up; a text that appears only on the first visit is gone\n// exactly when it is needed.\n//\n// Which piece does this shell describe? Without a number the footprint\n// stays a statement about a type. With it there - and with what the piece\n// was built from - it becomes evidence.\nconst montage = flow.get('montage');\n\nlet html = STIL + '<div class=\"sdi\">'\n    // The full name spelled out once. The navigation carries the short form\n    // - there is room for two words there, not five - but here someone\n    // seeing the page for the first time has to be able to read what it is\n    // about.\n    + '<div class=\"sdi-marke\">Sustainability Data Integration KIT'\n    + '<span>SDI-KIT</span></div>'\n    + '<div class=\"sdi-einleitung\">Product carbon footprint, taken from the '\n    + 'digital twin: engineering data, ERP quantities, simulated assembly '\n    + 'and measured machine energy.'\n    + '<details class=\"sdi-hilfe\"><summary>How this works</summary>'\n    + '<p>Each part of the pen has an administration shell. Four sources '\n    + 'write into those shells: <strong>PLM</strong> the geometry, material '\n    + 'and bill of material, <strong>ERP</strong> the order quantities, '\n    + '<strong>Simulation</strong> the assembly energy, and '\n    + '<strong>MachineData</strong> the energy actually measured at the '\n    + 'lathe, mill and 3D printer.</p>'\n    + '<p>A run collects those four, hands the figures to openLCA and writes '\n    + 'the result back into the shell &mdash; per part and for the product. '\n    + 'The chips above show which sources are present; a run stops rather '\n    + 'than calculating on missing data.</p>'\n    + '<p>Everything here can also be done from the command line, without '\n    + 'this dashboard. The scripts are in the src folder.</p>'\n    + '</details></div>';\nif (lauf && (lauf.klima === null || lauf.klima === undefined)) {\n    // Calculated, but the method knows no climate value. That belongs said\n    // rather than kept quiet - together with the way to put it right.\n    html += '<div class=\"sdi-zahl\" style=\"font-size:30px\">'\n          + (lauf.kategorien || []).length + ' categories'\n          + '<span class=\"sdi-einheit\">no climate value</span></div>'\n          + '<div class=\"sdi-unterzeile\">' + schale.replace(/_/g, ' ')\n          + ' &middot; calculated ' + String(lauf.zeit).replace('T', ' ').slice(0, 16)\n          + ' with ' + String(lauf.methode || 'an unknown method').replace(/_/g, ' ')\n          + ', which has no Climate change category. Pick a method that has '\n          + 'one to get a carbon footprint.</div>';\n} else if (lauf) {\n    html += '<div class=\"sdi-zahl\">' + zahl(lauf.klima)\n          + '<span class=\"sdi-einheit\">' + (lauf.einheit || '') + '</span></div>'\n          + '<div class=\"sdi-bezug\">' + bezug.join(' &middot; ') + '</div>'\n          + '<div class=\"sdi-unterzeile\">' + schale.replace(/_/g, ' ')\n          + ' &middot; calculated ' + String(lauf.zeit).replace('T', ' ').slice(0, 16)\n          // Read from the result, not from the dropdown: what is clicked\n          // only takes effect on the next run.\n          + ' &middot; ' + String(lauf.methode || 'method unknown').replace(/_/g, ' ')\n          + '</div>';\n} else {\n    // The empty state is the one place where explaining is allowed: nothing\n    // stands here anyway, nobody is interrupted, and the steps are where\n    // they are carried out. A tutorial put in front would be skipped and\n    // forgotten - this text disappears by itself as soon as the first\n    // result is there.\n    html += '<div class=\"sdi-zahl\" style=\"color:var(--grau);font-size:34px\">'\n          + 'No footprint yet</div>'\n          // The text sits in a wrapper of its own. The row is a flex\n          // container, and inside one every child becomes an item of its\n          // own: \"Press\", the bold \"Calculate the footprint\" and the rest\n          // stood side by side instead of forming a sentence. Two children\n          // per row - number and text - and the wrapping is right again.\n          + '<div class=\"sdi-schritte\">'\n          + '<div><span>1</span><p>Choose the product and the impact method '\n          + 'below.</p></div>'\n          + '<div><span>2</span><p>Press <strong>Calculate the footprint</strong>. '\n          + 'It collects ERP, simulation and measured machine data, checks '\n          + 'each step and then calculates &mdash; about a minute.</p></div>'\n          + '<div><span>3</span><p>The result appears here, split by part, with '\n          + 'a link into each administration shell.</p></div>'\n          + '</div>';\n}\nconst datenStand = flow.get('datenStand') || {};\nlet veraltet = false;\nif (lauf && lauf.zeit) {\n    for (const s of Object.keys(datenStand)) {\n        if (String(datenStand[s]) > String(lauf.zeit)) { veraltet = true; }\n    }\n}\nif (veraltet) {\n    chips += '<span class=\"sdi-chip\" style=\"background:rgba(255,159,10,0.15);'\n           + 'color:#b45309\">recalculate</span>';\n}\nhtml += '<div class=\"sdi-chips\">' + chips + '</div>';\n\nif (montage && montage.stueck) {\n    let teile = '';\n    for (const k of (montage.teile || [])) {\n        teile += '<div class=\"sdi-leise\">' + k.artikel + ' &middot; <code>'\n               + k.nummer + '</code></div>';\n    }\n    html += '<details class=\"sdi-hilfe\"><summary>Piece <code>'\n          + montage.stueck + '</code>'\n          + (montage.teile && montage.teile.length\n              ? ' &mdash; built from ' + montage.teile.length + ' recorded parts'\n              : '')\n          + '</summary>'\n          + '<p class=\"sdi-leise\">Booked on manufacturing order '\n          + montage.auftrag + (montage.zeit\n              ? ', ' + String(montage.zeit).replace('T', ' ').slice(0, 16) : '')\n          + '. These parts are recorded as installed in this piece; their '\n          + 'measured production energy therefore belongs to it.</p>'\n          + teile + '</details>';\n}\nhtml += '</div>';\nmsg.payload = html;\n// The button at the top needs only one piece of information: is there a\n// result already? After that it reads \"Recalculate\" instead of\n// \"Calculate\".\nreturn [msg, { topic: 'gerechnet', payload: !!lauf }];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 920,
+        "y": 660,
+        "wires": [
+            [
+                "sdiui0228"
+            ],
+            [
+                "sdiui0251"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0228",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0000",
+        "order": 1,
+        "width": 12,
+        "height": 0,
+        "name": "Headline",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": true,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0252",
+        "type": "inject",
+        "z": "sdiui0000tab0001",
+        "name": "Choose your Product",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 900,
+        "wires": [
+            [
+                "sdiui0253"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0253",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Back to the empty state",
+        "func": "// Reset the display only, not the data. The shells are left untouched; the polling tick fills the view again by itself.\nflow.set('ergebnisse', []);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 900,
+        "wires": [
+            [
+                "sdiui0227"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0233",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0000",
+        "order": 3,
+        "width": 12,
+        "height": 0,
+        "name": "Progress",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "templateScope": "local",
+        "className": "sdi-melde",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": true,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "sdiui0236",
+        "type": "catch",
+        "z": "sdiui0000tab0001",
+        "name": "Any error",
+        "scope": null,
+        "uncaught": false,
+        "x": 120,
+        "y": 780,
+        "wires": [
+            [
+                "sdiui0234"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0234",
+        "type": "function",
+        "z": "sdiui0000tab0001",
+        "name": "Error view",
+        "func": "// Shows errors in the user interface rather than only in the editor log.\n//\n// What matters is not that an error occurred but what caused it. \"Request\n// error\" on its own helps nobody; the address and a hint say which service\n// is missing.\nflow.set('letzterFehler', Date.now());\nconst fehler = msg.error || {};\nconst knoten = (fehler.source || {}).name || 'unknown step';\nconst grund = fehler.message || String(msg.payload || 'no reason given');\nconst adresse = msg.url || '';\n\nconst HINWEISE = [\n    [/ECONNREFUSED|ENOTFOUND|RequestError/i,\n     'The service does not answer. Is it running, and is its address in .env right?'],\n    [/404/, 'The server answers but does not know this identifier.'],\n    [/timeout/i, 'The service answers too slowly. openLCA can take minutes.'],\n    [/401|403/, 'The credentials were refused.']\n];\nlet hinweis = '';\nfor (const e of HINWEISE) {\n    if (e[0].test(grund) || e[0].test(adresse)) { hinweis = e[1]; break; }\n}\n\nmsg.payload = '<div class=\"sdi\"><div class=\"sdi-hinweis sdi-hinweis-fehler\">'\n    + '<span class=\"sdi-punkt\" style=\"background:var(--schlecht);margin-top:6px\"></span>'\n    + '<span><strong>' + knoten + '</strong> — ' + String(grund).substring(0, 200)\n    + (adresse ? '<div class=\"sdi-leise\" style=\"margin-top:4px\">'\n                 + '<code>' + adresse + '</code></div>' : '')\n    + (hinweis ? '<div style=\"margin-top:6px\">' + hinweis + '</div>' : '')\n    + '</span></div></div>';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 780,
+        "wires": [
+            [
+                "sdiui0235"
+            ]
+        ]
+    },
+    {
+        "id": "sdiui0235",
+        "type": "ui-template",
+        "z": "sdiui0000tab0001",
+        "group": "sdiui0000grp0004",
+        "order": 2,
+        "width": 12,
+        "height": 0,
+        "name": "Messages",
+        "format": "<div v-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "templateScope": "local",
+        "className": "",
+        "head": "",
+        "page": "",
+        "ui": "",
+        "resendOnRefresh": true,
+        "wires": [
+            []
+        ]
+    }
+]

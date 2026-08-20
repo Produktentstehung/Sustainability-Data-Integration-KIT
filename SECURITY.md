@@ -4,34 +4,51 @@
 
 Please do **not** report security vulnerabilities through public GitHub issues.
 
-Please report vulnerabilities to this repository via **GitHub security advisories** instead.
+Report them to the Eclipse Foundation security team at <security@eclipse.org>,
+or through the Eclipse Foundation vulnerability reporting process described at
+<https://www.eclipse.org/security/>. Reports may also be filed as a GitHub
+security advisory on this repository.
 
-How? Inside affected repository --> security tab
+Please include as much of the following as you can:
 
-for contributor:
---> Report a vulnerability
+- the affected component and version
+- the type of issue and how it can be reproduced
+- the impact you expect, including how an attacker might exploit it
+- any special configuration required to trigger the issue
 
-for committer:
---> advisories --> New draft security advisory
-
-In severe cases, you can also report a found vulnerability via mail or eclipse issue here: <https://www.eclipse.org/security/>
-
-See [Eclipse Foundation Vulnerability Reporting Policy](https://www.eclipse.org/projects/handbook/#vulnerability)
+You will receive an acknowledgement of your report. We will keep you informed
+about the progress towards a fix and may ask for additional information.
 
 ## Scope
 
-This policy covers the reference implementation provided in this repository, in particular the Node-RED flows in `src/` and the AAS instance creation script.
+This repository contains the reference implementation of the Sustainability
+Data Integration KIT: integration flows, setup scripts and sample data.
 
-Vulnerabilities in third-party components used together with this KIT are to be reported to the respective project:
+Vulnerabilities in the third-party components the KIT builds on are reported to
+the respective project, not here:
 
-| Component | Project |
+| Component | Where to report |
 | --- | --- |
-| Node-RED | <https://nodered.org/> |
-| Eclipse BaSyx | <https://github.com/eclipse-basyx> |
+| Node-RED | <https://nodered.org/about/security/> |
+| Eclipse BaSyx | <https://www.eclipse.org/security/> |
 | openLCA | <https://www.openlca.org/> |
-| Odoo (ERP) | <https://github.com/odoo/odoo> |
-| Tractus-X EDC | <https://github.com/eclipse-tractusx/tractusx-edc> |
-| Neo4j | <https://neo4j.com/> |
+| Eclipse Tractus-X EDC | <https://www.eclipse.org/security/> |
+
+## Known limitations of the reference implementation
+
+The reference implementation was built as a laboratory demonstrator. The
+following properties are known and documented, and MUST be addressed before
+productive use. They are not accepted as vulnerability reports:
+
+- components communicate over plain HTTP against `localhost`, without TLS
+- the AAS server is addressed without authentication
+- the user interface has no authentication layer
+- credentials for PLM and ERP are held as environment variables of the Node-RED
+  process; they are not stored in the flows, but any operator of that process
+  can read them
+
+The section *Guidelines Security* in `README.md` describes what an operator has
+to put in place instead.
 
 ## NOTICE
 

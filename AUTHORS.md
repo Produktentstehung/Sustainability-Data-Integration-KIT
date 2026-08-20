@@ -1,6 +1,6 @@
 # Authors
 
-The following people (in alphabetical order) have [contributed to this repository](https://github.com/eclipse-tractusx/Sustainability-Data-Integration-KIT):
+The following people (in alphabetical order) have [contributed to this repository](https://github.com/Produktentstehung/Sustainability-Data-Integration-KIT):
 
 | Name |  Company Role | Company |
 |--|--|--|
@@ -18,4 +18,4 @@ This work is licensed under the CC-BY-4.0.
 * SPDX-FileCopyrightText: 2025 Heinz Nixdorf Institute
 * SPDX-FileCopyrightText: 2025 Paderborn University
 * SPDX-FileCopyrightText: 2025 Contributors to the Eclipse Foundation
-* Source URL: https://github.com/eclipse-tractusx/Sustainability-Data-Integration-KIT
+* Source URL: https://github.com/Produktentstehung/Sustainability-Data-Integration-KIT

@@ -25,6 +25,7 @@ AAS from a preconfigured type AAS. Handles [Content_Types].xml, HandoverDoc
 enhancements, and Models3D styling.
 """
 import json, sys, os, shutil, zipfile
+import sys
 from pathlib import Path
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -50,13 +51,13 @@ def sanitize_id(name):
     }
     for k, v in replacements.items():
         name = name.replace(k, v)
-    # verbleibende diakritische Zeichen (é, à, ç, ...) auf Basisbuchstaben reduzieren
+    # reduce remaining diacritics (e, a, c, ...) to their base letters
     name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('ascii')
     # Leerzeichen (auch mehrfach/Tabs) -> Unterstrich
     name = re.sub(r'\s+', '_', name.strip())
-    # alle übrigen nicht erlaubten Zeichen -> Unterstrich
+    # every other forbidden character -> underscore
     name = re.sub(r'[^A-Za-z0-9_]', '_', name)
-    # idShort darf nicht mit einer Ziffer beginnen
+    # an idShort must not begin with a digit
     if name and name[0].isdigit():
         name = '_' + name
     return name or 'Undefined'
@@ -75,6 +76,13 @@ def indent_xml(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
+
+# Hilfe statt Abbruch. Ohne diese Abfrage versucht das Programm, eine Datei
+# namens '--help' zu oeffnen, und quittiert die erste Beruehrung mit einem
+# Abbild.
+if len(sys.argv) < 2 or sys.argv[1] in ('--help', '-h', '/?'):
+    print((__doc__ or '').strip())
+    sys.exit(0)
 
 with open(sys.argv[1], encoding='utf-8') as f:
     data = json.load(f)
@@ -118,7 +126,7 @@ app_version = app_parts[1] if len(app_parts) > 1 else ''
 print(f"Part: {part_name} ({article_nr})")
 print(f"CAD: {file_name} | Format: {format_name}:{format_version} | App: {app_name} {app_version}")
 
-# -- Ordnerstruktur ------------------------------------------------------------
+# -- Folder structure ----------------------------------------------------------
 shell_dir = output_path / f"{article_nr}_{part_name}"
 root_rels_dir = shell_dir / '_rels'
 aasx_dir      = shell_dir / 'aasx'
@@ -135,7 +143,7 @@ found_ct = list(base_path.rglob('[Content_Types].xml'))
 if found_ct:
     shutil.copy2(found_ct[0], shell_dir/'[Content_Types].xml')
 else:
-    print("  [INFO] Keine [Content_Types].xml gefunden. Generiere Original-Schema...")
+    print("  [INFO] No [Content_Types].xml found. Generating the original schema ...")
     # Bereinigter Nachbau deiner Vorlage (ohne doppelten JPG-Key, da der Package Explorer Case-Insensitive parst)
     default_ct = (
         '<?xml version="1.0" encoding="utf-8"?>\n'
@@ -168,14 +176,25 @@ if found_origin and found_origin[0].is_file():
 else:
     (aasx_dir/'aasx-origin').write_text('Intentionally empty', encoding='utf-8')
 
+# Operating system artefacts must not enter the package.
+#
+# A Thumbs.db picked up from the template folder has no content type, and an
+# AAS reader rejects the whole package for it - the file that breaks it is one
+# Windows wrote without being asked. The same list is used by repair_aasx.py
+# to clean packages that already carry one.
+ARTEFACTS = {'thumbs.db', 'desktop.ini', '.ds_store', 'ehthumbs.db'}
+
 for src_files_dir in [base_path/'aasx'/'files', base_path/'files']:
     if src_files_dir.exists():
         for item in src_files_dir.iterdir():
+            if item.name.lower() in ARTEFACTS:
+                print(f"  [INFO] skipped operating system artefact: {item.name}")
+                continue
             if item.is_file() and not (files_dir/item.name).exists():
                 shutil.copy2(item, files_dir/item.name)
         break
 
-# Aasx-Altdaten schützen
+# protect existing AASX data
 aasx_out = output_path / f"{article_nr}_{part_name}.aasx"
 
 if aasx_out.exists():
@@ -286,7 +305,26 @@ if 'Nameplate' in submodels:
     sm = submodels['Nameplate']
     set_mlp(sm, 'ManufacturerProductDesignation', part_name, 'de')
     set_prop(sm, 'ProductArticleNumberOfManufacturer', article_nr)
-    set_prop(sm, 'SerialNumber', f'{article_nr}-00-000000-00')
+    # Serial number, coded as ASSEMBLY-INSTANCE-PART-INSTANCE:
+    #
+    #     000114-001-000116-001   the first bolt in pen number one
+    #     000114-001-000000-000   the pen itself; it sits in nothing
+    #
+    # Six digits for the article number from the PLM, three for the running
+    # instance. The instance of a part counts the pieces actually produced of
+    # that kind, so a measurement taken at the machine belongs to one piece
+    # rather than to a type - which is what makes it usable in a product pass.
+    #
+    # Here only the pattern is written: the shell is built from engineering
+    # data, and at that point no piece exists yet. The ERP assigns the real
+    # numbers when something is produced, and writes them into this field.
+    # A part with a bill of material is the assembly; everything else is a
+    # component of one. The assembly stands in nothing, so its last two blocks
+    # are zeros.
+    is_assembly = len(bom_items) > 0
+    set_prop(sm, 'SerialNumber',
+             f'{article_nr}-000-000000-000' if is_assembly
+             else f'000000-000-{article_nr}-000')
     set_prop(sm, 'YearOfConstruction', created_at[:4] if created_at else '')
     set_prop(sm, 'URIOfTheProduct', ui_link)
     set_mlp(sm, 'ManufacturerProductFamily', 'Lehrstuhl-Produkte', 'de')
@@ -294,7 +332,7 @@ if 'Nameplate' in submodels:
 # ── DataSources ────────────────────────────────────────────────────────────────
 if 'DataSources' in submodels:
     sm = submodels['DataSources']
-    ed = find_sc(sm, 'Engineering Data / PLM')
+    ed = find_sc(sm, 'PLM') or find_sc(sm, 'Engineering Data / PLM')
     if ed is not None:
         set_prop(ed, 'Material', part_material)
         set_prop(ed, 'Weight', part_weight)
@@ -365,12 +403,12 @@ if 'HandoverDocumentation' in submodels:
         set_prop(dv_file, 'StatusValue', 'released')
         set_prop(dv_file, 'OrganizationOfficialName', 'HNI Produktentstehung')
         
-        # OrganizationShortName zu "HNI" ändern
+        # change OrganizationShortName to "HNI"
         set_prop(dv_file, 'OrganizationShortName', 'HNI')
         
         set_file(dv_file, 'DigitalFile', f'/aasx/files/{file_name}', 'application/octet-stream')
         
-        # PreviewFile an der zugehörigen Stelle in der SMC ablegen
+        # place the PreviewFile at its position inside the SMC
         set_file(dv_file, 'PreviewFile', f'/aasx/files/{preview_name}', 'image/jpeg')
 
     doc_id_coll = find_sc(sm, 'DocumentId')
@@ -392,8 +430,8 @@ if 'BackendSpecificMaterialInformation' in submodels:
 
 # ── Submodel-IDs + Referenzen dynamisch anpassen ──────────────────────────────
 # Alten Part-Namen aus der Shell-ID des Templates ermitteln (z.B. "Kugelschreiber"
-# aus "localhost/demo/aas/Kugelschreiber"), BEVOR die Shell-ID unten überschrieben
-# wird. Damit lässt sich das exakte Pfad-Segment in jeder Submodel-ID durch den
+# from "localhost/demo/aas/Kugelschreiber"), BEFORE the shell id below is
+# overwritten. That way the exact path segment in every submodel id can be
 # aktuellen part_name ersetzen (kein blinder String-Replace).
 old_part_name = None
 _shell = root.find(f'.//{{{NS}}}assetAdministrationShell')
@@ -438,6 +476,25 @@ for aas in root.iter(f'{{{NS}}}assetAdministrationShell'):
 # ── XML schreiben ─────────────────────────────────────────────────────────────
 indent_xml(root)
 xml_str  = ET.tostring(root, encoding='unicode', xml_declaration=False)
+# Clean the content before writing, not afterwards.
+#
+# The template this shell is built from carries empty placeholders: qualifier
+# elements with nothing in them, a description repeating the same language,
+# typed properties without a value. They survive into every generated package
+# and are reported by any strict reader. Cleaning them here means a package is
+# born valid instead of needing repair_aasx.py afterwards - and the same
+# function does both, so the two cannot drift apart.
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from repair_aasx import clean_content
+    xml_str, _removed = clean_content(xml_str)
+    if _removed:
+        print(f'  [INFO] removed {_removed} content violations inherited from '
+              f'the template')
+except ImportError:
+    print('  [WARN] repair_aasx.py not found next to this script - the package '
+          'keeps the violations of its template')
+
 xml_path = new_sub / f'{part_name_id}.aas.xml'
 xml_path.write_text(f'<?xml version="1.0" encoding="utf-8"?>\n{xml_str}', encoding='utf-8')
 
@@ -457,6 +514,43 @@ rels_header = '<?xml version="1.0" encoding="utf-8"?><Relationships xmlns="http:
     f'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
     f'<Relationship Type="http://www.admin-shell.io/aasx/relationships/aas-spec" '
     f'Target="{part_name_id}/{part_name_id}.aas.xml" Id="r1"/></Relationships>', encoding='utf-8')
+
+# Every file in the package needs a declared content type.
+#
+# Rule M.1.14 of the specification requires it, and a reader refuses the whole
+# package for a single undeclared file. The list above covers the extensions we
+# expected; a CAD export brings others along - a SolidWorks part arrived with a
+# companion file '.SLDPRT.appinfo', and the package was rejected for it.
+#
+# So: declare what is actually inside, and fall back to a generic type for
+# anything unknown. Guessing a wrong type is harmless here; declaring none is
+# not.
+ct_path = shell_dir / '[Content_Types].xml'
+ct_text = ct_path.read_text(encoding='utf-8')
+declared_extensions = {m.lower() for m in re.findall(r'Extension="([^"]+)"', ct_text)}
+CONTENT_TYPES = {
+    'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+    'gif': 'image/gif', 'bmp': 'image/bmp', 'svg': 'image/svg+xml',
+    'pdf': 'application/pdf', 'txt': 'text/plain', 'csv': 'text/csv',
+    'json': 'application/json', 'xml': 'text/xml',
+}
+fehlend = []
+for fp in sorted(shell_dir.rglob('*')):
+    if not fp.is_file():
+        continue
+    endung = fp.suffix.lstrip('.').lower()
+    if not endung or endung in declared_extensions or '.' in endung:
+        continue
+    declared_extensions.add(endung)
+    fehlend.append(endung)
+if fehlend:
+    vorlage = '  <Default Extension="%s" ContentType="%s" />'
+    zusatz = ''.join(
+        (vorlage % (e, CONTENT_TYPES.get(e, 'application/octet-stream'))) + chr(10)
+        for e in fehlend)
+    ct_path.write_text(ct_text.replace('</Types>', zusatz + '</Types>'),
+                       encoding='utf-8')
+    print('  [INFO] declared content types for: ' + ', '.join(fehlend))
 
 # ── AASX packen ───────────────────────────────────────────────────────────────
 with zipfile.ZipFile(aasx_out, 'w', zipfile.ZIP_DEFLATED) as z:

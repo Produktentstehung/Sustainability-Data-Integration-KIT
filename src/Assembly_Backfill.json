@@ -1,0 +1,353 @@
+[
+    {
+        "id": "sdinach00tab0001",
+        "type": "tab",
+        "label": "Assembly backfill",
+        "disabled": false,
+        "info": "Reads every completed manufacturing order from Odoo and restores the assembly records in the shell. Use it after the ERP data was rebuilt or a shell was recreated.",
+        "env": []
+    },
+    {
+        "id": "sdinach0001",
+        "type": "inject",
+        "z": "sdinach00tab0001",
+        "name": "Restore assembly records",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "sdinach0002"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0002",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Log in",
+        "func": "// Log in.\nconst cfg = {\n    url: env.get('SDI_ODOO_URL') || '',\n    db: env.get('SDI_ODOO_DB') || '',\n    user: env.get('SDI_ODOO_USER') || '',\n    key: env.get('SDI_ODOO_APIKEY') || '',\n    aas: env.get('SDI_AAS_URL') || 'http://localhost:8081',\n    basis: env.get('SDI_AAS_BASE') || 'localhost/demo/aas'\n};\nif (!cfg.key) { node.error('No Odoo API key in the environment.'); return null; }\nflow.set('cfg', cfg);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'common', method: 'login', args: [cfg.db, cfg.user, cfg.key] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 80,
+        "wires": [
+            [
+                "sdinach0003"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0003",
+        "type": "http request",
+        "z": "sdinach00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 80,
+        "wires": [
+            [
+                "sdinach0004"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0004",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Articles",
+        "func": "// Fetches the articles, so components can be named later on.\nconst cfg = flow.get('cfg');\nconst uid = (msg.payload || {}).result;\nif (!uid) { node.error('Login failed'); return null; }\nflow.set('uid', uid);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'product.product', 'search_read',\n           [[]], { fields: ['default_code'], limit: 100 }] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 80,
+        "wires": [
+            [
+                "sdinach0005"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0005",
+        "type": "http request",
+        "z": "sdinach00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 900,
+        "y": 80,
+        "wires": [
+            [
+                "sdinach0006"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0006",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Manufacturing orders",
+        "func": "// Fetches every completed order for the assembled product.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Odoo reports: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst nachId = {};\nfor (const v of ((msg.payload || {}).result || [])) { nachId[v.id] = v.default_code; }\nflow.set('artikelNachId', nachId);\n\nconst ERZEUGNIS = env.get('SDI_ASSEMBLY_ARTICLE') || '000114';\nconst stift = Object.keys(nachId).find(function (id) {\n    return nachId[id] === ERZEUGNIS;\n});\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'search_read',\n           [[['product_id', '=', Number(stift)], ['state', '=', 'done']]],\n           { fields: ['name', 'date_finished', 'lot_producing_ids',\n                      'move_raw_line_ids'], limit: 50 }] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 160,
+        "wires": [
+            [
+                "sdinach0007"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0007",
+        "type": "http request",
+        "z": "sdinach00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 160,
+        "wires": [
+            [
+                "sdinach0008"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0008",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Consumption lines",
+        "func": "// Fetches the consumption lines of all orders in one request.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Manufacturing orders: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst auftraege = (msg.payload || {}).result || [];\nflow.set('auftraege', auftraege);\nnode.warn('Completed manufacturing orders: ' + auftraege.length);\nif (!auftraege.length) { return null; }\n\nlet zeilen = [];\nlet lose = [];\nfor (const a of auftraege) {\n    zeilen = zeilen.concat(a.move_raw_line_ids || []);\n    lose = lose.concat(a.lot_producing_ids || []);\n}\nflow.set('loseIds', lose);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.move.line', 'read',\n           [zeilen, ['product_id', 'lot_id', 'quantity']]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 160,
+        "wires": [
+            [
+                "sdinach0009"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0009",
+        "type": "http request",
+        "z": "sdinach00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 900,
+        "y": 160,
+        "wires": [
+            [
+                "sdinach0010"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0010",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Serial numbers",
+        "func": "// Fetches the names of the serial numbers of the assembled pieces.\nconst cfg = flow.get('cfg');\nconst uid = flow.get('uid');\nif ((msg.payload || {}).error) {\n    node.error('Consumption lines: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst nachZeile = {};\nfor (const z of ((msg.payload || {}).result || [])) { nachZeile[z.id] = z; }\nflow.set('zeilenNachId', nachZeile);\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.lot', 'read',\n           [flow.get('loseIds') || [], ['name']]] } };\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 240,
+        "wires": [
+            [
+                "sdinach0011"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0011",
+        "type": "http request",
+        "z": "sdinach00tab0001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 240,
+        "wires": [
+            [
+                "sdinach0012"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0012",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Read the shell",
+        "func": "// Fetches the shell of the assembled product.\nconst cfg = flow.get('cfg');\nif ((msg.payload || {}).error) {\n    node.error('Serial numbers: ' + ((msg.payload.error.data) || {}).message);\n    return null;\n}\nconst nachId = {};\nfor (const l of ((msg.payload || {}).result || [])) { nachId[l.id] = l.name; }\nflow.set('losNamen', nachId);\n\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .split('+').join('-').split('/').join('_').split('=').join('');\n}\nconst PRODUKT = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nflow.set('kennung', b64(cfg.basis + '/' + PRODUKT + '/DataSources'));\nmsg.url = cfg.aas + '/submodels/' + flow.get('kennung');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 240,
+        "wires": [
+            [
+                "sdinach0013"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0013",
+        "type": "http request",
+        "z": "sdinach00tab0001",
+        "name": "AAS",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 900,
+        "y": 240,
+        "wires": [
+            [
+                "sdinach0014"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0014",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Record them",
+        "func": "// Records every order as an entry under AssemblyRecords.\nconst cfg = flow.get('cfg');\nconst auftraege = flow.get('auftraege') || [];\nconst zeilen = flow.get('zeilenNachId') || {};\nconst losNamen = flow.get('losNamen') || {};\nconst artikel = flow.get('artikelNachId') || {};\nconst sm = msg.payload;\nif (!sm || !sm.submodelElements) { node.error('Shell cannot be read'); return null; }\n\nconst prop = function (id, v, t) {\n    return { modelType: 'Property', idShort: id, valueType: t || 'xs:string',\n             value: v === null || v === undefined ? '' : String(v) };\n};\n// Members of a list carry no idShort (AASd-120).\nconst glied = function (v) {\n    return { modelType: 'SubmodelElementCollection', value: v };\n};\nconst sml = function (id, v) {\n    return { modelType: 'SubmodelElementList', idShort: id,\n             typeValueListElement: 'SubmodelElementCollection',\n             orderRelevant: false, value: v };\n};\n\nlet liste = null;\nfor (const e of sm.submodelElements) {\n    if (e.idShort === 'DataSources') { liste = e; }\n}\nconst erp = ((liste || {}).value || []).find(function (e) {\n    return e.idShort === 'ERP' || e.idShort === 'ERPData';\n});\nif (!erp) { node.error('No ERP data source in the shell'); return null; }\n\nlet sammlung = (erp.value || []).find(function (x) {\n    return x && x.idShort === 'AssemblyRecords';\n});\nif (!sammlung) { sammlung = sml('AssemblyRecords', []); erp.value.push(sammlung); }\n\nfunction nummerVon(eintrag) {\n    const n = (eintrag.value || []).find(function (y) { return y.idShort === 'SerialNumber'; });\n    return n ? String(n.value) : '';\n}\n\nlet neu = 0;\nfor (const a of auftraege) {\n    const stueck = losNamen[(a.lot_producing_ids || [])[0]] || '';\n    if (!stueck) { continue; }\n    const teile = [];\n    for (const zid of (a.move_raw_line_ids || [])) {\n        const z = zeilen[zid];\n        if (!z) { continue; }\n        const nummer = (z.lot_id || [])[1] || '';\n        if (!nummer) { continue; }\n        teile.push(glied([\n            prop('ArticleNumber', artikel[(z.product_id || [])[0]] || ''),\n            prop('SerialNumber', nummer),\n            prop('Quantity', z.quantity, 'xs:double')\n        ]));\n    }\n    const eintrag = glied([\n        prop('ManufacturingOrder', a.name || ''),\n        prop('SerialNumber', stueck),\n        prop('TimeOfBooking', (a.date_finished || '').replace(' ', 'T') + 'Z',\n             'xs:dateTime'),\n        prop('BookedComponents', String(teile.length), 'xs:int'),\n        sml('InstalledComponents', teile)\n    ]);\n    sammlung.value = (sammlung.value || []).filter(function (x) {\n        return nummerVon(x) !== stueck;\n    });\n    sammlung.value.push(eintrag);\n    neu = neu + 1;\n    node.warn('   ' + stueck + ' from ' + a.name + ', ' + teile.length + ' components');\n}\nnode.warn('Recorded: ' + neu + ' pieces');\n\nmsg.url = cfg.aas + '/submodels/' + flow.get('kennung');\nmsg.method = 'PUT';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = sm;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 320,
+        "wires": [
+            [
+                "sdinach0015"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0015",
+        "type": "http request",
+        "z": "sdinach00tab0001",
+        "name": "AAS",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 320,
+        "wires": [
+            [
+                "sdinach0016"
+            ]
+        ]
+    },
+    {
+        "id": "sdinach0016",
+        "type": "function",
+        "z": "sdinach00tab0001",
+        "name": "Done",
+        "func": "// Reports that the run is done.\nnode.warn('Assembly records restored.');\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    }
+]

@@ -1,0 +1,171 @@
+{
+  "idShort": "ERP",
+  "description": [
+    {
+      "language": "de",
+      "text": "Datenquelle ERP: Produkt-, Stücklisten- und Auftragsdaten aus dem ERP-System (Odoo). Einzufügen in die SubmodelElementList \"DataSources\" des Submodells DataSources, gleichrangig zu Manufacturing, Simulation und PLM."
+    }
+  ],
+  "template": {
+    "modelType": "SubmodelElementCollection",
+    "idShort": "ERP",
+    "value": [
+      {
+        "modelType": "Property",
+        "value": "ERP",
+        "valueType": "xs:string",
+        "idShort": "DataSource"
+      },
+      {
+        "modelType": "Property",
+        "value": "Odoo",
+        "valueType": "xs:string",
+        "idShort": "SourceSystem"
+      },
+      {
+        "modelType": "Property",
+        "value": "",
+        "valueType": "xs:dateTime",
+        "idShort": "TimeOfRetrieval"
+      },
+      {
+        "modelType": "Property",
+        "value": "",
+        "valueType": "xs:string",
+        "idShort": "ProductName"
+      },
+      {
+        "modelType": "Property",
+        "value": "",
+        "valueType": "xs:string",
+        "idShort": "ProductCode"
+      },
+      {
+        "modelType": "Property",
+        "value": "",
+        "valueType": "xs:double",
+        "idShort": "ProductWeight"
+      },
+      {
+        "modelType": "Property",
+        "value": "kg",
+        "valueType": "xs:string",
+        "idShort": "ProductWeightUnit"
+      },
+      {
+        "modelType": "Property",
+        "value": "",
+        "valueType": "xs:string",
+        "idShort": "BillOfMaterialId"
+      },
+      {
+        "modelType": "Property",
+        "value": "",
+        "valueType": "xs:double",
+        "idShort": "BillOfMaterialQuantity"
+      },
+      {
+        "modelType": "SubmodelElementCollection",
+        "idShort": "BillOfMaterial",
+        "value": [
+          {
+            "modelType": "SubmodelElementCollection",
+            "idShort": "ComponentTemplate",
+            "value": [
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:string",
+                "idShort": "ComponentName"
+              },
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:string",
+                "idShort": "ProductCode"
+              },
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:double",
+                "idShort": "Quantity"
+              },
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:string",
+                "idShort": "QuantityUnit"
+              },
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:double",
+                "idShort": "WeightPerUnit"
+              },
+              {
+                "modelType": "Property",
+                "value": "kg",
+                "valueType": "xs:string",
+                "idShort": "WeightUnit"
+              },
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:double",
+                "idShort": "TotalMass"
+              },
+              {
+                "modelType": "Property",
+                "value": "kg",
+                "valueType": "xs:string",
+                "idShort": "TotalMassUnit"
+              },
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:string",
+                "idShort": "MaterialCategory"
+              },
+              {
+                "modelType": "Property",
+                "value": "",
+                "valueType": "xs:string",
+                "idShort": "LCAFlowId"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "modelType": "SubmodelElementCollection",
+        "idShort": "ManufacturingOrder",
+        "value": [
+          {
+            "modelType": "Property",
+            "value": "",
+            "valueType": "xs:string",
+            "idShort": "OrderNumber"
+          },
+          {
+            "modelType": "Property",
+            "value": "",
+            "valueType": "xs:double",
+            "idShort": "OrderQuantity"
+          },
+          {
+            "modelType": "Property",
+            "value": "",
+            "valueType": "xs:string",
+            "idShort": "OrderUnit"
+          },
+          {
+            "modelType": "Property",
+            "value": "",
+            "valueType": "xs:string",
+            "idShort": "OrderState"
+          }
+        ]
+      }
+    ]
+  }
+}

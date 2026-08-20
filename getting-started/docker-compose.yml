@@ -1,0 +1,117 @@
+# Services of the Sustainability Data Integration KIT
+#
+# Starts the AAS server together with the registries and the web interface.
+# Data is kept in MongoDB so that it survives a restart - without that backend
+# the AAS server holds everything in memory only and is empty after each restart.
+#
+# Usage:  docker compose up -d
+# Stop:   docker compose down          (data is kept)
+#         docker compose down -v      (data is deleted)
+
+services:
+
+  # ---------------------------------------------------------------------------
+  # Storage for shells and submodels
+  # ---------------------------------------------------------------------------
+  # The database publishes no port: it is reachable only from the other
+  # containers of this stack, never from the network. The credentials below
+  # are therefore defaults for a local demonstration, not secrets. For any
+  # installation that is more than that, set MONGO_USER and MONGO_PASSWORD in
+  # .env - the values here are then not used.
+  mongo:
+    image: mongo:7
+    container_name: sdi-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-mongoAdmin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-mongoPassword}
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # AAS environment: shell repository, submodel repository and AASX upload.
+  # This is where the digital twins of the product and its parts live.
+  # ---------------------------------------------------------------------------
+  aas-env:
+    image: eclipsebasyx/aas-environment:2.0.0-milestone-05
+    container_name: sdi-aas-env
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "${AAS_PORT:-8081}:8081"
+    environment:
+      SERVER_PORT: 8081
+      # Store in MongoDB instead of in memory
+      BASYX_BACKEND: MongoDB
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER:-mongoAdmin}:${MONGO_PASSWORD:-mongoPassword}@mongo:27017
+      SPRING_DATA_MONGODB_DATABASE: sdi_kit
+      # Make the registries known so that uploaded twins can be discovered
+      BASYX_AASREPOSITORY_FEATURE_REGISTRYINTEGRATION: http://aas-registry:8080
+      BASYX_SUBMODELREPOSITORY_FEATURE_REGISTRYINTEGRATION: http://sm-registry:8080
+      BASYX_EXTERNALURL: http://localhost:${AAS_PORT:-8081}
+      # Allow the web interface to read from here. It runs in the browser on a
+      # different port, and a browser refuses to use a reply that does not
+      # permit its origin. Without these two entries the interface shows
+      # "0 Shells" and "Failed to fetch", while curl gets the data - the
+      # server is fine, the browser simply discards the answer.
+      BASYX_CORS_ALLOWED-ORIGINS: "*"
+      BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
+      # The sample AASX packages are large; the default limit is too small
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 128MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 128MB
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/shells"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+  # ---------------------------------------------------------------------------
+  # Registries - needed as soon as data has to be discoverable in the dataspace
+  # ---------------------------------------------------------------------------
+  aas-registry:
+    image: eclipsebasyx/aas-registry-log-mem:2.0.0-milestone-05
+    container_name: sdi-aas-registry
+    restart: unless-stopped
+    ports:
+      - "${AAS_REGISTRY_PORT:-8082}:8080"
+    environment:
+      SERVER_PORT: 8080
+
+  sm-registry:
+    image: eclipsebasyx/submodel-registry-log-mem:2.0.0-milestone-05
+    container_name: sdi-sm-registry
+    restart: unless-stopped
+    ports:
+      - "${SM_REGISTRY_PORT:-8083}:8080"
+    environment:
+      SERVER_PORT: 8080
+
+  # ---------------------------------------------------------------------------
+  # Web interface for inspecting the twins - not required for processing, but
+  # useful for checking results
+  # ---------------------------------------------------------------------------
+  aas-ui:
+    # Der Anbieter entfernt aeltere Zeitstempel-Abbilder wieder; ein
+    # fester Stand wie v2-250108 laesst sich dann nicht mehr laden.
+    image: eclipsebasyx/aas-gui:SNAPSHOT
+    container_name: sdi-aas-ui
+    restart: unless-stopped
+    depends_on:
+      - aas-env
+    ports:
+      - "${AAS_UI_PORT:-3000}:3000"
+    environment:
+      AAS_REGISTRY_PATH: http://localhost:${AAS_REGISTRY_PORT:-8082}/shell-descriptors
+      SUBMODEL_REGISTRY_PATH: http://localhost:${SM_REGISTRY_PORT:-8083}/submodel-descriptors
+      AAS_REPO_PATH: http://localhost:${AAS_PORT:-8081}/shells
+      SUBMODEL_REPO_PATH: http://localhost:${AAS_PORT:-8081}/submodels
+
+volumes:
+  mongo-data:

@@ -1,0 +1,23 @@
+# Line endings are normalised to LF inside the repository.
+#
+# Without this, files committed from Windows carry CRLF, and the first edit on
+# Linux rewrites every line of the file - a diff in which the actual change
+# cannot be found. The working copy on Windows still gets CRLF where the
+# platform expects it.
+* text=auto eol=lf
+
+# PowerShell is Windows-only; CRLF in the working copy is what its tooling
+# expects.
+*.ps1 text eol=crlf
+
+# Never touched: converting a line ending inside these corrupts the file.
+*.aasx   binary
+*.zip    binary
+*.xlsx   binary
+*.png    binary
+*.jpg    binary
+*.JPG    binary
+*.STEP   binary
+*.SLDASM binary
+*.SLDPRT binary
+*.pdf    binary

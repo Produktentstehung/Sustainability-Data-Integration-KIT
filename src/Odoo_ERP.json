@@ -1,0 +1,465 @@
+[
+    {
+        "id": "a1b2c3d4e5f60001",
+        "type": "tab",
+        "label": "Odoo ERP \u2192 AAS",
+        "disabled": false,
+        "info": "Reads product, bill-of-material and order data from Odoo (JSON-RPC) and writes them as the data source \"ERP\" into the DataSources submodel of the AAS."
+    },
+    {
+        "id": "a1b2c3d4e5f60000",
+        "type": "inject",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\u25b6 Start ERP retrieval",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "a1b2c3d4e5f6000a"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f6000a",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\u2699\ufe0f Configuration & login",
+        "func": "// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n// CONFIGURATION\n// Every value is read from an environment variable. Credentials do not\n// belong in the flow, and therefore not in the repository.\n// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nconst cfg = {\n    // In the browser Odoo shows an address with /odoo or /web appended.\n    // The JSON-RPC endpoint sits at the bare server address, so path\n    // remnants and a trailing slash are removed.\n    odooUrl:    String(env.get('SDI_ODOO_URL') || 'http://localhost:8069')\n                    .trim().replace(/\\/+(odoo|web)\\/?$/i, '').replace(/\\/+$/, ''),\n    db:         env.get('SDI_ODOO_DB')     || '',\n    user:       env.get('SDI_ODOO_USER')   || '',\n    apiKey:     env.get('SDI_ODOO_APIKEY') || '',\n    productName: env.get('SDI_ODOO_PRODUCT') || 'Kugelschreiber TRACEpen',\n    flowField:  env.get('SDI_ODOO_FLOW_FIELD') || 'x_studio_lca_flow_uuid',\n    materialField: env.get('SDI_ODOO_MATERIAL_FIELD') || 'x_lca_material',\n    processField:  env.get('SDI_ODOO_PROCESS_FIELD')  || 'x_lca_process_id',\n    parameterField: env.get('SDI_ODOO_PARAMETER_FIELD') || 'x_lca_parameter',\n    zeroField:     env.get('SDI_ODOO_ZERO_FIELD')     || 'x_lca_zero_parameters',\n    aasUrl:     env.get('SDI_AAS_URL')     || 'http://localhost:8081',\n    submodelId: env.get('SDI_AAS_DATASOURCES_ID')\n                || 'localhost/demo/aas/Kugelschreiber_TracePEN/DataSources'\n};\n\nif (!cfg.db || !cfg.user || !cfg.apiKey) {\n    node.error('SDI_ODOO_DB, SDI_ODOO_USER and SDI_ODOO_APIKEY have to be set', msg);\n    return null;\n}\n\nflow.set('cfg', cfg);\n\nmsg.url = cfg.odooUrl + '/jsonrpc';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = {\n    jsonrpc: '2.0', method: 'call', id: 1,\n    params: { service: 'common', method: 'authenticate',\n              args: [cfg.db, cfg.user, cfg.apiKey, {}] }\n};\nnode.status({ fill: 'blue', shape: 'dot', text: 'Login ' + cfg.db });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "a1b2c3d4e5f60002"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60002",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "POST \u2192 Odoo (authenticate)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 640,
+        "y": 100,
+        "wires": [
+            [
+                "a1b2c3d4e5f60003"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60003",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\ud83d\udd11 Check uid and find the bill of material",
+        "func": "// Check the uid and find the bill of material of the product\nconst cfg = flow.get('cfg');\nif (msg.payload && msg.payload.error) {\n    node.error('Odoo login failed: ' + JSON.stringify(msg.payload.error), msg);\n    return null;\n}\nconst uid = msg.payload ? msg.payload.result : null;\nif (!uid) {\n    node.error('Odoo authentication returned no uid - check the credentials', msg);\n    return null;\n}\ncfg.uid = uid;\nflow.set('cfg', cfg);\nnode.log('Odoo login ok, uid=' + uid);\n\n// Builds an Odoo JSON-RPC call (the counterpart of execute_kw in the XML-RPC API)\nfunction rpc(cfg, model, method, args, kwargs) {\n    return {\n        jsonrpc: '2.0', method: 'call', id: Date.now(),\n        params: {\n            service: 'object', method: 'execute_kw',\n            args: [cfg.db, cfg.uid, cfg.apiKey, model, method, args, kwargs || {}]\n        }\n    };\n}\n\n// Fetch the product template and its bill of material in one call\nmsg.url = cfg.odooUrl + '/jsonrpc';\nmsg.headers = { 'Content-Type': 'application/json' };\n// Find the product by name, article number or part of the name. The search\n// then works whether SDI_ODOO_PRODUCT holds the designation\n// (\"Kugelschreiber_TracePEN\") or the number (\"000114\").\nmsg.payload = rpc(cfg, 'mrp.bom', 'search_read',\n    [[ '|', '|',\n       ['product_tmpl_id.name', '=', cfg.productName],\n       ['product_tmpl_id.default_code', '=', cfg.productName],\n       ['product_tmpl_id.name', 'ilike', cfg.productName],\n       ['type', '=', 'normal'] ]],\n    { fields: ['product_tmpl_id', 'product_qty', 'bom_line_ids'], limit: 1 });\nnode.status({ fill: 'blue', shape: 'dot', text: 'finding bill of material' });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 100,
+        "wires": [
+            [
+                "a1b2c3d4e5f60004"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60004",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "POST \u2192 Odoo (mrp.bom)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1160,
+        "y": 100,
+        "wires": [
+            [
+                "a1b2c3d4e5f60005"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60005",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\ud83d\udccb Load the bill-of-material lines",
+        "func": "// Evaluate the bill-of-material header, fetch its lines\nconst cfg = flow.get('cfg');\nif (msg.payload && msg.payload.error) {\n    node.error('Odoo error (mrp.bom): ' + JSON.stringify(msg.payload.error), msg);\n    return null;\n}\nconst boms = msg.payload.result || [];\nif (boms.length === 0) {\n    node.error('No bill of material for product \"' + cfg.productName +\n        '\" found (searched by name, article number and part of the name)', msg);\n    return null;\n}\nconst bom = boms[0];\nflow.set('bomHeader', bom);\nconst lineIds = bom.bom_line_ids || [];\nif (lineIds.length === 0) {\n    node.error('The bill of material has no lines', msg);\n    return null;\n}\nnode.log('Bill of material ' + bom.id + ' with ' + lineIds.length + ' lines');\n\n// Builds an Odoo JSON-RPC call (the counterpart of execute_kw in the XML-RPC API)\nfunction rpc(cfg, model, method, args, kwargs) {\n    return {\n        jsonrpc: '2.0', method: 'call', id: Date.now(),\n        params: {\n            service: 'object', method: 'execute_kw',\n            args: [cfg.db, cfg.uid, cfg.apiKey, model, method, args, kwargs || {}]\n        }\n    };\n}\n\nmsg.url = cfg.odooUrl + '/jsonrpc';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = rpc(cfg, 'mrp.bom.line', 'read', [lineIds],\n    { fields: ['product_id', 'product_tmpl_id', 'product_qty'] });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 200,
+        "wires": [
+            [
+                "a1b2c3d4e5f60006"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60006",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "POST \u2192 Odoo (mrp.bom.line)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 530,
+        "y": 200,
+        "wires": [
+            [
+                "a1b2c3d4e5f60007"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60007",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\ud83e\udde9 Load the product templates",
+        "func": "// Keep the lines, read every product template needed in one go\nconst cfg = flow.get('cfg');\nif (msg.payload && msg.payload.error) {\n    node.error('Odoo error (mrp.bom.line): ' + JSON.stringify(msg.payload.error), msg);\n    return null;\n}\nconst lines = msg.payload.result || [];\nflow.set('bomLines', lines);\n\nconst header = flow.get('bomHeader');\nconst tmplIds = new Set();\nif (header.product_tmpl_id) { tmplIds.add(header.product_tmpl_id[0]); }\nlines.forEach(l => { if (l.product_tmpl_id) { tmplIds.add(l.product_tmpl_id[0]); } });\n\n// Builds an Odoo JSON-RPC call (the counterpart of execute_kw in the XML-RPC API)\nfunction rpc(cfg, model, method, args, kwargs) {\n    return {\n        jsonrpc: '2.0', method: 'call', id: Date.now(),\n        params: {\n            service: 'object', method: 'execute_kw',\n            args: [cfg.db, cfg.uid, cfg.apiKey, model, method, args, kwargs || {}]\n        }\n    };\n}\n\nmsg.url = cfg.odooUrl + '/jsonrpc';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = rpc(cfg, 'product.template', 'read', [Array.from(tmplIds)],\n    { fields: ['name', 'default_code', 'weight', 'categ_id', 'uom_id',\n               cfg.flowField, cfg.materialField, cfg.processField,\n               cfg.parameterField, cfg.zeroField] });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 790,
+        "y": 200,
+        "wires": [
+            [
+                "a1b2c3d4e5f60008"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60008",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "POST \u2192 Odoo (product.template)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1070,
+        "y": 200,
+        "wires": [
+            [
+                "a1b2c3d4e5f60009"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60009",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\ud83e\udde9 Load the variants",
+        "func": "// Keep the templates, fetch the variants (fallback for weight and flow uuid)\nconst cfg = flow.get('cfg');\nif (msg.payload && msg.payload.error) {\n    node.error('Odoo error (product.template): ' + JSON.stringify(msg.payload.error), msg);\n    return null;\n}\nconst tmplById = {};\n(msg.payload.result || []).forEach(t => { tmplById[t.id] = t; });\nflow.set('tmplById', tmplById);\n\nconst lines = flow.get('bomLines') || [];\nconst variantIds = lines.filter(l => l.product_id).map(l => l.product_id[0]);\n\n// Builds an Odoo JSON-RPC call (the counterpart of execute_kw in the XML-RPC API)\nfunction rpc(cfg, model, method, args, kwargs) {\n    return {\n        jsonrpc: '2.0', method: 'call', id: Date.now(),\n        params: {\n            service: 'object', method: 'execute_kw',\n            args: [cfg.db, cfg.uid, cfg.apiKey, model, method, args, kwargs || {}]\n        }\n    };\n}\n\nmsg.url = cfg.odooUrl + '/jsonrpc';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = rpc(cfg, 'product.product', 'read', [variantIds],\n    { fields: ['display_name', 'weight', 'product_tmpl_id', cfg.flowField] });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 300,
+        "wires": [
+            [
+                "a1b2c3d4e5f60010"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60010",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "POST \u2192 Odoo (product.product)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 500,
+        "y": 300,
+        "wires": [
+            [
+                "a1b2c3d4e5f60011"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60011",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\ud83d\udd17 Merge the bill of material",
+        "func": "// Merge the bill of material and ask for the manufacturing order\n//\n// Rules following MA 468 (Rajab), chapter 5.3:\n//   - flow uuid: the template is preferred, the variant is the fallback\n//   - weight:    the template is the base, a variant overrides it if kept\n//   - total mass = weight per piece * quantity\nconst cfg = flow.get('cfg');\nif (msg.payload && msg.payload.error) {\n    node.error('Odoo error (product.product): ' + JSON.stringify(msg.payload.error), msg);\n    return null;\n}\nconst variantById = {};\n(msg.payload.result || []).forEach(v => { variantById[v.id] = v; });\n\nconst tmplById = flow.get('tmplById') || {};\nconst lines = flow.get('bomLines') || [];\nconst header = flow.get('bomHeader');\n\nconst components = [];\nconst skipped = [];\n\nlines.forEach(line => {\n    const qty = line.product_qty || 0;\n    const tmpl = line.product_tmpl_id ? tmplById[line.product_tmpl_id[0]] : null;\n    const variant = line.product_id ? variantById[line.product_id[0]] : null;\n\n    let name = (tmpl && tmpl.name) || (variant && variant.display_name) || null;\n    if (!name) { name = 'Line ' + line.id; }\n\n    let flowUuid = (tmpl && tmpl[cfg.flowField]) || null;\n    if (!flowUuid && variant && variant[cfg.flowField]) { flowUuid = variant[cfg.flowField]; }\n\n    let weightKg = (tmpl && tmpl.weight) || 0;\n    if (variant && variant.weight) { weightKg = variant.weight; }\n\n    const reasons = [];\n    if (!flowUuid) { reasons.push('no ' + cfg.flowField); }\n    if (!weightKg || weightKg <= 0) { reasons.push('no valid weight'); }\n    if (reasons.length > 0) {\n        skipped.push(name + ' (' + reasons.join(', ') + ')');\n        return;\n    }\n\n    components.push({\n        name: name,\n        productCode: (tmpl && tmpl.default_code) || '',\n        quantity: qty,\n        quantityUnit: (tmpl && tmpl.uom_id && tmpl.uom_id[1]) || '',\n        weightKg: weightKg,\n        totalMassKg: weightKg * qty,\n        material: (tmpl && tmpl[cfg.materialField]) || '',\n        lcaProcessId: (tmpl && tmpl[cfg.processField]) || '',\n        lcaParameter: (tmpl && tmpl[cfg.parameterField]) || '',\n        lcaZeroParameters: (tmpl && tmpl[cfg.zeroField]) || '',\n        materialCategory: (tmpl && tmpl.categ_id && tmpl.categ_id[1]) || '',\n        lcaFlowId: flowUuid\n    });\n});\n\nif (skipped.length > 0) { node.warn('Skipped lines: ' + skipped.join('; ')); }\nif (components.length === 0) {\n    node.error('No usable bill-of-material line found', msg);\n    return null;\n}\n\nconst prodTmpl = header.product_tmpl_id ? tmplById[header.product_tmpl_id[0]] : null;\nflow.set('erp', {\n    productName: (prodTmpl && prodTmpl.name) || cfg.productName,\n    productCode: (prodTmpl && prodTmpl.default_code) || '',\n    productWeightKg: (prodTmpl && prodTmpl.weight) || 0,\n    bomId: header.id,\n    bomQuantity: header.product_qty || 1,\n    components: components,\n    skipped: skipped\n});\nnode.log('Bill of material merged: ' + components.length + ' lines');\n\n// Builds an Odoo JSON-RPC call (the counterpart of execute_kw in the XML-RPC API)\nfunction rpc(cfg, model, method, args, kwargs) {\n    return {\n        jsonrpc: '2.0', method: 'call', id: Date.now(),\n        params: {\n            service: 'object', method: 'execute_kw',\n            args: [cfg.db, cfg.uid, cfg.apiKey, model, method, args, kwargs || {}]\n        }\n    };\n}\n\nmsg.url = cfg.odooUrl + '/jsonrpc';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = rpc(cfg, 'mrp.production', 'search_read',\n    [[ '|', '|',\n       ['product_id.product_tmpl_id.name', '=', cfg.productName],\n       ['product_id.product_tmpl_id.default_code', '=', cfg.productName],\n       ['product_id.product_tmpl_id.name', 'ilike', cfg.productName],\n       ['state', 'in', ['confirmed', 'progress', 'to_close', 'done']] ]],\n    { fields: ['name', 'product_qty', 'state'], limit: 1 });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 300,
+        "wires": [
+            [
+                "a1b2c3d4e5f60012"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60012",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "POST \u2192 Odoo (mrp.production)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1060,
+        "y": 300,
+        "wires": [
+            [
+                "a1b2c3d4e5f60013"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60013",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\ud83d\udce5 Take over the order and read the AAS",
+        "func": "// Take over the order data (optional) and load the DataSources submodel\nconst cfg = flow.get('cfg');\nconst erp = flow.get('erp');\n\nif (msg.payload && msg.payload.error) {\n    node.warn('Manufacturing order cannot be read, carrying on without order data');\n} else {\n    const mos = msg.payload.result || [];\n    if (mos.length > 0) {\n        erp.order = {\n            number: mos[0].name,\n            quantity: mos[0].product_qty,\n            unit: erp.components.length ? erp.components[0].quantityUnit : '',\n            state: mos[0].state\n        };\n        node.log('Manufacturing order ' + erp.order.number + ' over ' + erp.order.quantity + ' pieces');\n    } else {\n        node.log('No open manufacturing order found');\n    }\n}\nerp.retrievedAt = new Date().toISOString();\nflow.set('erp', erp);\n\n// Encode the AAS identifier as base64url (required by the AAS Part 2 API)\nconst b64 = Buffer.from(cfg.submodelId, 'utf8').toString('base64')\n    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\nflow.set('submodelB64', b64);\n\nmsg.method = 'GET';\nmsg.url = cfg.aasUrl + '/submodels/' + b64;\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nnode.status({ fill: 'blue', shape: 'dot', text: 'reading AAS' });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 400,
+        "wires": [
+            [
+                "a1b2c3d4e5f60014"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60014",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "GET DataSources submodel",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 560,
+        "y": 400,
+        "wires": [
+            [
+                "a1b2c3d4e5f60015"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60015",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\ud83d\udd27 Map the ERP data into the AAS",
+        "func": "// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n// MAPPING Odoo -> AAS\n// Target: DataSources submodel -> SML \"DataSources\" -> SMC \"ERP\"\n// The collection sits alongside \"Manufacturing\", \"Simulation\" and \"PLM\"\n// as an equal and carries the data source \"ERP\".\n// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nconst erp = flow.get('erp');\nconst sm = msg.payload;\n\nif (!sm || !Array.isArray(sm.submodelElements)) {\n    node.error('The DataSources submodel could not be read', msg);\n    return null;\n}\n\nconst DATA_SOURCE_NAME = 'ERP';\nconst SMC_ID_SHORT = 'ERP';   // AASd-002: only [a-zA-Z][a-zA-Z0-9_]*\n\nfunction idShort(str) {\n    let s = String(str || '')\n        .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue')\n        .replace(/\u00c4/g, 'Ae').replace(/\u00d6/g, 'Oe').replace(/\u00dc/g, 'Ue')\n        .replace(/\u00df/g, 'ss')\n        .replace(/[^A-Za-z0-9_]/g, '_')\n        .replace(/__+/g, '_').replace(/_+$/, '');\n    if (!/^[a-zA-Z]/.test(s)) { s = 'X_' + s; }\n    return s.substring(0, 128) || 'Undefined';\n}\nfunction prop(id, value, valueType) {\n    return { modelType: 'Property', idShort: id,\n             valueType: valueType || 'xs:string',\n             value: value === null || value === undefined ? '' : String(value) };\n}\nfunction smc(id, value) {\n    return { modelType: 'SubmodelElementCollection', idShort: id, value: value };\n}\nfunction byIdShort(arr, id) {\n    return (arr || []).find(e => e && e.idShort === id);\n}\n\n// One collection per bill-of-material line\nconst usedIds = {};\nconst componentSmcs = erp.components.map(c => {\n    let id = idShort(c.name);\n    if (usedIds[id]) { usedIds[id] += 1; id = id + '_' + usedIds[id]; } else { usedIds[id] = 1; }\n    return smc(id, [\n        prop('ComponentName', c.name),\n        prop('ProductCode', c.productCode),\n        prop('Quantity', c.quantity, 'xs:double'),\n        prop('QuantityUnit', c.quantityUnit),\n        prop('WeightPerUnit', c.weightKg, 'xs:double'),\n        prop('WeightUnit', 'kg'),\n        prop('TotalMass', c.totalMassKg, 'xs:double'),\n        prop('TotalMassUnit', 'kg'),\n        prop('Material', c.material),\n        prop('MaterialCategory', c.materialCategory),\n        prop('LCAFlowId', c.lcaFlowId),\n        prop('LCAProcessId', c.lcaProcessId),\n        prop('LCAParameterName', c.lcaParameter),\n        prop('LCAZeroParameters', c.lcaZeroParameters)\n    ]);\n});\n\nconst erpValue = [\n    prop('DataSource', DATA_SOURCE_NAME),\n    prop('SourceSystem', 'Odoo'),\n    prop('TimeOfRetrieval', erp.retrievedAt, 'xs:dateTime'),\n    prop('ProductName', erp.productName),\n    prop('ProductCode', erp.productCode),\n    prop('ProductWeight', erp.productWeightKg, 'xs:double'),\n    prop('ProductWeightUnit', 'kg'),\n    prop('BillOfMaterialId', erp.bomId, 'xs:string'),\n    prop('BillOfMaterialQuantity', erp.bomQuantity, 'xs:double'),\n    smc('BillOfMaterial', componentSmcs)\n];\n\nif (erp.order) {\n    erpValue.push(smc('ManufacturingOrder', [\n        prop('OrderNumber', erp.order.number),\n        prop('OrderQuantity', erp.order.quantity, 'xs:double'),\n        prop('OrderUnit', erp.order.unit),\n        prop('OrderState', erp.order.state)\n    ]));\n}\n\n// SML \"DataSources\" suchen; faellt auf das erste Listenelement zurueck\nlet list = byIdShort(sm.submodelElements, 'DataSources')\n        || byIdShort(sm.submodelElements, 'Data Sources')\n        || sm.submodelElements.find(e => e.modelType === 'SubmodelElementList');\nif (!list) {\n    node.error('SubmodelElementList \"DataSources\" not found', msg);\n    return null;\n}\nif (!Array.isArray(list.value)) { list.value = []; }\n\n// Replace an existing ERP entry, otherwise append one\nconst existing = list.value.findIndex(e => e && e.idShort === SMC_ID_SHORT);\nconst newSmc = smc(SMC_ID_SHORT, erpValue);\n\n// Leave entries that belong to someone else in place.\n//\n// This flow rebuilds the ERP block. Everything it does not write itself\n// was gone with it - including the booked assemblies (AssemblyRecords),\n// which another flow puts there. The loss went unnoticed: the ERP row in\n// the dashboard stayed green, only the list of manufactured pieces was\n// suddenly empty.\n//\n// Whoever rebuilds a block has to carry over what is not theirs.\nif (existing >= 0) {\n    const bisher = (list.value[existing] || {}).value || [];   // what is there now\n    const eigene = erpValue.map(e => e && e.idShort);\n    const fremde = bisher.filter(e => e && eigene.indexOf(e.idShort) < 0);\n    newSmc.value = erpValue.concat(fremde);\n    list.value[existing] = newSmc;\n    node.log('ERP updated'\n           + (fremde.length ? ', ' + fremde.length + ' foreign entries kept' : ''));\n} else {\n    list.value.push(newSmc);\n    node.log('ERP newly created');\n}\n\nmsg.method = 'PUT';\nmsg.url = flow.get('cfg').aasUrl + '/submodels/' + flow.get('submodelB64');\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = sm;\nnode.status({ fill: 'blue', shape: 'dot', text: 'schreibe AAS' });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 810,
+        "y": 400,
+        "wires": [
+            [
+                "a1b2c3d4e5f60016"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60016",
+        "type": "http request",
+        "z": "a1b2c3d4e5f60001",
+        "name": "PUT DataSources submodel",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1070,
+        "y": 400,
+        "wires": [
+            [
+                "a1b2c3d4e5f60017"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f60017",
+        "type": "function",
+        "z": "a1b2c3d4e5f60001",
+        "name": "\u2705 Status",
+        "func": "// Ergebnis melden\nconst erp = flow.get('erp') || {};\nconst code = msg.statusCode;\nif (code && code >= 400) {\n    node.error('AAS-Schreibvorgang fehlgeschlagen: HTTP ' + code, msg);\n    node.status({ fill: 'red', shape: 'ring', text: 'HTTP ' + code });\n    return null;\n}\nconst n = (erp.components || []).length;\nconst order = erp.order ? (', Auftrag ' + erp.order.number) : '';\nmsg.payload = {\n    status: 'ok',\n    dataSource: 'ERP',\n    product: erp.productName,\n    components: n,\n    skipped: erp.skipped || [],\n    order: erp.order || null,\n    retrievedAt: erp.retrievedAt\n};\nnode.status({ fill: 'green', shape: 'dot', text: n + ' Positionen' + order });\nnode.log('ERP-Daten in AAS geschrieben: ' + n + ' Positionen');\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 500,
+        "wires": [
+            [
+                "a1b2c3d4e5f6ff02"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f6ff02",
+        "type": "debug",
+        "z": "a1b2c3d4e5f60001",
+        "name": "Result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "a1b2c3d4e5f60090",
+        "type": "catch",
+        "z": "a1b2c3d4e5f60001",
+        "name": "Catch errors",
+        "scope": null,
+        "uncaught": false,
+        "x": 300,
+        "y": 580,
+        "wires": [
+            [
+                "a1b2c3d4e5f6ff01"
+            ]
+        ]
+    },
+    {
+        "id": "a1b2c3d4e5f6ff01",
+        "type": "debug",
+        "z": "a1b2c3d4e5f60001",
+        "name": "Error",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "error",
+        "targetType": "msg",
+        "statusVal": "error.message",
+        "statusType": "msg",
+        "x": 520,
+        "y": 580,
+        "wires": []
+    },
+    {
+        "id": "a1b2c3d4e5f60091",
+        "type": "comment",
+        "z": "a1b2c3d4e5f60001",
+        "name": "Configuration through environment variables",
+        "info": "SDI_ODOO_URL, SDI_ODOO_DB, SDI_ODOO_USER, SDI_ODOO_APIKEY,\\nSDI_ODOO_PRODUCT, SDI_ODOO_FLOW_FIELD,\\nSDI_AAS_URL, SDI_AAS_DATASOURCES_ID",
+        "x": 230,
+        "y": 40,
+        "wires": []
+    }
+]

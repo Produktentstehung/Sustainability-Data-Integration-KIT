@@ -1,0 +1,52 @@
+# Copyright (c) 2025 Heinz Nixdorf Institute
+# Copyright (c) 2025 Paderborn University
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# Code owners are requested for review automatically when a pull request
+# touches the files they own. A KIT needs this file to graduate.
+#
+# ------------------------------------------------------------------------
+# TO BE FILLED IN BEFORE THE FIRST PULL REQUEST
+#
+# The entries below carry placeholders, not real accounts. GitHub silently
+# ignores an owner it cannot resolve, so a file with invented handles looks
+# configured while requesting review from nobody. Replace @PLACEHOLDER-* with
+# the GitHub accounts of the people in AUTHORS.md, or with a team of the
+# organisation (for example @Produktentstehung/sdi-kit-maintainers).
+# ------------------------------------------------------------------------
+
+# Everything not matched by a more specific rule below.
+*                               @PLACEHOLDER-MAINTAINER
+
+# The KIT documentation. Changes here alter what the KIT promises, so they
+# should be seen by whoever answers for its content.
+/README.md                      @PLACEHOLDER-KIT-EDITOR
+/docs/                          @PLACEHOLDER-KIT-EDITOR
+
+# The reference implementation: flows, programs and their documentation.
+/src/                           @PLACEHOLDER-MAINTAINER
+/getting-started/               @PLACEHOLDER-MAINTAINER
+
+# Legal and governance files. These are reviewed against the Tractus-X release
+# guidelines rather than on technical grounds.
+/LICENSE                        @PLACEHOLDER-MAINTAINER
+/LICENSE_non-code               @PLACEHOLDER-MAINTAINER
+/LICENSES/                      @PLACEHOLDER-MAINTAINER
+/NOTICE.md                      @PLACEHOLDER-MAINTAINER
+/DEPENDENCIES                   @PLACEHOLDER-MAINTAINER
+/REUSE.toml                     @PLACEHOLDER-MAINTAINER
+/SECURITY.md                    @PLACEHOLDER-MAINTAINER
+/CONTRIBUTING.md                @PLACEHOLDER-MAINTAINER
+/CODE_OF_CONDUCT.md             @PLACEHOLDER-MAINTAINER
+
+# The checks that run on every contribution.
+/.github/                       @PLACEHOLDER-MAINTAINER

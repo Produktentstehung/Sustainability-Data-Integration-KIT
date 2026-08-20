@@ -1,0 +1,599 @@
+[
+    {
+        "id": "c1d2e3f4a5b60001",
+        "type": "tab",
+        "label": "Machine data \u2192 part AAS",
+        "disabled": false,
+        "info": "Reads the measurements of the OPC UA connection from the SAL-OPC-UA-Daten submodel, forms the energy per piece from them and writes it as the data source \"Manufacturing\" into the shell of the part that was produced."
+    },
+    {
+        "id": "c1d2e3f4a5b60000",
+        "type": "inject",
+        "z": "c1d2e3f4a5b60001",
+        "name": "\u25b6 Take over machine data",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 180,
+        "y": 100,
+        "wires": [
+            [
+                "c1d2e3f4a5b6000a"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6000a",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "\u2699\ufe0f Configuration & assignment",
+        "func": "// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n// CONFIGURATION\n//\n// ZUORDNUNG states which machine produces which part, and which openLCA\n// parameter the measured energy acts on. It is the only place that has to\n// be touched when the production sequence changes.\n//\n//   aas       = identifier of the part shell (formed from its name)\n//   prozess   = openLCA process of the part\n//   parameter = energy parameter of that process\n//\n// Machines without an entry are skipped and named. Baxter and Montrac\n// belong to the assembly; their energy currently comes from the simulation\n// and is deliberately not recorded twice here.\n// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nconst BASIS = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\n\n// Which part is currently on the lathe: 'Bolzen' or 'Huelse'.\nconst DREHTEIL = String(env.get('SDI_OPCUA_TURNED_PART') || 'Bolzen')\n    .trim().toLowerCase();\n\nconst BOLZEN = { aas: BASIS + '/Bolzen_Aluminium',\n                 prozess: '90291baa-d449-4afc-9d2a-01e8e650afd8',\n                 parameter: 'Energieverbrauch_Bolzen' };\nconst HUELSE = { aas: BASIS + '/Huelse_Aluminium',\n                 prozess: '57c37380-e320-4712-b605-48dca9472829',\n                 parameter: 'Energieverbrauch_Huelse' };\n\nconst ZUORDNUNG = {\n    // One machine, two parts: the lathe produces the first step of the bolt\n    // and the sleeve. Which of them is running cannot be known by a fixed\n    // entry - it is held in SDI_OPCUA_TURNED_PART and is the only value that\n    // changes from order to order.\n    //\n    // If the measurement carries the part name in its idShort, both can sit\n    // side by side - otherwise the newer measurement replaces the older one\n    // and a part silently loses its manufacturing energy.\n    Drehprozess_Bolzen: BOLZEN,\n    Drehprozess_Huelse: HUELSE,\n    // Without the name suffix the configuration decides, as before.\n    Drehprozess:  DREHTEIL.indexOf('h') === 0 ? HUELSE : BOLZEN,\n    // The mill does the second step of the bolt - the bore and the thread.\n    // Its energy is added to the turning energy of the same bolt; both\n    // entries sit side by side in the shell and are summed onto the same\n    // parameter in the calculation.\n    Fraesprozess: BOLZEN,\n    'Drucker3D':  { aas: BASIS + '/Stiftspitze_Helix_PLA',\n                    prozess: '5043f2ab-9463-470d-888e-1855c805b042',\n                    parameter: 'Energieverbrauch_Stiftspitze' }\n};\n\nconst cfg = {\n    aasUrl:      env.get('SDI_AAS_URL') || 'http://localhost:8081',\n    opcuaId:     env.get('SDI_OPCUA_SUBMODEL_ID')\n                 || 'localhost/demo/SubmodelTemplate/SAL-OPC-UA-Daten',\n    zuordnung:   ZUORDNUNG\n};\nflow.set('cfg', cfg);\n\nconst b64 = Buffer.from(cfg.opcuaId, 'utf8').toString('base64')\n    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\n\nmsg.method = 'GET';\nmsg.url = cfg.aasUrl + '/submodels/' + b64;\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nnode.status({ fill: 'blue', shape: 'dot', text: 'reading machine data' });\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 100,
+        "wires": [
+            [
+                "c1d2e3f4a5b60002"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60002",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "GET machine data (OPC UA)",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 720,
+        "y": 100,
+        "wires": [
+            [
+                "c1d2e3f4a5b60003"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60003",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "\u26a1 Compute energy per piece",
+        "func": "// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n// Evaluate the measurements and form the energy per piece.\n//\n//   energy [MJ] = average power [W] x process duration [s] / 1,000,000 / pieces\n//\n// The machine entries are searched for rather than addressed by fixed\n// positions - the layout of the OPC UA submodel may change.\n// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nconst cfg = flow.get('cfg');\nconst sm = msg.payload;\nif (!sm || !Array.isArray(sm.submodelElements)) {\n    node.error('The submodel holding the machine data could not be read', msg);\n    return null;\n}\n\nfunction propValue(coll, id) {\n    const p = (coll.value || []).find(e => e && e.idShort === id);\n    return p ? p.value : null;\n}\nfunction zahl(v) {\n    const n = parseFloat(v);\n    return isNaN(n) ? null : n;\n}\n\n// Collect every collection that carries a power reading\nconst maschinen = [];\n(function suche(elemente) {\n    (elemente || []).forEach(e => {\n        if (!e) { return; }\n        if (e.modelType === 'SubmodelElementCollection') {\n            const leistung = propValue(e, 'AveragePower') !== null\n                ? propValue(e, 'AveragePower') : propValue(e, 'Leistung');\n            if (leistung !== null) { maschinen.push(e); return; }\n        }\n        if (Array.isArray(e.value)) { suche(e.value); }\n    });\n})(sm.submodelElements);\n\nif (maschinen.length === 0) {\n    node.error('No machine with a power reading found', msg);\n    return null;\n}\n\nconst auftraege = {};\nconst ohneZuordnung = [];\nconst ohneWerte = [];\n\nmaschinen.forEach(m => {\n    const name = m.idShort;\n    const z = cfg.zuordnung[name];\n    if (!z) { ohneZuordnung.push(name); return; }\n\n    const leistung = zahl(propValue(m, 'AveragePower')) ?? zahl(propValue(m, 'Leistung'));\n    const dauer = zahl(propValue(m, 'ProcessDuration'));\n    const stueck = zahl(propValue(m, 'PieceCount')) || 1;\n\n    if (leistung === null || dauer === null || !(leistung > 0) || !(dauer > 0)) {\n        ohneWerte.push(name);\n        return;\n    }\n\n    const energieMJ = leistung * dauer / 1e6 / stueck;\n    const eintrag = {\n        machine: name,\n        averagePowerW: leistung,\n        processDurationS: dauer,\n        pieceCount: stueck,\n        energyPerUnitMJ: energieMJ,\n        start: propValue(m, 'TimeManufacturingStart'),\n        ende: propValue(m, 'TimeManufacturingEnd'),\n        serverIP: propValue(m, 'ServerIP'),\n        lcaProcessId: z.prozess,\n        lcaParameterName: z.parameter\n    };\n    if (!auftraege[z.aas]) { auftraege[z.aas] = []; }\n    auftraege[z.aas].push(eintrag);\n});\n\nif (ohneZuordnung.length > 0) {\n    node.log('Without a part assignment (skipped): ' + ohneZuordnung.join(', '));\n}\nif (ohneWerte.length > 0) {\n    node.warn('Without usable measurements: ' + ohneWerte.join(', '));\n}\n\nconst liste = Object.keys(auftraege).map(aas => ({ aas: aas, eintraege: auftraege[aas] }));\nif (liste.length === 0) {\n    node.error('No machine delivers usable data', msg);\n    return null;\n}\n\nflow.set('auftraege', liste);\nflow.set('index', 0);\nflow.set('geschrieben', []);\nnode.log(maschinen.length + ' machines read, ' + liste.length + ' part shells to update');\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 970,
+        "y": 100,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s001"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60004",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "\ud83d\udd01 Next part shell",
+        "func": "// Take the next part shell off the queue\nconst cfg = flow.get('cfg');\nconst liste = flow.get('auftraege') || [];\nconst i = flow.get('index') || 0;\n\nif (i >= liste.length) {\n    // done - report the result\n    msg.payload = {\n        status: 'ok',\n        dataSource: 'Manufacturing',\n        aktualisiert: flow.get('geschrieben') || []\n    };\n    node.status({ fill: 'green', shape: 'dot',\n                  text: (flow.get('geschrieben') || []).length + ' part shells' });\n    return [null, msg];\n}\n\nconst auftrag = liste[i];\nflow.set('aktuell', auftrag);\n\nconst id = auftrag.aas + '/DataSources';\nconst b64 = Buffer.from(id, 'utf8').toString('base64')\n    .replace(/\\+/g, '-').replace(/\\//g, '_').replace(/=+$/, '');\nflow.set('aktuellB64', b64);\n\nmsg.method = 'GET';\nmsg.url = cfg.aasUrl + '/submodels/' + b64;\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nnode.status({ fill: 'blue', shape: 'dot',\n              text: (i + 1) + '/' + liste.length + ' ' + auftrag.aas.split('/').pop() });\nreturn [msg, null];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 200,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s012"
+            ],
+            [
+                "c1d2e3f4a5b60008"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60005",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "GET DataSources (part)",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 510,
+        "y": 200,
+        "wires": [
+            [
+                "c1d2e3f4a5b60006"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60006",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "\ud83d\udd27 Map manufacturing into the AAS",
+        "func": "// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n// MAPPING machine data -> part shell\n// Target: DataSources -> SML \"DataSources\" -> SMC \"Manufacturing\"\n//         -> SML \"ManufacturingProcesses\"\n// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nconst auftrag = flow.get('aktuell');\nconst sm = msg.payload;\n\nif (!sm || !Array.isArray(sm.submodelElements)) {\n    node.error('DataSources of the part shell cannot be read: ' + auftrag.aas, msg);\n    return null;\n}\n\nfunction idShort(str) {\n    let s = String(str || '')\n        .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue')\n        .replace(/\u00c4/g, 'Ae').replace(/\u00d6/g, 'Oe').replace(/\u00dc/g, 'Ue').replace(/\u00df/g, 'ss')\n        .replace(/[^A-Za-z0-9_]/g, '_').replace(/__+/g, '_').replace(/_+$/, '');\n    if (!/^[a-zA-Z]/.test(s)) { s = 'M_' + s; }\n    return s.substring(0, 128) || 'Undefined';\n}\nconst prop = (id, v, t) => ({ modelType: 'Property', idShort: id,\n    valueType: t || 'xs:string', value: v === null || v === undefined ? '' : String(v) });\nconst smc = (id, v) => ({ modelType: 'SubmodelElementCollection', idShort: id, value: v });\nconst byId = (arr, id) => (arr || []).find(e => e && e.idShort === id);\n\n// The serial numbers of the pieces produced in this run.\n//\n// They are assigned by article number and order: the numbers given out last\n// belong to the most recent run. That is not booked - for that the shop\n// floor would have to report back which piece ran on which machine. The\n// origin of the assignment therefore stands beside it rather than being\n// passed over in silence.\nconst artikelNr = flow.get('artikelNr') || '';\n// The booked assembly first, then the order in which numbers were given out.\nconst gebucht = flow.get('montageSerien');\nconst alleSerien = (gebucht && gebucht[artikelNr])\n    || (flow.get('serienNachArtikel') || {})[artikelNr] || [];\nconst stueckzahl = Math.max(1, Number(auftrag.eintraege[0]\n    && auftrag.eintraege[0].pieceCount) || 1);\nconst serien = alleSerien.slice(0, stueckzahl);\nconst auftragsNr = flow.get('fertigungsauftrag') || '';\n\nconst PROZESS_NAMEN = {\n    Fraesprozess: 'Milling',\n    Drehprozess: 'Turning',\n    Drehprozess_Bolzen: 'TurningBolt',\n    Drehprozess_Huelse: 'TurningSleeve',\n    Drucker3D: 'Printing3D'\n};\nfunction prozessName(m) { return PROZESS_NAMEN[m] || m; }\n\n// The idShort is the RunId: otherwise two measurements of the same machine\n// would carry the same name.\nfunction laufKennung(e) {\n    return idShort(prozessName(e.machine)) + '_'\n         + String(e.start || '').split('-').join('')\n               .split(':').join('').substring(0, 15);\n}\nconst prozesse = auftrag.eintraege.map(e => smc(laufKennung(e), [\n    prop('Process', prozessName(e.machine)),\n    prop('MachineName', e.machine),\n    prop('AveragePower', e.averagePowerW, 'xs:double'),\n    prop('AveragePowerUnit', 'W'),\n    prop('ProcessDuration', e.processDurationS, 'xs:double'),\n    prop('ProcessDurationUnit', 's'),\n    prop('PieceCount', e.pieceCount, 'xs:double'),\n    prop('EnergyPerUnit', e.energyPerUnitMJ, 'xs:double'),\n    prop('EnergyPerUnitUnit', 'MJ'),\n    prop('ServerIP', e.serverIP),\n    prop('LCAProcessId', e.lcaProcessId),\n    prop('LCAParameterName', e.lcaParameterName),\n    // A run only becomes evidence once it names a piece.\n    prop('RunId', laufKennung(e)),\n    // Every run carries its own time. When it stood on the container only,\n    // every machine of a part showed the same end time - for the bolt, the\n    // milling therefore showed the time of the turning.\n    ...(e.start ? [prop('TimeManufacturingStart', e.start, 'xs:dateTime')] : []),\n    ...(e.ende ? [prop('TimeManufacturingEnd', e.ende, 'xs:dateTime')] : []),\n    prop('ManufacturingOrder', auftragsNr),\n    prop('SerialNumbers', serien.join(' ')),\n    prop('SerialNumberSource', serien.length\n        ? (gebucht && gebucht[artikelNr]\n            ? 'booked assembly ' + (flow.get('montageStueck') || '')\n              + ' in Odoo (stock move line)'\n            : 'Odoo stock.lot, assigned by article and order of '\n              + 'production, not booked against a manufacturing order')\n        : 'no serial number available'),\n    // With more than one piece per run the energy per piece is an average -\n    // that belongs written alongside, otherwise it reads as a measurement\n    // taken on the single piece.\n    prop('EnergyAllocation', Number(e.pieceCount) > 1\n        ? 'average over ' + e.pieceCount + ' pieces of one run'\n        : 'single piece')\n]));\n\nconst start = auftrag.eintraege.map(e => e.start).filter(Boolean).sort()[0] || '';\nconst ende = auftrag.eintraege.map(e => e.ende).filter(Boolean).sort().pop() || '';\nconst summe = auftrag.eintraege.reduce((s, e) => s + e.energyPerUnitMJ, 0);\n\n\n// Collect the runs already in the shell and merge them over the RunId: the\n// same run replaces itself, a new one is added, and every other one stays.\nconst dsListe = byId(sm.submodelElements, 'DataSources');\nconst mdAlt = byId((dsListe || {}).value, 'MachineData')\n           || byId((dsListe || {}).value, 'Manufacturing');\nconst plAlt = byId((mdAlt || {}).value, 'ManufacturingProcesses');\nconst alteLaeufe = (plAlt && plAlt.value) ? plAlt.value.slice() : [];\nfunction kennung(k) {\n    const r = ((k || {}).value || []).find(y => y.idShort === 'RunId');\n    return r ? String(r.value) : ((k || {}).idShort || '');\n}\nconst neueKennungen = prozesse.map(kennung);\nconst zusammen = alteLaeufe\n    .filter(k => neueKennungen.indexOf(kennung(k)) < 0)\n    .concat(prozesse);\n\nconst mfgValue = [\n    prop('DataSource', 'MachineData'),\n    prop('SourceSystem', 'OPC UA'),\n    prop('TimeOfRetrieval', new Date().toISOString(), 'xs:dateTime'),\n    // Only write a timestamp when the machine delivers one. An empty entry\n    // typed xs:dateTime is invalid under the specification and is reported\n    // when the package is checked.\n    ...(start ? [prop('TimeManufacturingStart', start, 'xs:dateTime')] : []),\n    ...(ende ? [prop('TimeManufacturingEnd', ende, 'xs:dateTime')] : []),\n    prop('TotalEnergyPerUnit', summe, 'xs:double'),\n    prop('TotalEnergyPerUnitUnit', 'MJ'),\n    smc('ManufacturingProcesses', zusammen)\n];\n\nlet list = byId(sm.submodelElements, 'DataSources')\n        || byId(sm.submodelElements, 'Data Sources')\n        || sm.submodelElements.find(e => e.modelType === 'SubmodelElementList');\nif (!list) {\n    node.error('SubmodelElementList \"DataSources\" not found in ' + auftrag.aas, msg);\n    return null;\n}\nif (!Array.isArray(list.value)) { list.value = []; }\n\nconst pos = list.value.findIndex(e => e && e.idShort === 'MachineData');\nconst neu = smc('MachineData', mfgValue);\nif (pos >= 0) { list.value[pos] = neu; } else { list.value.push(neu); }\n\nconst geschrieben = flow.get('geschrieben') || [];\ngeschrieben.push({ aas: auftrag.aas.split('/').pop(),\n                   maschinen: auftrag.eintraege.map(e => e.machine),\n                   energieMJ: summe });\nflow.set('geschrieben', geschrieben);\n\nmsg.method = 'PUT';\nmsg.url = flow.get('cfg').aasUrl + '/submodels/' + flow.get('aktuellB64');\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = sm;\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 200,
+        "wires": [
+            [
+                "c1d2e3f4a5b60007"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60007",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "PUT DataSources (part)",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1030,
+        "y": 200,
+        "wires": [
+            [
+                "c1d2e3f4a5b60009"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60009",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "\u21a9 Continue",
+        "func": "// Check the write and move on to the next part shell\nconst auftrag = flow.get('aktuell');\nif (msg.statusCode && msg.statusCode >= 400) {\n    node.error('Write failed for ' + auftrag.aas + ': HTTP ' + msg.statusCode, msg);\n    return null;\n}\nnode.log('Machine data written: ' + auftrag.aas.split('/').pop());\nflow.set('index', (flow.get('index') || 0) + 1);\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 280,
+        "wires": [
+            [
+                "c1d2e3f4a5b60004"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b60008",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "\u2705 Status",
+        "func": "node.log('Fertig: ' + JSON.stringify(msg.payload.aktualisiert));\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 320,
+        "wires": [
+            [
+                "c1d2e3f4a5b6ff02"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6ff02",
+        "type": "debug",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Result",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "c1d2e3f4a5b60090",
+        "type": "catch",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Catch errors",
+        "scope": null,
+        "uncaught": false,
+        "x": 260,
+        "y": 400,
+        "wires": [
+            [
+                "c1d2e3f4a5b6ff01"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6ff01",
+        "type": "debug",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Error",
+        "active": true,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": true,
+        "complete": "error",
+        "targetType": "msg",
+        "statusVal": "error.message",
+        "statusType": "msg",
+        "x": 480,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "c1d2e3f4a5b60091",
+        "type": "comment",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Configuration through environment variables",
+        "info": "SDI_AAS_URL, SDI_AAS_BASE, SDI_OPCUA_SUBMODEL_ID",
+        "x": 260,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "c1d2e3f4a5b6s001",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo: log in",
+        "func": "// Log in to Odoo in order to fetch the serial numbers.\n//\n// Without Odoo the flow still runs through: the serial number is then\n// missing, and the shell says so. A measurement without a number is worth\n// less, but it is better than no measurement.\nconst cfg = {\n    url: env.get('SDI_ODOO_URL') || '',\n    db: env.get('SDI_ODOO_DB') || '',\n    user: env.get('SDI_ODOO_USER') || '',\n    key: env.get('SDI_ODOO_APIKEY') || ''\n};\nflow.set('odoo', cfg);\nif (!cfg.key || !cfg.url) {\n    node.warn('No Odoo access - machine data is written without a serial '\n            + 'number.');\n    return [null, msg];\n}\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'common', method: 'login', args: [cfg.db, cfg.user, cfg.key] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 560,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s002"
+            ],
+            [
+                "c1d2e3f4a5b60004"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s002",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 560,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s003"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s003",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo: articles",
+        "func": "// Fetches the articles with their reference.\nconst cfg = flow.get('odoo');\nconst uid = (msg.payload || {}).result;\nif (!uid) {\n    node.warn('Odoo login failed - carrying on without serial numbers.');\n    return [null, { topic: 'weiter' }];\n}\nflow.set('odooUid', uid);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'product.product', 'search_read',\n           [[]], { fields: ['default_code'], limit: 100 }] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 560,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s004"
+            ],
+            [
+                "c1d2e3f4a5b60004"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s004",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 840,
+        "y": 560,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s005"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s005",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo: serial numbers",
+        "func": "// Fetches the serial numbers and the open manufacturing order.\nconst cfg = flow.get('odoo');\nconst uid = flow.get('odooUid');\nif ((msg.payload || {}).error) {\n    node.warn('Odoo reports: ' + ((msg.payload.error.data) || {}).message);\n    return [null, { topic: 'weiter' }];\n}\nconst artikelNachId = {};\nfor (const v of ((msg.payload || {}).result || [])) {\n    artikelNachId[v.id] = v.default_code;\n}\nflow.set('artikelNachId', artikelNachId);\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'stock.lot', 'search_read',\n           [[]], { fields: ['name', 'product_id', 'create_date'],\n                   order: 'create_date desc', limit: 200 }] } };\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 620,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s006"
+            ],
+            [
+                "c1d2e3f4a5b60004"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s006",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 620,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s007"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s007",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo: manufacturing order",
+        "func": "// Assigns the numbers to the articles and fetches the manufacturing order.\nconst cfg = flow.get('odoo');\nconst uid = flow.get('odooUid');\nif ((msg.payload || {}).error) {\n    node.warn('Odoo reports: ' + ((msg.payload.error.data) || {}).message);\n    return [null, { topic: 'weiter' }];\n}\nconst artikelNachId = flow.get('artikelNachId') || {};\nconst nachArtikel = {};\nfor (const l of ((msg.payload || {}).result || [])) {\n    const a = artikelNachId[(l.product_id || [])[0]];\n    if (!a) { continue; }\n    if (!nachArtikel[a]) { nachArtikel[a] = []; }\n    nachArtikel[a].push(l.name);\n}\nflow.set('serienNachArtikel', nachArtikel);\nnode.log('Serial numbers per article: ' + JSON.stringify(nachArtikel));\n\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'object', method: 'execute_kw',\n    args: [cfg.db, uid, cfg.key, 'mrp.production', 'search_read',\n           [[['state', 'in', ['confirmed', 'progress', 'to_close', 'done']]]],\n           { fields: ['name', 'product_qty'], limit: 1 }] } };\nreturn msg;\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 620,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s008"
+            ],
+            [
+                "c1d2e3f4a5b60004"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s008",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 840,
+        "y": 620,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s009"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s009",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Odoo: done",
+        "func": "// Keeps the order and fetches the booked assembly.\nif (!(msg.payload || {}).error) {\n    const a = ((msg.payload || {}).result || [])[0];\n    if (a) {\n        flow.set('fertigungsauftrag', a.name);\n        node.log('Manufacturing order: ' + a.name);\n    }\n}\n// Which pieces were installed last is held in the shell of the assembled\n// product. That assignment is booked - \"the newest number per article\" is not.\nconst cfg = flow.get('odoo') || {};\nconst aas = env.get('SDI_AAS_URL') || 'http://localhost:8081';\nconst basis = env.get('SDI_AAS_BASE') || 'localhost/demo/aas';\nconst produkt = env.get('SDI_LCA_PRODUCT') || 'Kugelschreiber_TracePEN';\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .split('+').join('-').split('/').join('_').split('=').join('');\n}\nmsg.url = aas + '/submodels/' + b64(basis + '/' + produkt + '/DataSources');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn [msg, null];\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 680,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s013"
+            ],
+            [
+                "c1d2e3f4a5b60004"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s010",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "GET Nameplate (part)",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 680,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s011"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s011",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Keep article number",
+        "func": "// Holds on to the article number and then reads the data sources.\nconst cfg = { aas: env.get('SDI_AAS_URL') || 'http://localhost:8081',\n              basis: env.get('SDI_AAS_BASE') || 'localhost/demo/aas' };\nconst auftrag = flow.get('aktuell');\nconst sm = msg.payload;\nlet artikel = '';\nif (sm && Array.isArray(sm.submodelElements)) {\n    const e = sm.submodelElements.find(function (x) {\n        return x.idShort === 'ProductArticleNumberOfManufacturer';\n    });\n    artikel = e ? String(e.value || '') : '';\n}\nif (!artikel) {\n    node.warn('No article number in the nameplate of ' + auftrag.aas);\n}\nflow.set('artikelNr', artikel);\n\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .split('+').join('-').split('/').join('_').split('=').join('');\n}\nconst kennung = String(auftrag.aas).indexOf('/') >= 0\n    ? auftrag.aas : (cfg.basis + '/' + auftrag.aas);\nmsg.url = cfg.aas + '/submodels/' + b64(kennung + '/DataSources');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 680,
+        "wires": [
+            [
+                "c1d2e3f4a5b60005"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s012",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Read nameplate",
+        "func": "// Reads the nameplate of the part in order to learn its article number.\n//\n// The article number is not in the name of the shell, and it should not be\n// guessed from it either. It is in the nameplate - that is where it is kept.\nconst cfg = { aas: env.get('SDI_AAS_URL') || 'http://localhost:8081',\n              basis: env.get('SDI_AAS_BASE') || 'localhost/demo/aas' };\nconst auftrag = flow.get('aktuell');\nfunction b64(text) {\n    return Buffer.from(text, 'utf8').toString('base64')\n        .split('+').join('-').split('/').join('_').split('=').join('');\n}\n// auftrag.aas already carries the full identifier. Putting the base in\n// front of it once more produces a path that does not exist - and the\n// article number stays empty without anything reporting an error.\nconst kennung = String(auftrag.aas).indexOf('/') >= 0\n    ? auftrag.aas : (cfg.basis + '/' + auftrag.aas);\nmsg.url = cfg.aas + '/submodels/' + b64(kennung + '/Nameplate');\nmsg.method = 'GET';\nmsg.headers = { 'Accept': 'application/json' };\nmsg.payload = '';\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 240,
+        "y": 740,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s010"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s013",
+        "type": "http request",
+        "z": "c1d2e3f4a5b60001",
+        "name": "GET DataSources (product)",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 740,
+        "wires": [
+            [
+                "c1d2e3f4a5b6s014"
+            ]
+        ]
+    },
+    {
+        "id": "c1d2e3f4a5b6s014",
+        "type": "function",
+        "z": "c1d2e3f4a5b60001",
+        "name": "Booked assembly",
+        "func": "// Takes the numbers from the most recent booked assembly.\n//\n// Without a booking the assignment by article and order stands - with one,\n// what is booked counts. Otherwise the measurement hangs off a piece that\n// sits in no assembled product, and the instance view stays empty.\nconst sm = msg.payload;\nfunction finde(sammlung, name) {\n    return ((sammlung || {}).value || []).find(function (e) {\n        return e && e.idShort === name;\n    });\n}\nfunction wert(sammlung, name) {\n    const e = finde(sammlung, name);\n    return e ? e.value : null;\n}\nlet liste = null;\nfor (const e of ((sm || {}).submodelElements || [])) {\n    if (e.idShort === 'DataSources') { liste = e; }\n}\nconst erp = finde(liste, 'ERP') || finde(liste, 'ERPData');\nconst sammlung = finde(erp, 'AssemblyRecords');\nconst eintraege = sammlung ? (sammlung.value || []) : [];\nif (eintraege.length) {\n    const juengste = eintraege.slice().sort(function (a, b) {\n        return String(wert(b, 'TimeOfBooking')).localeCompare(\n               String(wert(a, 'TimeOfBooking')));\n    })[0];\n    const teile = (finde(juengste, 'InstalledComponents') || {}).value || [];\n    const nachArtikel = {};\n    for (const k of teile) {\n        const art = wert(k, 'ArticleNumber');\n        const nr = wert(k, 'SerialNumber');\n        if (art && nr) { nachArtikel[art] = [nr]; }\n    }\n    flow.set('montageSerien', nachArtikel);\n    flow.set('montageStueck', wert(juengste, 'SerialNumber') || '');\n    node.log('Booked assembly ' + flow.get('montageStueck') + ': '\n           + JSON.stringify(nachArtikel));\n} else {\n    flow.set('montageSerien', null);\n}\nreturn { topic: 'weiter' };\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 680,
+        "y": 740,
+        "wires": [
+            [
+                "c1d2e3f4a5b60004"
+            ]
+        ]
+    }
+]

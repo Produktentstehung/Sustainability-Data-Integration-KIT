@@ -1,0 +1,145 @@
+# Copyright (c) 2025 Heinz Nixdorf Institute
+# Copyright (c) 2025 Paderborn University
+# Copyright (c) 2025 Contributors to the Eclipse Foundation
+#
+# See the NOTICE file(s) distributed with this work for additional
+# information regarding copyright ownership.
+#
+# This program and the accompanying materials are made available under the
+# terms of the Apache License, Version 2.0 which is available at
+# https://www.apache.org/licenses/LICENSE-2.0.
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+# What this checks, and why each check exists.
+#
+# Every one of these caught a real defect during development. They run without
+# a server, a database or credentials - anything that needs those belongs in
+# the tutorial, not here.
+#
+#   Flows          a function with a syntax error stops writing without ever
+#                  reporting an error; the flow looks alive and does nothing
+#   Programs       a file that does not compile fails at the customer, not here
+#   Packages       an AASX can be written and still violate the specification
+#   Settings       an environment variable in use but not described cannot be
+#                  found by anyone who did not write it
+#   Documents      a link into the README that leads to no heading looks
+#                  fine in the file and is broken on the page
+
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flows:
+    name: Flows and programs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Flow files
+        run: python src/check_flows.py src
+
+      # The README is the KIT. A table of contents that leads nowhere is the
+      # first thing a reader meets, and no other check here sees it - the
+      # file is valid Markdown either way. Five links in the README pointed
+      # at headings that do not exist.
+      - name: Links and images in the documentation
+        run: python src/check_docs.py .
+
+      - name: Python programs compile
+        run: python -m compileall -q src getting-started
+
+      # Every program in src, not a list that ages. Two scripts answered
+      # --help with a stack trace because they were not on such a list.
+      - name: Every program answers --help
+        run: |
+          for f in src/*.py; do
+            echo "--- $f"
+            python "$f" --help > /dev/null
+          done
+
+  packages:
+    name: Sample packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The sample packages are what a newcomer imports first. If they violate
+      # the specification, the first impression of the KIT is a broken file.
+      - name: AASX packages against the specification
+        run: |
+          python -m pip install --quiet basyx-python-sdk || true
+          python src/check_aasx.py docs/sample_data/AASX/TRACEpen_Kugelschreiber
+
+      # The template shell the PLM connection fills. It is shipped so a
+      # newcomer can read the target structure off it, which only holds
+      # if it still opens.
+      - name: Template shell opens
+        run: |
+          python src/check_aasx.py docs/sample_data/AASX/BaseShell_Template.aasx
+
+      # The repair tool must find nothing left to do. If it does, the sample
+      # data drifted away from what the tools produce - which is how a package
+      # with a hundred violations reached the repository unnoticed.
+      - name: Sample packages need no repair
+        run: |
+          python src/repair_aasx.py docs/sample_data/AASX/TRACEpen_Kugelschreiber --check
+          if [ -n "$(git status --porcelain docs/sample_data)" ]; then
+            echo "the check modified the sample packages"
+            exit 1
+          fi
+
+  settings:
+    name: Settings are documented
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Every SDI_ variable appears in .env.example
+        run: |
+          python - <<'PY'
+          import glob, io, re, sys
+          benutzt = set()
+          for f in (glob.glob('src/*.json') + glob.glob('src/*.py')
+                    + glob.glob('getting-started/*.ps1')
+                    + glob.glob('getting-started/*.py')):
+              benutzt |= set(re.findall(r'SDI_[A-Z0-9_]+',
+                             io.open(f, encoding='utf-8', errors='replace').read()))
+          dok = set(re.findall(r'SDI_[A-Z0-9_]+',
+                    io.open('getting-started/.env.example', encoding='utf-8').read()))
+          fehlt = sorted(benutzt - dok)
+          for name in fehlt:
+              print('used but not described in .env.example: %s' % name)
+          print('%d variables in use, %d described' % (len(benutzt), len(dok)))
+          sys.exit(1 if fehlt else 0)
+          PY
