@@ -147,6 +147,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Nine environment variables were in use without being described in
   `.env.example`.
 
+### Removed
+
+- The **Whitepaper** section. It existed only to say that no whitepaper
+  is planned; the KIT framework marks the section "Optional", and a
+  chapter whose whole content is an absence costs a reader a scroll and
+  tells them nothing.
+- An empty heading, *Representation of data quality*, left over from the
+  template. It carried no text and no subsection.
+
 ## [0.1.0]
 
 ### Added

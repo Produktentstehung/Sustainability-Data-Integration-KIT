@@ -26,7 +26,6 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
       - [What of this runs today](#what-of-this-runs-today)
     - [Regulatory Relevance](#regulatory-relevance)
   - [Value Chain Partners](#value-chain-partners)
-  - [Whitepaper](#whitepaper)
   - [Standards](#standards)
     - [Catena-X Standards](#catena-x-standards)
     - [Non-dataspace Standards](#non-dataspace-standards)
@@ -312,15 +311,6 @@ The SDI-KIT creates value for multiple stakeholders across the value chain by pr
 IT departments, platform operators and system integrators gain a technical foundation for connecting heterogeneous enterprise and shop-floor systems to interoperable sustainability workflows. The SDI-KIT reduces integration complexity by providing a consistent approach for mapping source data into AAS-based structures and linking it with calculation and exchange processes. This supports scalable implementation across different organizational and technical environments.
 
 **Internal sustainability**, compliance and engineering teams benefit from a shared data foundation that connects technical product data with sustainability-related assessment results. This improves collaboration between traditionally separated domains and supports the consistent preparation of information for internal analyses, customer communication and regulatory-facing processes.
-
-## Whitepaper
-
-No whitepaper is planned for this KIT. The section is optional in the KIT
-framework, and the material a whitepaper would carry is already in this
-document: the business problem in *Use Case / Domain Explanation*, the
-alternatives considered in *Data Sources and Their Effect on the Assessment*,
-and the recommendations in the Operations View. A separate paper would restate
-it in a place that then ages separately from the implementation.
 
 ## Standards
 
@@ -1451,8 +1441,6 @@ The effect chain analysis examines effects of requirements on other requirements
 #### Assessment of Repairability
 
 Repairability is assessed based on defined criteria, which are assigned weightings. The criteria include, for example, the effort required for disassembly, the cost and availability of replacement parts, documentation, and interfaces. The weighting is defined in advance and expressed as a percentage. The criteria are evaluated on a scale from 1 (especially low) to 10 (especially high). Once the engineer has evaluated and entered all criteria in the dashboard, the total score is calculated based on the weighting. The rating is multiplied by the weighting factor and then summed across all criteria. The total score is displayed as a single value.
-
-#### Representation of data quality
 
 ### Sample Data: Gripper of a robotic arm
 
