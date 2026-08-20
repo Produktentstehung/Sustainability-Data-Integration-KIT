@@ -22,7 +22,7 @@ looking things up.
 
 ```bash
 npm install -g node-red
-python -m pip install openpyxl asyncua aas-core3
+python -m pip install openpyxl asyncua aas-core3.0
 ```
 
 ---

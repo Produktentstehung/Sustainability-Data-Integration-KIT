@@ -87,11 +87,11 @@ Then two commands in a terminal:
 
 ```bash
 npm install -g node-red
-python -m pip install openpyxl asyncua aas-core3
+python -m pip install openpyxl asyncua aas-core3.0
 ```
 
 What the Python packages are for: `openpyxl` reads the simulation export,
-`asyncua` talks to the OPC UA server of the machines, and `aas-core3` is the
+`asyncua` talks to the OPC UA server of the machines, and `aas-core3.0` is the
 reference library the package check uses - the same one the AASX Package
 Explorer builds on.
 

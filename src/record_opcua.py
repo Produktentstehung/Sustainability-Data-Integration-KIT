@@ -67,6 +67,16 @@ import os
 import sys
 import urllib.request
 
+# "--help" muss ohne das Fremdpaket funktionieren.
+#
+# Die Pruefung "jedes Programm beantwortet --help" laeuft auf einem
+# Rechner, auf dem nichts installiert ist - und genau das ist ihr Zweck.
+# Ein Programm, das dort nicht einmal sagen kann, wozu es da ist, hilft
+# niemandem, der das Repository gerade geklont hat.
+if __name__ == '__main__' and set(sys.argv[1:]) & {'--help', '-h', '/?'}:
+    print(__doc__.strip())
+    sys.exit(0)
+
 try:
     from asyncua import Client
 except ImportError:

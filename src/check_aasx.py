@@ -14,7 +14,7 @@ Two outcomes are distinguished on purpose:
                       defects, not obstacles
     "is rejected"     the package is broken or the XML cannot be read
 
-Requires the reference library:  pip install aas-core3
+Requires the reference library:  pip install aas-core3.0
 
 Usage:
     python check_aasx.py <file.aasx> [more.aasx ...]
@@ -40,12 +40,22 @@ import sys
 import xml.etree.ElementTree as ET
 import zipfile
 
+# "--help" muss ohne das Fremdpaket funktionieren.
+#
+# Die Pruefung "jedes Programm beantwortet --help" laeuft auf einem
+# Rechner, auf dem nichts installiert ist - und genau das ist ihr Zweck.
+# Ein Programm, das dort nicht einmal sagen kann, wozu es da ist, hilft
+# niemandem, der das Repository gerade geklont hat.
+if __name__ == '__main__' and set(sys.argv[1:]) & {'--help', '-h', '/?'}:
+    print(__doc__.strip())
+    sys.exit(0)
+
 try:
     import aas_core3.verification as verification
     import aas_core3.xmlization as xmlization
 except ImportError:
     print('The reference library is missing. Install it with:')
-    print('    pip install aas-core3')
+    print('    pip install aas-core3.0')
     sys.exit(2)
 
 
