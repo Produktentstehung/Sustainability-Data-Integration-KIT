@@ -26,7 +26,6 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
       - [What of this runs today](#what-of-this-runs-today)
     - [Regulatory Relevance](#regulatory-relevance)
   - [Value Chain Partners](#value-chain-partners)
-  - [Whitepaper](#whitepaper)
   - [Standards](#standards)
     - [Catena-X Standards](#catena-x-standards)
     - [Non-dataspace Standards](#non-dataspace-standards)
@@ -313,14 +312,6 @@ IT departments, platform operators and system integrators gain a technical found
 
 **Internal sustainability**, compliance and engineering teams benefit from a shared data foundation that connects technical product data with sustainability-related assessment results. This improves collaboration between traditionally separated domains and supports the consistent preparation of information for internal analyses, customer communication and regulatory-facing processes.
 
-## Whitepaper
-
-No whitepaper is planned for this KIT. The section is optional in the KIT
-framework, and the material a whitepaper would carry is already in this
-document: the business problem in *Use Case / Domain Explanation*, the
-alternatives considered in *Data Sources and Their Effect on the Assessment*,
-and the recommendations in the Operations View. A separate paper would restate
-it in a place that then ages separately from the implementation.
 
 ## Standards
 
