@@ -14,6 +14,8 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
   - [Vision](#vision)
   - [Mission](#mission)
   - [Synergies and Positioning within the Tractus-X Ecosystem](#synergies-and-positioning-within-the-tractus-x-ecosystem)
+    - [The three boundaries worth stating in full](#the-three-boundaries-worth-stating-in-full)
+    - [What the SDI-KIT is not](#what-the-sdi-kit-is-not)
   - [Business Value](#business-value)
     - [Improved sustainability data quality through system integration](#improved-sustainability-data-quality-through-system-integration)
     - [Flexible and method-agnostic sustainability assessment](#flexible-and-method-agnostic-sustainability-assessment)
@@ -168,30 +170,77 @@ The SDI-KIT builds on Tractus-X standards and technical building blocks and spec
 
 ## Synergies and Positioning within the Tractus-X Ecosystem
 
-Like other KITs in the Tractus-X library, the **Sustainability Data Integration KIT** builds on established Tractus-X standards, interoperability mechanisms and technical building blocks. Its specific role is the integration, contextualization and preparation of sustainability-relevant product, process and operational data for environmental assessment and decision support. In contrast to downstream exchange or reporting KITs, the SDI-KIT focuses on the upstream creation of assessment-ready sustainability information from heterogeneous enterprise systems such as PLM, ERP, simulation environments and OPC UA-connected production systems. It therefore complements existing KITs by connecting engineering and production data with AAS-based sustainability data structures and method-agnostic LCA calculation workflows.
+The SDI-KIT sits upstream of every KIT that exchanges sustainability figures. It
+does not exchange them itself. Its subject is the step before: turning what PLM,
+ERP, simulation and machines already hold into assessment-ready data in an Asset
+Administration Shell, with the origin of every value recorded alongside it.
 
-The **Digital Twin KIT** provides the primary technical foundation for the SDI-KIT. It defines the Tractus-X approach for standardized digital twins, including discovery, registry and submodel-based data access. This directly matches the SDI-KIT architecture, in which sustainability-relevant data is stored and versioned in AAS submodels and made available through AAS-compliant services. The SDI-KIT relies on this infrastructure to expose and consume data from PLM, ERP, simulation and shop-floor sources in an interoperable and sovereign manner. The distinction in scope is clear: the Digital Twin KIT defines how twins, registries and interfaces are structured and accessed, while the SDI-KIT is responsible for ingesting, harmonizing and enriching the underlying source data and linking it to LCA-relevant semantics and calculation results.
+That places the KIT in three kinds of relationship, and the distinction matters
+more than the individual descriptions below. Some KITs the SDI-KIT **builds on**
+and cannot work without. Some it **delivers to**, by producing the data they
+exchange. Some **border** on it, which is to say a reader could reasonably ask
+whether the two overlap.
 
-The **Product Carbon Footprint Exchange KIT (PCF-KIT)** is the closest downstream counterpart of the SDI-KIT. Its focus is the standardized exchange of already prepared PCF information between business partners based on agreed semantic models, interfaces and governance rules. The SDI-KIT operates upstream of this exchange by preparing the primary data, assumptions and calculation inputs needed to derive robust environmental indicators. This includes not only carbon-related values but also broader sustainability information generated from PLM structures, simulation outputs, ERP data and production measurements. In this sense, the SDI-KIT can provide validated and traceable sustainability outputs that may later be exchanged through the PCF Exchange KIT, while the latter does not address data integration, multi-source enrichment or iterative LCA preparation.
+| KIT | Relationship | Where the boundary runs |
+| --- | --- | --- |
+| Digital Twin KIT | builds on | Defines twins, registry and submodel access. The SDI-KIT stores its data in exactly those structures and adds none of its own infrastructure. |
+| Connector KIT | builds on | Provides the connector through which use cases 4 and 5 exist at all. The SDI-KIT addresses its management API and defines no exchange protocol. |
+| Industry Core KIT | builds on | Supplies part identity and the type/instance distinction. The SDI-KIT reuses those identifiers rather than minting its own. |
+| Product Carbon Footprint Exchange KIT | delivers to | Exchanges an agreed PCF between partners. The SDI-KIT produces the value and the evidence behind it. |
+| Eco Pass KIT | delivers to | Assembles and serves the product passport. The SDI-KIT provides the sustainability content that populates it. |
+| Circularity KIT | delivers to | Consumes end-of-life and material data. The SDI-KIT supplies material and mass per part from the engineering side. |
+| PCF Data Acquisition KIT | borders | Closest neighbour by name. See below. |
+| Online Simulation KIT | borders | Standardises simulation as a service. The SDI-KIT reads a simulation *result* and does not run or offer simulations. |
+| Modular Production KIT | borders | Standardises shop-floor exchange. The SDI-KIT reads machine values directly over OPC UA and interprets them as energy per piece. |
+| Model Based Production KIT | borders | Models the production system. The SDI-KIT models nothing; it records what a machine actually drew. |
+| Material Accounting KIT | borders | Accounts for material flows across a network. The SDI-KIT accounts for one product, from its own systems. |
+| Geometry KIT | adjacent | Exchanges CAD geometry. The SDI-KIT consumes geometry-derived properties such as mass, and produces none. |
+| Manufacturing as a Service KIT | adjacent | Matches capabilities and quotations. The SDI-KIT can compare alternatives environmentally but performs no matchmaking. |
+| CBAM KIT, Traceability KIT, Requirements KIT | adjacent | Share identifiers and lifecycle context; no overlap in purpose. |
 
-The **EcoPass KIT** represents an important downstream integration point. It provides the framework for digital product passports based on Tractus-X concepts such as AAS, SSI, decentralized registries and sovereign data exchange. The SDI-KIT can serve as an upstream provider of sustainability-related content for such passports, especially where environmental footprint, product-related compliance data or lifecycle-related sustainability evidence is required. This relationship is consistent with the SDI-KIT mission: sustainability information is first collected, enriched, stored and versioned in AAS-based structures and can then be selectively shared into downstream passport scenarios. The EcoPass KIT focuses on the structured provision and consumption of passport information, whereas the SDI-KIT focuses on generating and contextualizing the sustainability data that may populate such passport structures.
+### The three boundaries worth stating in full
 
-The **Modular Production KIT** is relevant where sustainability assessments depend on operational production data. It standardizes the exchange of shop-floor and production-related information, including planning, tracking and execution data. This creates a structured interoperability layer for production-related primary data, which the SDI-KIT can use to improve the quality and granularity of environmental assessments. This is closely aligned with the SDI-KIT use cases, where OPC UA-connected production systems provide measured energy, cycle-time and timestamp data that is aggregated and stored in dedicated AAS submodels. The boundary remains distinct: the Modular Production KIT standardizes operational production-data exchange, whereas the SDI-KIT interprets and transforms such data into sustainability-relevant information and environmental indicators.
+**PCF Data Acquisition KIT.** By name this is the nearest neighbour, and the
+question deserves a direct answer rather than a diplomatic one. Both acquire
+data for an environmental figure. Two things separate them. The SDI-KIT is
+method-agnostic: it prepares parameters for a calculation and does not assume
+the result is a carbon footprint, which is why the reference implementation runs
+EF 3.0, EN 15804 and EPS 2015 against the same data and stores each result
+beside the others. And it treats the *provenance* of a value as part of the
+value: which system delivered it, when, and how it was assigned to a piece.
+Where the two do overlap, the SDI-KIT is the more general case, and an adopter
+who only needs a PCF is better served by the more specific KIT.
 
-The **Manufacturing as a Service KIT** is not a direct dependency of the SDI-KIT, but an adjacent KIT with complementary potential. Its purpose is the standardized publication, discovery and matching of manufacturing capabilities and quotation requests within distributed manufacturing networks. Where alternative suppliers, processes or manufacturing setups are considered, the SDI-KIT can contribute comparative sustainability assessments based on integrated lifecycle and production data. However, the SDI-KIT does not perform capability matchmaking, quotation orchestration or network-based manufacturing allocation. Its role is limited to the sustainability-oriented interpretation of such alternatives.
+**Product Carbon Footprint Exchange KIT.** The clearest division in this list.
+The PCF Exchange KIT begins where a figure exists and has to travel between
+companies under agreed semantics and policies. The SDI-KIT ends there. It has
+nothing to say about negotiation, policy or the exchange model, and the PCF
+Exchange KIT has nothing to say about where a figure came from.
 
-The **Geometry KIT** is a complementary engineering-data KIT. It standardizes the exchange of geometry and CAD-related information for secure cross-company engineering collaboration. This is relevant to the SDI-KIT because product master data from PLM systems may include geometry-derived properties such as mass, material allocation or 3D-related product structure information that influence environmental modelling. In the SDI-KIT architecture, such information forms part of the early-stage product baseline used for initial LCA calculations. The Geometry KIT therefore contributes engineering context, while the SDI-KIT uses this context for sustainability interpretation and comparison.
+**Modular Production KIT.** Both touch the shop floor, from opposite ends. The
+Modular Production KIT standardises how production information is exchanged
+between participants. The SDI-KIT reads a machine directly, decides which part
+of a power curve was production and which was standby, divides by the piece
+count and writes the result into the shell of the piece that was produced. An
+adopter running Modular Production can feed the SDI-KIT from it instead of from
+OPC UA; the interpretation stays the same.
 
-Further adjacent KITs, such as the **Industry Core KIT**, **Traceability KIT**, **Circularity KIT** and **Requirements KIT**, share parts of the broader engineering and lifecycle context but do not overlap with the main purpose of the SDI-KIT. Industry Core and Traceability focus on standardized product identities, part structures and lifecycle relations; Circularity focuses on end-of-life and circular-economy use cases; and Requirements addresses the exchange of engineering requirements. The SDI-KIT can reuse selected structures or identifiers from these contexts, but its distinct contribution remains the transformation of heterogeneous source data into harmonized, source-attributed and assessment-ready sustainability information.
+### What the SDI-KIT is not
 
-Overall, the SDI-KIT is positioned as a cross-cutting sustainability integration layer within the Tractus-X ecosystem. It reuses shared digital twin and dataspace infrastructure, consumes standardized data from adjacent KITs and enterprise systems, and provides sustainability-oriented outputs to downstream exchange and passport scenarios. Its distinguishing role is the stepwise enrichment of sustainability data across the product lifecycle, from early PLM-based estimations to simulation-, ERP- and production-data-enriched assessments, while preserving traceability, source attribution and recalculability in AAS-based structures.
+It defines no aspect model of its own where a standardised one exists, no
+exchange protocol, and no calculation method. It does not implement regulatory
+logic. It does not replace an LCA tool: the calculation runs in openLCA or an
+equivalent, and the KIT supplies the inputs and stores the outputs. And it does
+not assume a specific PLM, ERP, simulation or LCA product; the reference
+implementation names the ones it was built against, and the mapping chapter
+states what any replacement has to deliver.
 
 *Overview used Services in the SDI-KIT*
 | Service Name | Description | Reference Implementation | Standardized in |
 | --- | --- | --- | --- |
 | Digital Twin Registry | An exhaustive list of all Submodel Servers, with link to their assets, adhering to the AAS Registry API. Responsible for having the Digital Twins of the provider and indicating the endpoints to the Passport Aspects. |  | CX-0002 |
 | Submodel Server | The data source adhering to a subset of the Submodel API as defined in AAS Part-2 3.0, where the Passport Aspects are stored. | Eclipse BaSyx | CX-0002 / Digital Twin KIT |
-| EDC | Main gateway to the network. In this use case, two EDCs need to exist: one connected to the Digital Product Pass (EcoPass KIT) as EDC Consumer, and another connected to the provider Catena-X components as EDC Provider. | Tractus-X EDC, provided by Smart Systems Hub | CX-0018 |
+| EDC | Main gateway to the network. In this use case, two EDCs need to exist: one connected to the Digital Product Pass (Eco Pass KIT) as EDC Consumer, and another connected to the provider Catena-X components as EDC Provider. | Tractus-X EDC, provided by Smart Systems Hub | CX-0018 |
 | PLM/ERP Integration | Connection to internal enterprise systems for managing part types, part instances, data chains, and links between twins. | Part Type, Part Instance, Data Chains, Linking of Twins | Industry Core KIT |
 
 ## Business Value
@@ -312,7 +361,7 @@ IT departments, platform operators and system integrators gain a technical found
 
 ## Standards
 
-The Sustainability Data Integration KIT (SDI-KIT) does not define new dataspace standards. It applies the existing Catena-X standardisation framework to the integration of sustainability-relevant product, process and operational data. The KIT acts as an **upstream data-integration layer**: it produces AAS-based, source-attributed sustainability data that downstream KITs (PCF Exchange, EcoPass, Circularity) consume through their own standardised aspect models.
+The Sustainability Data Integration KIT (SDI-KIT) does not define new dataspace standards. It applies the existing Catena-X standardisation framework to the integration of sustainability-relevant product, process and operational data. The KIT acts as an **upstream data-integration layer**: it produces AAS-based, source-attributed sustainability data that downstream KITs (Product Carbon Footprint Exchange, Eco Pass, Circularity) consume through their own standardised aspect models.
 
 The compliance levels used in the tables below are:
 
@@ -350,7 +399,7 @@ These standards are not implemented by the SDI-KIT. They define the target struc
 
 | Standard | Version | Relation to the SDI-KIT | Compliance | Link |
 | --- | --- | --- | --- | --- |
-| CX-0143 Use Case Circular Economy – Digital Product Passport | 1.2.0 | DPP aspect model used by the EcoPass KIT. Sustainability values, material composition and recycled-content shares produced by the SDI-KIT are candidate inputs for a DPP. | Optional | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0143-UseCaseCircularEconomyDigitalProductPassportStandard/introduction) |
+| CX-0143 Use Case Circular Economy – Digital Product Passport | 1.2.0 | DPP aspect model used by the Eco Pass KIT. Sustainability values, material composition and recycled-content shares produced by the SDI-KIT are candidate inputs for a DPP. | Optional | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0143-UseCaseCircularEconomyDigitalProductPassportStandard/introduction) |
 | CX-0131 Circularity Core | 1.1.1 | Aspect models for secondary material content and end-of-life information; basis for the recycled-content analysis in the decision-support dashboards. | Optional | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0131-CircularityCore) |
 | CX-0142 Shop Floor Information Service | 1.0.1 | Standardised provision of shop-floor information; dataspace-side counterpart to the OPC UA production data acquired internally in use case 3. | Optional | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0142-ShopFloorInformationService) |
 | CX-0133 Online Control and Simulation | 2.0.1 | Exchange of simulation-related information between partners; neighbouring standard to use case 2, where simulation results are used internally to enrich the assessment. | Optional | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0133-OnlineControlandSimulation) |
