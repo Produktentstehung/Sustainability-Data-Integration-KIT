@@ -1,7 +1,7 @@
 # Sustainability Data Integration KIT (SDI-KIT)
 https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template 
 
-<img src="docs/img/Tractus-X-Logo.png" alt="Icon" width="450">
+<img src="docs/img/Tractus-X-Logo.png" alt="Eclipse Tractus-X" width="450">
 
 ---
 
@@ -189,8 +189,8 @@ whether the two overlap.
 | Product Carbon Footprint Exchange KIT | delivers to | Exchanges an agreed PCF between partners. The SDI-KIT produces the value and the evidence behind it. |
 | Eco Pass KIT | delivers to | Assembles and serves the product passport. The SDI-KIT provides the sustainability content that populates it. |
 | Circularity KIT | delivers to | Consumes end-of-life and material data. The SDI-KIT supplies material and mass per part from the engineering side. |
-| PCF Data Acquisition KIT | borders | Closest neighbour by name. See below. |
-| Online Simulation KIT | borders | Standardises simulation as a service. The SDI-KIT reads a simulation *result* and does not run or offer simulations. |
+| PCF Data Acquisition KIT | borders | Closest neighbour. Acquires PCF inputs from MES, AAS, logistics and shopfloor machines. See below. [Adoption View](https://eclipse-tractusx.github.io/docs-kits/next/kits/pcf-data-acquisition-kit/adoption-view) |
+| Online Simulation KIT | borders | Exchanges material-flow simulation results between supply-chain partners. The SDI-KIT reads a plant simulation of its own production process; the subject is a different one. [Adoption View](https://eclipse-tractusx.github.io/docs-kits/kits/online-simulation-kit/adoption-view) |
 | Modular Production KIT | borders | Standardises shop-floor exchange. The SDI-KIT reads machine values directly over OPC UA and interprets them as energy per piece. |
 | Model Based Production KIT | borders | Models the production system. The SDI-KIT models nothing; it records what a machine actually drew. |
 | Material Accounting KIT | borders | Accounts for material flows across a network. The SDI-KIT accounts for one product, from its own systems. |
@@ -201,21 +201,43 @@ whether the two overlap.
 ### The three boundaries worth stating in full
 
 **PCF Data Acquisition KIT.** By name this is the nearest neighbour, and the
-question deserves a direct answer rather than a diplomatic one. Both acquire
-data for an environmental figure. Two things separate them. The SDI-KIT is
-method-agnostic: it prepares parameters for a calculation and does not assume
-the result is a carbon footprint, which is why the reference implementation runs
-EF 3.0, EN 15804 and EPS 2015 against the same data and stores each result
-beside the others. And it treats the *provenance* of a value as part of the
-value: which system delivered it, when, and how it was assigned to a piece.
-Where the two do overlap, the SDI-KIT is the more general case, and an adopter
-who only needs a PCF is better served by the more specific KIT.
+question deserves a direct answer rather than a diplomatic one. Both replace
+generic emission factors with measured data, and both stop short of the
+cross-company exchange that the PCF Exchange KIT covers. Three things separate
+them.
+
+The target figure. That KIT acquires what a *product carbon footprint* needs.
+The SDI-KIT prepares parameters for a calculation without assuming which
+indicator comes out of it, which is why the reference implementation runs EF
+3.0, EN 15804 and EPS 2015 against the same data and stores the three results
+beside one another. Where an adopter only needs a PCF, the more specific KIT is
+the better fit.
+
+The sources. That KIT reads manufacturing systems through MES or an AAS,
+shopfloor machines, and transport for logistics emissions. The SDI-KIT reads PLM
+and ERP as well, and covers no logistics at all; its earliest figure exists
+before a production system does, from engineering data alone.
+
+Provenance. The SDI-KIT treats where a value came from as part of the value:
+which system delivered it, when, and how it was tied to a manufactured piece.
+That KIT does not make source attribution a concern of its own.
+
+An adopter running both would let the PCF Data Acquisition KIT feed the shopfloor
+side and the SDI-KIT carry the engineering side and the attribution.
 
 **Product Carbon Footprint Exchange KIT.** The clearest division in this list.
 The PCF Exchange KIT begins where a figure exists and has to travel between
 companies under agreed semantics and policies. The SDI-KIT ends there. It has
 nothing to say about negotiation, policy or the exchange model, and the PCF
 Exchange KIT has nothing to say about where a figure came from.
+
+**Online Simulation KIT.** The names invite confusion and the subjects do not
+overlap. That KIT exchanges *material-flow* simulation results between partners
+in a supply chain, so that a delivery risk or a what-if scenario can be
+answered one step up and one step down. Every partner runs its own simulation
+and shares the outcome. The SDI-KIT reads a *production-process* simulation of
+its own plant, for cycle times and energy per operation, and never exchanges a
+simulation result with anyone.
 
 **Modular Production KIT.** Both touch the shop floor, from opposite ends. The
 Modular Production KIT standardises how production information is exchanged
@@ -238,7 +260,7 @@ states what any replacement has to deliver.
 *Overview used Services in the SDI-KIT*
 | Service Name | Description | Reference Implementation | Standardized in |
 | --- | --- | --- | --- |
-| Digital Twin Registry | An exhaustive list of all Submodel Servers, with link to their assets, adhering to the AAS Registry API. Responsible for having the Digital Twins of the provider and indicating the endpoints to the Passport Aspects. |  | CX-0002 |
+| Digital Twin Registry | An exhaustive list of all Submodel Servers, with link to their assets, adhering to the AAS Registry API. Responsible for having the Digital Twins of the provider and indicating the endpoints to the Passport Aspects. | Not deployed in the demonstrator, see Restrictions | CX-0002 |
 | Submodel Server | The data source adhering to a subset of the Submodel API as defined in AAS Part-2 3.0, where the Passport Aspects are stored. | Eclipse BaSyx | CX-0002 / Digital Twin KIT |
 | EDC | Main gateway to the network. In this use case, two EDCs need to exist: one connected to the Digital Product Pass (Eco Pass KIT) as EDC Consumer, and another connected to the provider Catena-X components as EDC Provider. | Tractus-X EDC, provided by Smart Systems Hub | CX-0018 |
 | PLM/ERP Integration | Connection to internal enterprise systems for managing part types, part instances, data chains, and links between twins. | Part Type, Part Instance, Data Chains, Linking of Twins | Industry Core KIT |
@@ -247,15 +269,15 @@ states what any replacement has to deliver.
 
 The SDI-KIT creates business value by enabling solution providers and adopters to transform heterogeneous engineering, simulation, ERP, production and supplier data into structured, interoperable and source-attributed sustainability information. Rather than prescribing a fixed toolchain or a single assessment method, the KIT provides reusable integration patterns for building sustainability data pipelines that can be adapted to different industrial environments and business models. In this way, the SDI-KIT supports the implementation of commercial and non-profit solutions in the Tractus-X and Manufacturing-X ecosystem that depend on reliable, shareable and assessment-ready sustainability data.
 
-### **Improved sustainability data quality through system integration**
+### Improved sustainability data quality through system integration
 The SDI-KIT enables the direct integration of data from existing enterprise and shop-floor systems, including PLM product structures, ERP bills of materials, simulation outputs and OPC UA-based production measurements. This allows generic secondary data to be progressively replaced by more context-specific engineering and operational data whenever available. As a result, sustainability assessments become more reliable, better traceable and more useful for engineering and sourcing decisions.
 
-### **Flexible and method-agnostic sustainability assessment**
+### Flexible and method-agnostic sustainability assessment
 The SDI-KIT supports modular integration workflows that connect heterogeneous source systems with sustainability calculation services through standardized APIs. Environmental indicators can therefore be calculated, recalculated and compared whenever product, process or supplier data changes. This gives solution providers and adopters the flexibility to integrate different tools, methods and impact categories without being locked into one specific assessment approach.
-### **Progressive data quality enrichment across product lifecycle**
+### Progressive data quality enrichment across product lifecycle
 The SDI-KIT supports the stepwise enrichment of sustainability information from early engineering estimates to simulation-based, ERP-supported and production-data-enriched assessments. Instead of replacing previous results, new data-quality levels can coexist with earlier estimates in a traceable and versionable way. This makes it possible to compare assumptions, document data provenance and improve sustainability results over time as more specific lifecycle data becomes available.
 
-### **Reduced integration effort and scalable solution design**
+### Reduced integration effort and scalable solution design
 The SDI-KIT reduces the manual effort typically required to prepare and maintain sustainability data by providing reusable architectural patterns for automated data acquisition, mapping and storage. Its modular structure allows adopters to integrate only those systems that are available in their existing IT landscape. This supports scalable solution design across heterogeneous industrial environments, ranging from highly digitalized enterprises to organizations with limited system integration maturity.
 
 ## Use Case / Domain Explanation
@@ -272,15 +294,15 @@ The SDI-KIT addresses this challenge by providing a structured integration appro
 
 The SDI-KIT supports five primary use cases that together describe a continuous enrichment flow from early engineering data to cross-company sustainability data exchange. The use cases are defined as generic integration patterns and can therefore be implemented with different PLM, ERP, simulation, production, LCA, AAS and dataspace technologies. Taken together, they show how sustainability-relevant information can be incrementally improved, reused and shared across product lifecycle stages.
 
-#### **Use case 1: Early-stage Life Cycle Assessment from PLM data**
+#### Use case 1: Early-stage Life Cycle Assessment from PLM data
 In the early product development phase, Life Cycle Assessment (LCA) starts with product master data from PLM systems. Product structure, bill of materials, CAD-derived properties, component weights and material information are retrieved via API, processed and mapped into the Asset Administration Shell (AAS). Based on this initial dataset, a sustainability calculation service can derive the first environmental assessment results. The resulting outputs, together with the corresponding input data and metadata, are stored in the AAS and form the baseline for subsequent enrichment steps.
 This use case establishes the earliest available sustainability baseline directly from engineering data. It enables organizations to move sustainability assessment closer to the point of design decision-making, even before detailed production information is available.
 
-#### **Use case 2: Simulation-based enrichment of sustainability data**
+#### Use case 2: Simulation-based enrichment of sustainability data
 Once process simulation models are available, the initial engineering-based assessment can be refined with simulation-derived process data. Energy consumption, water consumption and cycle times per process step are extracted, mapped and stored in a dedicated simulation-related AAS structure. The sustainability calculation is then repeated using the updated dataset.
 Instead of overwriting earlier results, the SDI-KIT supports the storage of an additional, explicitly attributed result set. This preserves the original PLM-based assessment and enables the comparison of different data-quality levels within the same AAS context.
 
-#### **Use case 3: Production-data enriched Life Cycle Assessment**
+#### Use case 3: Production-data enriched Life Cycle Assessment
 When ERP and production data become available, the sustainability dataset can be further refined with order-specific and operational information. ERP systems contribute configuration data, BOM information, material specifications and order-related attributes. During execution, OPC UA-connected production systems provide measured data such as energy consumption, cycle times and timestamps at machine, batch or instance level. These values are aggregated and stored in production-related AAS structures and can be used to recalculate environmental indicators on a more specific basis.
 This use case increases the reliability of the LCA by replacing assumptions with measured or order-specific values. It therefore strengthens the reliability of sustainability information for operational decision-making, customer communication and later downstream exchange scenarios.
 
@@ -308,15 +330,15 @@ produced, taken from the assembly booked in the ERP. Where that booking is
 missing, the origin of the assignment is written into the submodel instead of
 being left implicit.
 
-#### **Use case 4: Provision of sustainability-related AAS data in the Manufacturing-X dataspace**
+#### Use case 4: Provision of sustainability-related AAS data in the Manufacturing-X dataspace
 After lifecycle-related enrichment, selected AAS content can be shared within the Manufacturing-X dataspace via EDC-based exchange mechanisms. Depending on the applicable policies and business context, this may range from single submodels to larger sustainability-relevant datasets. Downstream stakeholders such as customers, OEMs or certification-related actors can consume this information and integrate it into their own AAS, PLM or sustainability processes.
 This use case establishes the standardized outbound flow of sustainability-related product information from internal enterprise systems into the wider ecosystem. It also creates the basis for downstream scenarios such as collaborative assessments, regulatory transparency and Digital Product Passport-related data provision.
 
-#### **Use case 5: Cross-phase ingestion of supplier-provided sustainability data**
+#### Use case 5: Cross-phase ingestion of supplier-provided sustainability data
 Supplier-provided sustainability information can be integrated throughout different lifecycle phases and at different levels of granularity, ranging from single attributes to complete AAS datasets. Incoming data is transferred via dataspace-compatible exchange mechanisms, processed by the integration layer and linked to the corresponding internal product structures. Existing values can be updated where appropriate, while additional information can be added in parallel with explicit source attribution.
 This use case supports continuous inbound enrichment of sustainability information from external partners. It enables organizations to complement internally generated values with supplier-specific data while maintaining traceability, coexistence of multiple data sources and the possibility to recalculate sustainability results as better information becomes available.
 
-<img src="docs/img/Sequence_diagram_with_marked_out_use_cases_.svg" alt="Icon" width="1450">
+<img src="docs/img/Sequence_diagram_with_marked_out_use_cases_.svg" alt="Sequence diagram with marked out use cases" width="1450">
 <em>Sequence diagram with marked out use cases</em>
 
 #### What of this runs today
@@ -436,10 +458,10 @@ The development view provides an overview of the features of the KIT, the necess
 
 ## Architecture View
 
-<img src="docs/img/General component diagram.svg" alt="Icon" width="1000">
+<img src="docs/img/General component diagram.svg" alt="General component diagram" width="1000">
 <em>General component diagram</em>
 
-The architecture of the SDI-KIT is structured around the data management tool (DMT), which is implemented using the low code plattform Node-Red. It contains a user interface (UI). The DMT controls the data flows, calls the nesseccary APIs, performs simple auxillary calculations and maps the data to the correct meta data in the AAS data model. APIs can be unidirectional as well as bidirectional. Figure 2 shows the types of components that can be connected the DMT. The DMT can connect to different third-party systems and data sources. This includes primary data like production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data as per the AAS data model (c.f. The AAS data model, submodels and costum submodels). To connect to the Tractus-X data space the DMT can also manage the connection to an EDC Connector to enable save data exchange. The last typ of component is a tool to calculate sustainability, e.g. the CO2 footprint or water usage. 
+The architecture of the SDI-KIT is structured around the data management tool (DMT), which is implemented using the low-code platform Node-Red. It contains a user interface (UI). The DMT controls the data flows, calls the necessary APIs, performs simple auxiliary calculations and maps the data to the correct meta data in the AAS data model. APIs can be unidirectional as well as bidirectional. Figure 2 shows the types of components that can be connected the DMT. The DMT can connect to different third-party systems and data sources. This includes primary data like production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data as per the AAS data model (c.f. The AAS data model, submodels and custom submodels). To connect to the Tractus-X data space the DMT can also manage the connection to an EDC Connector to enable safe data exchange. The last type of component is a tool to calculate sustainability, e.g. the CO2 footprint or water usage. 
 As flexibility is a core value of the SDI-KIT, third party systems, data sources, the sustainability calculation tool as well as the AAS server implementation can be chosen freely. However, for a complete minimal workflow and to use the SDI-KIT an AAS server implementation, a sustainability calculation tool and at least one data source are mandatory.
 
 ### What is the reference implementation, and what is the demonstrator
@@ -526,7 +548,7 @@ PLM master data and associated engineering documents to be transferred into an
 AAS-based information structure without requiring manual extraction and
 preparation of the individual data sources.
 
-<a href="docs/img/Flow_PLM_product.svg"><img src="docs/img/Flow_PLM_product.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_PLM_product.svg"><img src="docs/img/Flow_PLM_product.svg" alt="The PLM flow extracts data from a PLM system, creates an AAS and writes the data to the corresponding submodel, flow diagram" width="1000"></a>
 <em>The PLM flow extracts data from a PLM system, creates an AAS and writes the data to the corresponding submodel</em>
 
 The second tab of the same file is entered once per position of the bill of
@@ -536,7 +558,7 @@ component and builds a shell of its own for it. The part data it works on alread
 comes from the bill-of-material position, which is why this tab is the shorter of
 the two.
 
-<a href="docs/img/Flow_PLM_part.svg"><img src="docs/img/Flow_PLM_part.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_PLM_part.svg"><img src="docs/img/Flow_PLM_part.svg" alt="The second pass of the PLM flow, entered once per component, flow diagram" width="1000"></a>
 <em>The second pass of the PLM flow, entered once per component</em>
 
 The flow `Odoo_ERP.json` provides the functionality to retrieve product,
@@ -564,7 +586,7 @@ carries over the entries that do not belong to it: the assembly records that
 another flow keeps in the same place would otherwise be lost, and nothing would
 report the loss.
 
-<a href="docs/img/Flow_Odoo_ERP.svg"><img src="docs/img/Flow_Odoo_ERP.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_Odoo_ERP.svg"><img src="docs/img/Flow_Odoo_ERP.svg" alt="The ERP flow reads the bill of material, the quantities and the manufacturing order from Odoo and writes them into the AAS, flow diagram" width="1000"></a>
 <em>The ERP flow reads the bill of material, the quantities and the manufacturing order from Odoo and writes them into the AAS</em>
 
 The flow `EMA.json` provides the functionality to read an export of the ema
@@ -590,7 +612,7 @@ and is the only thing that has to be adjusted when the production sequence
 changes. The result is written into the `DataSources` submodel over the REST
 interface of the AAS server.
 
-<a href="docs/img/Flow_ema_simulation.svg"><img src="docs/img/Flow_ema_simulation.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_ema_simulation.svg"><img src="docs/img/Flow_ema_simulation.svg" alt="The ema flow reads the simulation export and writes the operations into the AAS as the data source Simulation, flow diagram" width="1000"></a>
 <em>The ema flow reads the simulation export and writes the operations into the AAS as the data source Simulation</em>
 
 The flow `OPCUA_Manufacturing.json` provides the functionality to turn
@@ -619,7 +641,7 @@ assembled product. Where it is not, the numbers are assigned by article and by
 the order in which they were given out, and the entry says so: the origin of the
 assignment stands beside it rather than being passed over in silence.
 
-<a href="docs/img/Flow_machine_data.svg"><img src="docs/img/Flow_machine_data.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_machine_data.svg"><img src="docs/img/Flow_machine_data.svg" alt="The machine flow forms the energy per piece from power and duration and writes it into the shell of the part that was produced, flow diagram" width="1000"></a>
 <em>The machine flow forms the energy per piece from power and duration and writes it into the shell of the part that was produced</em>
 
 The flow `OpenLCA_to_AAS.json` manages the configuration and initiation of
@@ -645,7 +667,7 @@ part. The source list of the product holds for a part only in part: machine data
 always concerns one particular part, and where none was measured for it, the
 machines are not named in its result even though they did go into the total.
 
-<a href="docs/img/Flow_openLCA_calculation.svg"><img src="docs/img/Flow_openLCA_calculation.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_openLCA_calculation.svg"><img src="docs/img/Flow_openLCA_calculation.svg" alt="The openLCA flow collects the parameters, runs the calculation per impact method and writes the total and the share of each part back into the AAS, flow diagram" width="1000"></a>
 <em>The openLCA flow collects the parameters, runs the calculation per impact method and writes the total and the share of each part back into the AAS</em>
 
 The flow `Dashboard.json` provides the operating surface of the KIT at
@@ -669,7 +691,7 @@ the machine runs that produced the parts of the selected piece. A dropdown
 selects one manufactured piece: a product passport applies to a piece and not to
 a type, and the machine table then shows only the runs that belong to it.
 
-<a href="docs/img/Flow_dashboard.svg"><img src="docs/img/Flow_dashboard.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_dashboard.svg"><img src="docs/img/Flow_dashboard.svg" alt="The dashboard runs the chain, checks every step and shows the result with the state of each data source, flow diagram" width="1000"></a>
 <em>The dashboard runs the chain, checks every step and shows the result with the state of each data source</em>
 
 The flow `Assembly_Booking.json` books one assembled piece in Odoo and
@@ -690,7 +712,7 @@ What is booked gets written, and only that. If Odoo refuses to close the order,
 the flow reports it and carries on: the assignment is then in the shell, the
 closing is not, and both are visible.
 
-<a href="docs/img/Flow_assembly_booking.svg"><img src="docs/img/Flow_assembly_booking.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_assembly_booking.svg"><img src="docs/img/Flow_assembly_booking.svg" alt="The booking flow creates the manufacturing order, draws the serial numbers and records the linkage in the shell, flow diagram" width="1000"></a>
 <em>The booking flow creates the manufacturing order, draws the serial numbers and records the linkage in the shell</em>
 
 The flow `Assembly_Backfill.json` reads every completed manufacturing order
@@ -698,7 +720,7 @@ from Odoo and restores the assembly records in the shell. It is needed after the
 ERP block was rebuilt or a shell was recreated. The bookings still exist in
 Odoo, but the record of them in the shell does not.
 
-<a href="docs/img/Flow_assembly_backfill.svg"><img src="docs/img/Flow_assembly_backfill.svg" alt="Icon" width="1000"></a>
+<a href="docs/img/Flow_assembly_backfill.svg"><img src="docs/img/Flow_assembly_backfill.svg" alt="The backfill flow restores the assembly records from completed manufacturing orders, flow diagram" width="1000"></a>
 <em>The backfill flow restores the assembly records from completed manufacturing orders</em>
 
 ### Interfaces and the dataspace
@@ -721,8 +743,8 @@ is from that point on exchangeable through the connector.
 
 ## Sequence View
 
-<img src="docs/img/Generic sequnce diagram of the DMT interacting with a third-party system.svg" alt="Icon" width="1000">
-<em>Generic sequnce diagram of the DMT interacting with a third-party system</em>
+<img src="docs/img/Generic sequence diagram of the DMT interacting with a third-party system.svg" alt="Generic sequence diagram of the DMT interacting with a third-party system" width="1000">
+<em>Generic sequence diagram of the DMT interacting with a third-party system</em>
 
 The figure below shows the sequence diagram of the SDI-KIT. As the SDI-KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from a list of the available assets on the AAS server via the UI. The data management tool (DMT) calls the asset’s AAS via REST API and displays it to the user in the UI. Next the DMT calls the third-party tool. In the diagram, a bidirectional API call is displayed. However, data from a third-party system can also be retrieved by OPC UA or a file upload, as described in Use case 2, Use case 3 and in Use case 4. The DMT maps the retrieved data and maps it to the correct submodels and properties in the AAS. The updated AAS is displayed in the UI. Next, the sustainability calculation starts. The DMT reads the AAS and retrieves all available data relevant to the sustainabilty caculation. The data is then passed on to the calculation tool. The calculation tool returns the results which are then written to the AAS. Optionally, the data can also be written back to update the third-party system. Results are displayed in the UI.
 Depending on the number of data souces and third-party systems, the entire process can be interated several times. A higher number of data sources improves the data quality and therefore the result of the sustainability calculation. In this regard, the EDC Connector is to be treated as a data source or third-party system as it introduces new data for sustainability calculations into the system.
@@ -784,26 +806,26 @@ bill of material above.
 
 ## Demonstrator Implementation in the Laboratory
 
-<img src="docs/img/Architecture overview of the demonstrator implementation.svg" alt="Icon" width="1000">
+<img src="docs/img/Architecture overview of the demonstrator implementation.svg" alt="Architecture overview of the demonstrator implementation" width="1000">
 <em>Architecture overview of the demonstrator implementation</em>
 
 The reference implementation was developed and implemented at the Smart Automation Lab at the Heinz Nixdorf Institute. The software was implemented using the low-code platform Node-Red. Node-Red is used to create flows that enable the necessary data flows between external (software) systems and the AAS. The Node-Red code is provided in JSON format. Figure shows an architecture overview of the demonstrator implementation in a possible environment with the data space and a decision support, which is based on the data calculated and managed within the demonstrator system. Moreover, the MX-ports “Orion”, “Leo” and “Hercules” are marked. 
 
-<img src="docs/img/Component diagram of the SDI-KIT, including third party software.svg" alt="Icon" width="1000">
+<img src="docs/img/Component diagram of the SDI-KIT, including third party software.svg" alt="Component diagram of the SDI-KIT, including third party software" width="1000">
 <em>Component diagram of the SDI-KIT, including third party software</em>
 
-The architecture of the SDI-KIT reference implementation is structured around the data management tool, which is implemented using the low code plattform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI). The EDC Connector takes a special role in the system as it connects the systeme to the data space, therefore enabling it to receive data from external sources. This is especially important since LCA results increase in quality as more high-quality data becomes available, eg through exchange with value chain partners.
+The architecture of the SDI-KIT reference implementation is structured around the data management tool, which is implemented using the low-code platform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI). The EDC Connector takes a special role in the system as it connects the system to the data space, therefore enabling it to receive data from external sources. This is especially important since LCA results increase in quality as more high-quality data becomes available, eg through exchange with value chain partners.
 
-<img src="docs/img/Sequence view of the SDI-KIT.svg" alt="Icon" width="1000">
+<img src="docs/img/Sequence view of the SDI-KIT.svg" alt="Sequence view of the SDI-KIT" width="1000">
 <em>Sequence view of the SDI-KIT</em>
 
 The figure below shows the sequence diagram of the SDI-KIT reference architecture. As the SDI-KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from the PLM system by entering the PLM number into the UI. The PLM number can be retrieved by looking it up in the PLM system. The data management tool (DMT) calls this asset via REST API and receives all information on the asset as it is saved in the PLM system. Next, the DMT creates a type-AAS in the predefined configuration. More information on this configuration can be found in the AAS section. The previously retrieved asset data is now written in the AAS and displayed to the user via the UI. The DMT then reads the data from the AAS that is relevant to the sustainability calculation. In this case, openLCA is used for the calculation. The data is transferred to openLCA via API and used to calculate sustainability values. The results are returned to the DMT per REST API and the DMT updates the PLM system and the AAS and writes the data to the mapped submodel and properties. This concludes Use case 1 as an early-stage LCA based on PLM data. 
 
 For the second iteration in **Use case 2**, the reference implementation enriches the AAS with simulation data. For the simulation, the ema Plant Designer is used to model and simulate the production process of the asset. The simulation calculates process times, energy and water consumption. The results can be exported as a .xlsx-file. This file is then uploaded into the DMT via the UI. The DMT then reads the relevant cells and creates the processes as submodel element collections and the corresponding simulation values as properties in the AAS. Afterwards the LCA sequence is run again to calculate updated sustainability values. 
 
-For the third iteration in **Use case 3**, production data is used. For this, the DMT is connected to the ERP system via REST API to retrieve order data and save it in the AAS. The data from the ERP system is nesseccary to calculate the correct number of each product for the order. As the production process is started, OPC UA servers installed on the maschines send live process data. The Open Platform Communication Unified Architecture (OPC UA) is a standardised communication protocol for internal factory data  [2].  The OPC UA servers at the systems are implemented using Raspberry Pis on the one hand and Shelly plugs (Shelly Plug S (230 V)) on the other. The Raspberry Pis record activity data from the systems, such as ‘door open’, ‘door closed’ or ‘robot active’. The Shellys are plugs that are connected between the device and the power source and record only the energy consumption. Data is received from the OPC UA servers of the individual production systems in the laboratory. On the one hand, this data is displayed in real time on a dashboard on the UI; on the other hand, the average of this data is calculated to store it in the AAS. Once the production process is finished, the LCA sequence is started. 
+For the third iteration in **Use case 3**, production data is used. For this, the DMT is connected to the ERP system via REST API to retrieve order data and save it in the AAS. The data from the ERP system is necessary to calculate the correct number of each product for the order. As the production process is started, OPC UA servers installed on the maschines send live process data. The Open Platform Communication Unified Architecture (OPC UA) is a standardised communication protocol for internal factory data  [2].  The OPC UA servers at the systems are implemented using Raspberry Pis on the one hand and Shelly plugs (Shelly Plug S (230 V)) on the other. The Raspberry Pis record activity data from the systems, such as ‘door open’, ‘door closed’ or ‘robot active’. The Shellys are plugs that are connected between the device and the power source and record only the energy consumption. Data is received from the OPC UA servers of the individual production systems in the laboratory. On the one hand, this data is displayed in real time on a dashboard on the UI; on the other hand, the average of this data is calculated to store it in the AAS. Once the production process is finished, the LCA sequence is started. 
 
-On the fourth iteration, the DMT connects to the EDC Connector via REST API. The ECD Connector then exchanges data via the data space with business partners. The exact workflow of the EDC Connector is documented in in the **Catena-X Standard CX-0018 Dataspace Connectivity v.4.2**. Functionally, the EDC Connector is treated as a data source, as it provides new data to the reference implementation system. Due to this, the data that is received via the data space is written to the AAS. Finally, the LCA sequence is carried out. This constitutes both **Use case 4** and Use case 5 as both use Cases can be executed using the EDC Connector. 
+On the fourth iteration, the DMT connects to the EDC Connector via REST API. The EDC Connector then exchanges data via the data space with business partners. The exact workflow of the EDC Connector is documented in the **Catena-X Standard CX-0018 Dataspace Connectivity v.4.2**. Functionally, the EDC Connector is treated as a data source, as it provides new data to the reference implementation system. Due to this, the data that is received via the data space is written to the AAS. Finally, the LCA sequence is carried out. This constitutes both **Use case 4** and Use case 5 as both use Cases can be executed using the EDC Connector. 
 
 ## AAS Data Model, Submodels and Custom Submodels
 
@@ -823,12 +845,12 @@ The Asset Administration Shell (AAS) for the asset is created via API. The AAS A
 
 The master data, which is the same for every asset, is automatically transferred from the PLM system to each AAS instance via the REST API. The same applies to other data relating to the asset type, such as simulation results, CAD models, technical data, material information and provided documents. The submodels receiving different data for each individual instance are the Submodel Collection (SMC) “MachineData” from the custom submodel “Data Sources”, which stores the production data send by the OPC UA servers, and “ILCD” in case data from the SMC “MachineData” was used to run an LCA. In case each instance is marked, for example with a QR-code, the marking may also change per instance and is stored in “Nameplate” in the Submodel Element List (SML) “Markings”. 
 
-<img src="docs/img/Diagram of the custom submodel Data Sources to store process data.svg" alt="Icon" width="1000">
+<img src="docs/img/Diagram of the custom submodel Data Sources to store process data.svg" alt="Diagram of the custom submodel 'Data Sources' to store process data" width="1000">
 <em>Diagram of the custom submodel "Data Sources" to store process data</em>
 
 The custom submodel “Data Sources” is shown in Figure. It has the purpose to store both production data and simulation data in a process specific way. That means that data from a single process receives its own Submodel Element Collection, ensuring that process specific data does not get mixed up. It also allows the calculation of the environmental impact of a single process rather than the entire production line. The simulation result file is structured in a way that it delivers data per process. Therefore, it is beneficial to sort it into the process specific structure as well.
 
-<img src="docs/img/Diagram of the custom submodel ILCD to store LCA data from different iteration.svg" alt="Icon" width="1000">
+<img src="docs/img/Diagram of the custom submodel ILCD to store LCA data from different iteration.svg" alt="Diagram of the custom submodel 'ILCD' to store LCA data from different iteration" width="1000">
 <em>Diagram of the custom submodel "ILCD" to store LCA data from different iteration</em>
 
 ## Data Sources and Their Effect on the Assessment
@@ -1439,20 +1461,20 @@ Three points that arise in any ERP connection for an environmental assessment, r
 
 Data collection and integration across various systems, such as LCA databases and PLM systems, was implemented in the laboratory demonstrator shown earlier. The process and product data consolidated through this implementation are used for a decision support tool. This decision support enables well-informed and targeted decisions in product engineering and is designed to empower engineers even in the early stages of the product design process through analysis and visualization of key data. As part of the decision-making process, particular emphasis is placed on sustainable product engineering, which involves integrating methods such as carbon footprint, water footprint, and effect chain analysis. The data is utilized within a knowledge graph. By designing a metadata model, the data is specifically contextualized and properly linked for analysis. Nodes and relationships were defined in advance and subsequently refined. The graph structure and metadata model are provided in JSON format. 
 
-<img src="docs/img/Metadatamodel.svg" alt="Icon" width="1000">
+<img src="docs/img/Metadatamodel.svg" alt="Metadatamodel for the knowledge graph" width="1000">
 <em>Metadatamodel for the knowledge graph</em>
 
 The knowledge graph was created using Neo4j. Neo4j is a graph database that stores data not in tables, but as nodes (entities) and edges (relationships). This makes it particularly well-suited for highly interconnected data, that can be analyzed and navigated directly along the relationships. The defined nodes and edges represent the structure of the knowledge graph. This graph still needs to be filled with data from the laboratory demonstrator or other data sources. Data is exchanged via the Asset Administration Shell (AAS) exchange format and through a system model of the product in a model-based systems engineering (MBSE) tool. The AAS contains sustainability metrics, product data, and material data. Requirements and functions can be derived from the system model. The interface between AAS and knowledge graph is provided.
 Once the data is stored in the knowledge graph, the actual use and visualization of the data can take place. Dashboards are created in Neo4j for this purpose. The dashboards are populated using queries in the knowledge graph. Queries in Neo4j are written in Cypher. The results are displayed to the user on the dashboard, and the query runs in the background without the user seeing the code. This allows engineers without an IT background to interpret the knowledge graph using the dashboards and consult it when making decisions. The data is not lost but can be utilized in an integrated manner.
 
-<img src="docs/img/Dataimplementationfordecisionsupport.svg" alt="Icon" width="1000">
+<img src="docs/img/Dataimplementationfordecisionsupport.svg" alt="Data implementation for decision support" width="1000">
 <em>Data implementation for decision support</em>
 
 ### Dashboards for decision support
 
 Dashboards are visual overviews that summarize key metrics and data, for example, in charts or tables. They allow users to quickly grasp complex data sets and filter them interactively without having to write queries themselves. Depending on the use case, the role involved, and the method used, the sections of the dashboard look different. The graphic shows examples of various roles. The engineer receives a visualization of data quality to better assess the results of the carbon footprint and water footprint. The data analyst from the Data Science department evaluates data quality in their dashboard, which can then be displayed to the engineer. The different skills and responsibilities of these roles result in customized dashboards that meet their specific needs. The Cypher code for the dashboards is provided.
 
-<img src="docs/img/Sampledashboards.svg" alt="Icon" width="1000">
+<img src="docs/img/Sampledashboards.svg" alt="Sample dashboards for different roles" width="1000">
 <em>Sample dashboards for different roles</em>
 
 Engineers need product data, production data, and sustainability data to make decisions during product engineering. Key decision points during product creation are project release, concept release, design freeze, validation release, and production release. The data is constantly updated at every phase and used as a basis for decision-making. Depending on the specific use case, the dashboard contains different sections.
@@ -1520,7 +1542,7 @@ The minimal workflow requires three components; everything else is optional and 
 
 ### Implementation Status
 
-The published reference implementation does not yet cover all documented use cases. Operators should plan against the following status; the guidance in this Operations View is written for the complete scope and applies to the outstanding integrations once they are available.
+Which use case runs today is answered in the Adoption View under [What of this runs today](#what-of-this-runs-today). The table below is the operator's view of the same thing: one row per integration, with the file that implements it. The guidance in this Operations View is written for the complete scope and applies to the outstanding integrations once they arrive.
 
 | Integration | Use case | Status |
 | --- | --- | --- |
@@ -1534,15 +1556,13 @@ The published reference implementation does not yet cover all documented use cas
 | Operating interface | Use cases 1–3 | Available (`src/Dashboard.json`). One page for the run, the chosen piece, the state of every data source and the result split by part. |
 | **EDC → AAS** | **Use cases 4 and 5** | **Planned, not yet implemented.** Dataspace exchange is delegated to the connector; the DMT-side integration flow is not published yet. |
 
-Use cases 1 to 3 run end to end in the reference installation. Use cases 4 and 5 depend on the connector integration, which is not published yet.
-
 Two things in the sequence view are worth reading against this table. It shows
 `update PLM` at the end of use case 1, but the published flow reads from the PLM
 and does not write back to it. And it shows `update ERP` in use case 3, which
 does happen, but through the serial numbers and the assembly booking rather
 than through a return of the assessment result.
 
-One limitation of use case 1 is worth stating plainly: the PLM connection produces the administration shells including the bill of material, but it writes the product weight and material into the `PLM` data source, not a bill of material broken down by part. A calculation that runs on PLM data alone therefore uses the default masses of the LCA model for the individual parts. The order-specific masses enter with the ERP connection. Adopters whose PLM exports a bill of material can map it into the `BillOfMaterial` structure described under *Data Mapping*; the calculation flow then picks it up without further change.
+The limitation noted against use case 1 has an operational answer. A calculation on PLM data alone uses the default masses of the LCA model for the individual parts, because the `PLM` data source carries the product weight rather than a mass per part. Adopters whose PLM exports a bill of material can map it into the `BillOfMaterial` structure described under *Data Mapping*; the calculation flow then picks it up without further change. Otherwise the order-specific masses arrive with the ERP connection.
 
 The DMT is designed so that a further source system is added as an additional flow writing into the existing AAS structure; the mapping targets in the `DataSources` submodel already exist.
 
