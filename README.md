@@ -278,11 +278,11 @@ which is which before drawing conclusions from a diagram.
 
 | Use case | In the published reference implementation | Outstanding |
 | --- | --- | --- |
-| 1 — PLM baseline | Shells are built from PLM master data; weight, material and bill of material reach the `PLM` data source. Verified against CONTACT Elements. | The PLM writes the product weight, not a bill of material broken down by part; per-part masses arrive with the ERP. |
-| 2 — Simulation enrichment | The simulation export is read and stored as `Simulation`; the assembly energy enters the calculation as its own parameter. | The interface is a file upload, not an online API, so enrichment is triggered manually. |
-| 3 — Production data | ERP quantities and orders, machine measurements per run with threshold, piece count and serial number, and the assembly booking that ties a run to a piece. Runs end to end. | Threshold and part assignment are configured per machine; the KIT states their origin rather than deriving them. |
-| 4 — Provision through the dataspace | — | The connector integration is not published yet. The AAS content it would offer exists and is exchangeable. |
-| 5 — Ingestion of supplier data | — | Same connector integration; the target structures in `DataSources` already carry source attribution per value. |
+| 1 PLM baseline | Shells are built from PLM master data; weight, material and bill of material reach the `PLM` data source. Verified against CONTACT Elements. | The PLM writes the product weight, not a bill of material broken down by part; per-part masses arrive with the ERP. |
+| 2 Simulation enrichment | The simulation export is read and stored as `Simulation`; the assembly energy enters the calculation as its own parameter. | The interface is a file upload, not an online API, so enrichment is triggered manually. |
+| 3 Production data | ERP quantities and orders, machine measurements per run with threshold, piece count and serial number, and the assembly booking that ties a run to a piece. Runs end to end. | Threshold and part assignment are configured per machine; the KIT states their origin rather than deriving them. |
+| 4 Provision through the dataspace | nothing yet | The connector integration is not published yet. The AAS content it would offer exists and is exchangeable. |
+| 5 Ingestion of supplier data | nothing yet | Same connector integration; the target structures in `DataSources` already carry source attribution per value. |
 
 Use cases 4 and 5 are the reason the EDC connector appears throughout this
 document even though its integration flow is still outstanding: they exist only
@@ -316,9 +316,9 @@ The Sustainability Data Integration KIT (SDI-KIT) does not define new dataspace 
 
 The compliance levels used in the tables below are:
 
-- **Mandatory** — must be fulfilled by any implementation of the SDI-KIT operated inside a Catena-X / Manufacturing-X dataspace.
-- **Recommended** — significantly improves interoperability and downstream reuse of the sustainability data; not required for a functioning implementation.
-- **Optional** — defines the interface towards neighbouring use cases; referenced so that adopters can align their data structures.
+- **Mandatory**: must be fulfilled by any implementation of the SDI-KIT operated inside a Catena-X / Manufacturing-X dataspace.
+- **Recommended**: significantly improves interoperability and downstream reuse of the sustainability data; not required for a functioning implementation.
+- **Optional**: defines the interface towards neighbouring use cases; referenced so that adopters can align their data structures.
 
 Participation in the dataspace additionally requires the general onboarding and identity standards (CX-0006 Registration and Initial Onboarding, CX-0049 DID Document Schema, CX-0050 Catena-X Specific Credentials, CX-0149 Wallet Requirements). These are fulfilled by the operating environment of the participant and are not implemented by the SDI-KIT.
 
@@ -328,7 +328,7 @@ Participation in the dataspace additionally requires the general onboarding and 
 
 | Standard | Version | Description | Compliance | Link |
 | --- | --- | --- | --- | --- |
-| CX-0002 Digital Twins in Catena-X | 2.4.0 | Defines the AAS-based digital twin, the Digital Twin Registry and the Submodel Service API. All sustainability data of the KIT — product master data, simulation data, production data, LCA inputs and results — is stored in AAS submodels and exposed through an AAS-conformant submodel server. Type-AAS and instance-AAS creation, submodel descriptors and `semanticId` registration follow this standard. | Mandatory | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0002-DigitalTwinsInCatenaX) |
+| CX-0002 Digital Twins in Catena-X | 2.4.0 | Defines the AAS-based digital twin, the Digital Twin Registry and the Submodel Service API. All sustainability data of the KIT (product master data, simulation data, production data, LCA inputs and results) is stored in AAS submodels and exposed through an AAS-conformant submodel server. Type-AAS and instance-AAS creation, submodel descriptors and `semanticId` registration follow this standard. | Mandatory | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0002-DigitalTwinsInCatenaX) |
 | CX-0018 Dataspace Connectivity | 4.2 | Defines the connector (EDC) and the Dataspace Protocol for sovereign data exchange. Applied in use case 4 (provision of sustainability data) and use case 5 (ingestion of supplier-provided data). The data management tool interacts with the EDC via its management API. | Mandatory | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0018-DataspaceConnectivity) |
 | CX-0003 SAMM Aspect Meta Model | 1.3.0 | Defines how aspect models are modelled and how semantic IDs are formed (`urn:samm:io.catenax.…`). Applies to every submodel that is offered into the dataspace, including the custom submodels `DataSources` and `ILCD`. | Mandatory | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0003-SAMMSemanticAspectMetaModel) |
 | CX-0001 Participant Agent Registration | 1.2.1 | Registration and discovery of the participant agent (EDC) of a business partner. Used when the KIT resolves the connector endpoint of a supplier or customer. | Mandatory | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0001-ParticipantAgentRegistration) |
@@ -390,8 +390,8 @@ The development view provides an overview of the features of the KIT, the necess
 <img src="docs/img/General component diagram.svg" alt="Icon" width="1000">
 <em>General component diagram</em>
 
-The architecture of the Decide4ECO KIT is structured around the data management tool (DMT), which is implemented using the low code plattform Node-Red. It contains a user interface (UI). The DMT controls the data flows, calls the nesseccary APIs, performs simple auxillary calculations and maps the data to the correct meta data in the AAS data model. APIs can be unidirectional as well as bidirectional. Figure 2 shows the types of components that can be connected the DMT. The DMT can connect to different third-party systems and data sources. This includes primary data like production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data as per the AAS data model (c.f. The AAS data model, submodels and costum submodels). To connect to the Tractus-X data space the DMT can also manage the connection to an EDC Connector to enable save data exchange. The last typ of component is a tool to calculate sustainability, e.g. the CO2 footprint or water usage. 
-As flexibility is a core value of the Decide4ECO KIT, third party systems, data sources, the sustainability calculation tool as well as the AAS server implementation can be chosen freely. However, for a complete minimal workflow and to use the Decide4ECO KIT an AAS server implementation, a sustainability calculation tool and at least one data source are mandatory.
+The architecture of the SDI-KIT is structured around the data management tool (DMT), which is implemented using the low code plattform Node-Red. It contains a user interface (UI). The DMT controls the data flows, calls the nesseccary APIs, performs simple auxillary calculations and maps the data to the correct meta data in the AAS data model. APIs can be unidirectional as well as bidirectional. Figure 2 shows the types of components that can be connected the DMT. The DMT can connect to different third-party systems and data sources. This includes primary data like production data as well as secondary data, for example from simulations, PLM systems or other systems. The DMT also connects to an AAS Server to save the data as per the AAS data model (c.f. The AAS data model, submodels and costum submodels). To connect to the Tractus-X data space the DMT can also manage the connection to an EDC Connector to enable save data exchange. The last typ of component is a tool to calculate sustainability, e.g. the CO2 footprint or water usage. 
+As flexibility is a core value of the SDI-KIT, third party systems, data sources, the sustainability calculation tool as well as the AAS server implementation can be chosen freely. However, for a complete minimal workflow and to use the SDI-KIT an AAS server implementation, a sustainability calculation tool and at least one data source are mandatory.
 
 ### What is the reference implementation, and what is the demonstrator
 
@@ -403,7 +403,7 @@ tool that executes them. Each workflow is published as a JSON document in the
 a documented and machine-readable structure: every step carries its identifier,
 its type, the endpoint it addresses, the transformation it applies and its wiring
 to the next step. What the KIT specifies is therefore the *sequence of calls, the
-mapping rules and the precedence between data sources* — not a Node-RED
+mapping rules and the precedence between data sources*, not a Node-RED
 installation. An adopter running a different orchestration platform can read
 these documents as a specification and re-implement the same sequence; the
 target structure in the AAS, described under *Data Mapping*, is what has to be
@@ -413,12 +413,12 @@ Node-RED is the runtime of the reference installation, chosen because it makes
 the workflows readable and modifiable without a build step. It is not part of
 the specification.
 
-**The demonstrator is the laboratory setup at the Smart Automation Lab** — a
+**The demonstrator is the laboratory setup at the Smart Automation Lab**: a
 specific PLM system, a specific ERP instance, three machines with an OPC UA
 connection, one simulation model and one LCA database. It shows that the
 workflows carry real data end to end. Everything in it that is specific to that
-laboratory — server addresses, file paths, the machine-to-part assignment, the
-script that builds the shells from PLM data — is configuration, not KIT content.
+laboratory is configuration, not KIT content: server addresses, file paths, the
+machine-to-part assignment, and the script that builds the shells from PLM data.
 
 ### The workflows one by one
 
@@ -445,7 +445,7 @@ second: the PLM system of the reference installation does not answer the materia
 lookups when they arrive in parallel, and for a large bill of material the rate
 limit is what keeps the run from being refused altogether. Every position
 contributes quantity, unit, weight and material, and every position is counted,
-a failed one included — otherwise the join at the end of the branch waits for a
+a failed one included. Otherwise the join at the end of the branch waits for a
 message that never arrives.
 
 The document-related information is then resolved through a sequence of REST API
@@ -509,8 +509,8 @@ Positions without a flow uuid or without a valid weight are skipped and named
 rather than silently omitted.
 
 Finally the flow asks for the open manufacturing order over the product and
-writes the result — positions, quantities, materials, process assignment and the
-order — into the `DataSources` submodel. When it rebuilds its own block it
+writes the result into the `DataSources` submodel: positions, quantities,
+materials, process assignment and the order. When it rebuilds its own block it
 carries over the entries that do not belong to it: the assembly records that
 another flow keeps in the same place would otherwise be lost, and nothing would
 report the loss.
@@ -532,8 +532,9 @@ carries its number, its name, the workstation, the cycle time, the processing
 time and the energy per unit.
 
 The operations are then assigned to the openLCA processes they act on. In the
-reference product the simulation covers the assembly — the robot arm placing the
-parts and the final inspection — so its energy belongs in full to the assembly
+reference product the simulation covers the assembly, that is the robot arm
+placing the parts and the final inspection, so its energy belongs in full to the
+assembly
 process of the pen, while the energy of manufacturing the individual parts is
 measured at the machines instead. The assignment is held in one place in the flow
 and is the only thing that has to be adjusted when the production sequence
@@ -553,7 +554,7 @@ are searched for rather than addressed by position, because the layout of that
 submodel may change. The energy per piece follows from the average power
 multiplied by the process duration, divided by one million and by the number of
 pieces of the run. A machine without an entry in the assignment is skipped and
-named — the robot arm and the transport system belong to the assembly, whose
+named. The robot arm and the transport system belong to the assembly, whose
 energy comes from the simulation, and recording it here as well would count it
 twice.
 
@@ -584,7 +585,7 @@ part from the shells of the parts. It then works through the selected impact
 methods one after another. For each method it starts the calculation, waits until
 the result is ready, requests the total impacts and releases the result again.
 Where the method carries a normalisation and weighting set, the weighted single
-score is formed from it; methods that carry none — EN 15804 among them — produce
+score is formed from it; methods that carry none, EN 15804 among them, produce
 no single score, and none is written rather than an empty one.
 
 The total result is written into the `ILCD` submodel of the product as an
@@ -602,8 +603,9 @@ The flow `Dashboard.json` provides the operating surface of the KIT at
 `/dashboard/kit`. It brings its own dashboard configuration with it, so importing
 the file is enough.
 
-One button runs the whole chain. The steps are worked through one after another —
-ERP, simulation, machine data, calculation — because the calculation needs the
+One button runs the whole chain. The steps are worked through one after another,
+in the order ERP, simulation, machine data, calculation, because the calculation
+needs the
 quantities from the ERP and the energies from the other two. After each step the
 dashboard reads the shell back and checks whether the data was written after the
 run started; data that was already there does not count as a success. A step that
@@ -625,8 +627,8 @@ The flow `Assembly_Booking.json` books one assembled piece in Odoo and
 records in the shell which piece was built from which pieces. Without it a
 footprint remains a statement about a type.
 
-The flow creates a manufacturing order over exactly one piece — one, because a
-serial number names exactly one piece — confirms it, and has Odoo produce the
+The flow creates a manufacturing order over exactly one piece, since a serial
+number names exactly one piece. It confirms the order and has Odoo produce the
 serial number of the assembled product from the number sequence configured for
 the article. Composing the number inside the flow would be a second route beside
 Odoo's own, and two routes drift apart. For every component under serial tracking
@@ -644,7 +646,7 @@ closing is not, and both are visible.
 
 The flow `Assembly_Backfill.json` reads every completed manufacturing order
 from Odoo and restores the assembly records in the shell. It is needed after the
-ERP block was rebuilt or a shell was recreated — the bookings still exist in
+ERP block was rebuilt or a shell was recreated. The bookings still exist in
 Odoo, but the record of them in the shell does not.
 
 <a href="docs/img/Flow_assembly_backfill.svg"><img src="docs/img/Flow_assembly_backfill.svg" alt="Icon" width="1000"></a>
@@ -663,7 +665,7 @@ becomes available to customers, OEMs and downstream passport scenarios under
 the participant's own policies.
 
 Within one organisation the KIT reads from PLM, ERP, simulation and machines
-through the interfaces those systems offer — REST, JSON-RPC, OPC UA, file
+through the interfaces those systems offer: REST, JSON-RPC, OPC UA and file
 export. These are not dataspace interfaces and are not meant to be: they are the
 inbound edge. Everything the KIT produces from them is written into the AAS and
 is from that point on exchangeable through the connector.
@@ -673,13 +675,13 @@ is from that point on exchangeable through the connector.
 <img src="docs/img/Generic sequnce diagram of the DMT interacting with a third-party system.svg" alt="Icon" width="1000">
 <em>Generic sequnce diagram of the DMT interacting with a third-party system</em>
 
-Figure shows the sequence diagram of the Decide4ECO KIT. As the Decide4ECO KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from a list of the available assets on the AAS server via the UI. The data management tool (DMT) calls the asset’s AAS via REST API and displays it to the user in the UI. Next the DMT calls the third-party tool. In the diagram, a bidirectional API call is displayed. However, data from a third-party system can also be retrieved by OPC UA or a file upload, as described in Use case 2, Use case 3 and in Use case 4. The DMT maps the retrieved data and maps it to the correct submodels and properties in the AAS. The updated AAS is displayed in the UI. Next, the sustainability calculation starts. The DMT reads the AAS and retrieves all available data relevant to the sustainabilty caculation. The data is then passed on to the calculation tool. The calculation tool returns the results which are then written to the AAS. Optionally, the data can also be written back to update the third-party system. Results are displayed in the UI.
+The figure below shows the sequence diagram of the SDI-KIT. As the SDI-KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from a list of the available assets on the AAS server via the UI. The data management tool (DMT) calls the asset’s AAS via REST API and displays it to the user in the UI. Next the DMT calls the third-party tool. In the diagram, a bidirectional API call is displayed. However, data from a third-party system can also be retrieved by OPC UA or a file upload, as described in Use case 2, Use case 3 and in Use case 4. The DMT maps the retrieved data and maps it to the correct submodels and properties in the AAS. The updated AAS is displayed in the UI. Next, the sustainability calculation starts. The DMT reads the AAS and retrieves all available data relevant to the sustainabilty caculation. The data is then passed on to the calculation tool. The calculation tool returns the results which are then written to the AAS. Optionally, the data can also be written back to update the third-party system. Results are displayed in the UI.
 Depending on the number of data souces and third-party systems, the entire process can be interated several times. A higher number of data sources improves the data quality and therefore the result of the sustainability calculation. In this regard, the EDC Connector is to be treated as a data source or third-party system as it introduces new data for sustainability calculations into the system.
 
 **Which use case the diagram shows.** The sequence above is generic: it holds
 for every third-party system and is therefore drawn once rather than five times.
 Use cases 1 to 3 differ only in which system is called and which data source is
-written — PLM in use case 1, the simulation export in use case 2, ERP and the
+written: PLM in use case 1, the simulation export in use case 2, ERP and the
 OPC UA submodel in use case 3. Use cases 4 and 5 are not part of this diagram,
 because they do not run against a third-party system but against the connector;
 they start where this sequence ends, with data already in the AAS.
@@ -738,15 +740,15 @@ bill of material above.
 
 The reference implementation was developed and implemented at the Smart Automation Lab at the Heinz Nixdorf Institute. The software was implemented using the low-code platform Node-Red. Node-Red is used to create flows that enable the necessary data flows between external (software) systems and the AAS. The Node-Red code is provided in JSON format. Figure shows an architecture overview of the demonstrator implementation in a possible environment with the data space and a decision support, which is based on the data calculated and managed within the demonstrator system. Moreover, the MX-ports “Orion”, “Leo” and “Hercules” are marked. 
 
-<img src="docs/img/Component diagram of the Decide4ECO KIT, including third party software.svg" alt="Icon" width="1000">
-<em>Component diagram of the Decide4ECO KIT, including third party software</em>
+<img src="docs/img/Component diagram of the SDI-KIT, including third party software.svg" alt="Icon" width="1000">
+<em>Component diagram of the SDI-KIT, including third party software</em>
 
-The architecture of the Decide4ECO Reference implementation is structured around the data management tool, which is implemented using the low code plattform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI). The EDC Connector takes a special role in the system as it connects the systeme to the data space, therefore enabling it to receive data from external sources. This is especially important since LCA results increase in quality as more high-quality data becomes available, eg through exchange with value chain partners.
+The architecture of the SDI-KIT reference implementation is structured around the data management tool, which is implemented using the low code plattform Node-Red. Most components are connected to the data management tool via a bidirectional REST API. This includes optional third-party systems such as the PLM system by Contact Software, openLCA and the ERP system ODOO, as well as necessary components such as the AAS Server and the EDC connector. Other components are unidirectional such as the OPC UA Servers that deliver real-time machine data via OPC UA and the ema Plant Simulation data, which needs to be exported from the ema software and imported into to data management tool via upload. The data management tool contains a user interface (UI). The EDC Connector takes a special role in the system as it connects the systeme to the data space, therefore enabling it to receive data from external sources. This is especially important since LCA results increase in quality as more high-quality data becomes available, eg through exchange with value chain partners.
 
-<img src="docs/img/Sequence view of the Decide4ECO KIT.svg" alt="Icon" width="1000">
-<em>Sequence view of the Decide4ECO KIT</em>
+<img src="docs/img/Sequence view of the SDI-KIT.svg" alt="Icon" width="1000">
+<em>Sequence view of the SDI-KIT</em>
 
-Figure shows the sequence diagram of the Decide4ECO Reference Architecture. As the Decide4ECO KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from the PLM system by entering the PLM number into the UI. The PLM number can be retrieved by looking it up in the PLM system. The data management tool (DMT) calls this asset via REST API and receives all information on the asset as it is saved in the PLM system. Next, the DMT creates a type-AAS in the predefined configuration. More information on this configuration can be found in the AAS section. The previously retrieved asset data is now written in the AAS and displayed to the user via the UI. The DMT then reads the data from the AAS that is relevant to the sustainability calculation. In this case, openLCA is used for the calculation. The data is transferred to openLCA via API and used to calculate sustainability values. The results are returned to the DMT per REST API and the DMT updates the PLM system and the AAS and writes the data to the mapped submodel and properties. This concludes Use case 1 as an early-stage LCA based on PLM data. 
+The figure below shows the sequence diagram of the SDI-KIT reference architecture. As the SDI-KIT provides a UI, the process starts with user input. The user chooses the asset that is to be processed from the PLM system by entering the PLM number into the UI. The PLM number can be retrieved by looking it up in the PLM system. The data management tool (DMT) calls this asset via REST API and receives all information on the asset as it is saved in the PLM system. Next, the DMT creates a type-AAS in the predefined configuration. More information on this configuration can be found in the AAS section. The previously retrieved asset data is now written in the AAS and displayed to the user via the UI. The DMT then reads the data from the AAS that is relevant to the sustainability calculation. In this case, openLCA is used for the calculation. The data is transferred to openLCA via API and used to calculate sustainability values. The results are returned to the DMT per REST API and the DMT updates the PLM system and the AAS and writes the data to the mapped submodel and properties. This concludes Use case 1 as an early-stage LCA based on PLM data. 
 
 For the second iteration in **Use case 2**, the reference implementation enriches the AAS with simulation data. For the simulation, the ema Plant Designer is used to model and simulate the production process of the asset. The simulation calculates process times, energy and water consumption. The results can be exported as a .xlsx-file. This file is then uploaded into the DMT via the UI. The DMT then reads the relevant cells and creates the processes as submodel element collections and the corresponding simulation values as properties in the AAS. Afterwards the LCA sequence is run again to calculate updated sustainability values. 
 
@@ -795,7 +797,7 @@ This chapter describes which data source feeds which part of the calculation and
 
 The division follows how the product is actually made:
 
-- The **assembly** — robot handling and final inspection — is simulated. Its energy demand belongs to the assembly process of the finished product.
+- The **assembly**, meaning robot handling and final inspection, is simulated. Its energy demand belongs to the assembly process of the finished product.
 - **Bolt, sleeve and pen tip** are manufactured in house. Their energy demand is measured at the machines and fed in through the `MachineData` data source.
 - **Refill, spring and screw** are purchased parts. They carry no energy demand of their own for now; the fields stay empty and can later be filled with supplier data.
 
@@ -815,7 +817,7 @@ Data sources: Simulation, PLM, ERP
 Masses from ERP, energy from Simulation | 15 parameters
 ```
 
-Where several entries point at the same openLCA parameter — for instance all five simulated operations pointing at the assembly energy — their amounts are added rather than overwriting one another.
+Where several entries point at the same openLCA parameter, for instance all five simulated operations pointing at the assembly energy, their amounts are added rather than overwriting one another.
 
 ### Storage in the AAS
 
@@ -879,11 +881,11 @@ Measured for the TRACEpen with the sample data, impact method EF 3.0:
 
 | Data situation | GWP 100a | change |
 | --- | --- | --- |
-| masses only (ERP + PLM) | 0.121508 kg CO₂eq | — |
+| masses only (ERP + PLM) | 0.121508 kg CO₂eq | baseline |
 | plus assembly energy (simulation) | 0.123143 kg CO₂eq | +1.35 % |
 | plus manufacturing energy (machine data) | 0.293292 kg CO₂eq | +138.17 % |
 
-The manufacturing energy more than doubles the footprint. Without it the assessment understates the product by more than half — which is precisely why the stepwise enrichment described here matters.
+The manufacturing energy more than doubles the footprint. Without it the assessment understates the product by more than half, which is precisely why the stepwise enrichment described here matters.
 
 ### Prerequisites in the openLCA model
 
@@ -895,7 +897,7 @@ Two conditions have to hold for the values passed in to take effect. Neither pro
 #### Data sources are independent of one another
 
 The chain is built for a rollout that happens in stages. In the ideal case PLM
-comes first, then simulation, then the ERP system, then the machine data — but
+comes first, then simulation, then the ERP system, then the machine data. But
 months can pass between two of them, and some organisations will never connect
 one of them at all. None of that breaks the assessment.
 
@@ -932,10 +934,10 @@ integrating sustainability data; the interface a source has to meet is the
 submodel, not a particular product.
 
 To connect a system of your own, write a `SubmodelElementCollection` into the
-`DataSources` list of the product AAS — or of a part AAS for data that belongs
+`DataSources` list of the product AAS, or of a part AAS for data that belongs
 to a single part. Two shapes are understood:
 
-**Quantities** — a `BillOfMaterial` list, one collection per component:
+**Quantities**: a `BillOfMaterial` list, one collection per component:
 
 | Property | Meaning |
 | --- | --- |
@@ -945,7 +947,7 @@ to a single part. Two shapes are understood:
 | `LCAParameterName` | parameter in that process that receives the mass |
 | `LCAZeroParameters` | parameters to set to zero, comma separated |
 
-**Energy** — a list named `<something>Processes`, one collection per operation,
+**Energy**: a list named `<something>Processes`, one collection per operation,
 with `EnergyPerUnit` in MJ per piece plus the same `LCAProcessId` and
 `LCAParameterName`.
 
@@ -982,17 +984,17 @@ Two custom submodels hold the data that no IDTA template covers.
 ```
 DataSources                                     [Submodel]
 └── Data Sources                                [SubmodelElementList]
-    ├── MachineData                           [SMC]   — measured production data
+    ├── MachineData                           [SMC]   measured production data
     │   ├── ManufacturingProcesses             [SML]
-    │   │   └── <process name>                  [SMC]   — one per process
+    │   │   └── <process name>                  [SMC]   one per process
     │   ├── time_manufacturing_start            [Property, xs:dateTime]
     │   ├── time_manufacturing_end              [Property, xs:dateTime]
     │   └── manufacturing_duration              [Property, xs:time]
-    └── Simulation                              [SMC]   — simulated process data
+    └── Simulation                              [SMC]   simulated process data
         ├── time_of_simulation                  [Property, xs:dateTime]
         ├── export_file                         [File]
         └── Simulation_Processes                [SMC]
-            └── <process name>                  [SMC]   — one per process
+            └── <process name>                  [SMC]   one per process
 ```
 
 **`ILCD`** stores one result set per assessment iteration, so that earlier results are preserved rather than overwritten:
@@ -1000,7 +1002,7 @@ DataSources                                     [Submodel]
 ```
 ILCD                                            [Submodel]
 └── LCAIteration                                [SubmodelElementList]
-    └── <data source>                           [SMC]   — e.g. "PLM", "Simulation"
+    └── <data source>                           [SMC]   e.g. "PLM", "Simulation"
         ├── DataSource                          [Property, xs:string]
         ├── TimeOfLCA                           [Property, xs:dateTime]
         ├── WeightOfPart                        [Property, xs:string]
@@ -1064,22 +1066,22 @@ The intermediate JSON is written into a preconfigured type-AAS. Existing propert
 
 | Submodel | Path / SMC | idShort | Source value |
 | --- | --- | --- | --- |
-| Nameplate (IDTA 02006) | — | `ManufacturerProductDesignation` | `part.name` (MLP, `de`) |
-| Nameplate | — | `ProductArticleNumberOfManufacturer` | `part.articleNumber` |
-| Nameplate | — | `SerialNumber` | derived: `<articleNumber>-00-000000-00` |
-| Nameplate | — | `YearOfConstruction` | `part.createdAt` (first 4 characters) |
-| Nameplate | — | `URIOfTheProduct` | `part.uiLink` |
-| Nameplate | — | `ManufacturerProductFamily` | constant `Lehrstuhl-Produkte` (MLP, `de`) |
+| Nameplate (IDTA 02006) | (root) | `ManufacturerProductDesignation` | `part.name` (MLP, `de`) |
+| Nameplate | (root) | `ProductArticleNumberOfManufacturer` | `part.articleNumber` |
+| Nameplate | (root) | `SerialNumber` | derived: `<articleNumber>-00-000000-00` |
+| Nameplate | (root) | `YearOfConstruction` | `part.createdAt` (first 4 characters) |
+| Nameplate | (root) | `URIOfTheProduct` | `part.uiLink` |
+| Nameplate | (root) | `ManufacturerProductFamily` | constant `Lehrstuhl-Produkte` (MLP, `de`) |
 | BackendSpecificMaterialInformation (IDTA 02034) | `MaterialSystemProperties` | `MaterialType` | `partMaterialName` |
 | BackendSpecificMaterialInformation | `MaterialSystemProperties` | `ProductName` | `part.name` (MLP, `en`) |
 | BackendSpecificMaterialInformation | `MaterialSystemProperties` | `MaterialStatus` | `part.status` |
 | BackendSpecificMaterialInformation | `MaterialSystemProperties` | `BaseUnitOfMeasure` | `part.unit` (MLP, `en`) |
 | BackendSpecificMaterialInformation | `MaterialSystemProperties` | `MaterialNumber` | `part.materialObjectId` |
 | BackendSpecificMaterialInformation | `MaterialSystemProperties` | `Description` | derived: `<name> - <category>` (MLP, `en`) |
-| Models3D (IDTA 02026) | — | `FileName` | CAD file name |
-| Models3D | — | `FileVersionId` | `docData.fileVersion` |
-| Models3D | — | `SetDate` | date of execution |
-| Models3D | — | `StatusValue` | constant `released` |
+| Models3D (IDTA 02026) | (root) | `FileName` | CAD file name |
+| Models3D | (root) | `FileVersionId` | `docData.fileVersion` |
+| Models3D | (root) | `SetDate` | date of execution |
+| Models3D | (root) | `StatusValue` | constant `released` |
 | Models3D | `FileFormat` | `FormatName`, `FormatVersion` | `docData.fileClassification`, split at `:` |
 | Models3D | `SoftwareApplication` | `ApplicationName`, `ApplicationVersion` | `docData.consumingApp`, split at first space |
 | HandoverDocumentation (IDTA 02004) | `DocumentVersion_de` | `Title`, `DigitalFile` | BOM CSV `BOM_<articleNumber>.csv`, MIME `text/csv` |
@@ -1099,7 +1101,7 @@ The simulation export is read per row; each row is one work station. Rows withou
 
 | Column in the export | Target idShort | Type | Location |
 | --- | --- | --- | --- |
-| `Arbeitsplatz` | *(becomes the SMC name)* | — | `Simulation_Processes/<process>` |
+| `Arbeitsplatz` | *(becomes the SMC name)* | (dynamic) | `Simulation_Processes/<process>` |
 | `Verbrauch, Strom` | `Verbrauch_Strom` | `xs:float` | `Simulation_Processes/<process>` |
 | `Verbrauch, Wasser` | `Verbrauch_Wasser` | `xs:float` | `Simulation_Processes/<process>` |
 
@@ -1124,8 +1126,8 @@ The calculation tool is called per impact assessment method; the results of all 
 | `calculatedAt` | `TimeOfLCA` | `xs:dateTime` | timestamp of the calculation |
 | part weight read back from the AAS | `WeightOfPart` | `xs:string` | |
 | `targetOutput` | `TargetOutput` | `xs:string` | reference quantity of the assessment |
-| `impactMethodName` | *(becomes the SMC name under `LCIAMethods`)* | — | one collection per method |
-| `impactCategory.name` | *(becomes the SMC name)* | — | one collection per impact category |
+| `impactMethodName` | *(becomes the SMC name under `LCIAMethods`)* | (dynamic) | one collection per method |
+| `impactCategory.name` | *(becomes the SMC name)* | (dynamic) | one collection per impact category |
 | `amount` | `Value` | `xs:double` | |
 | `impactCategory.refUnit` | `Unit` | `xs:string` | unit as reported by the calculation tool |
 
@@ -1144,7 +1146,7 @@ The mapping above is independent of Node-RED. An implementation with a different
 
 The PLM system holds the product baseline: the part, its bill of material, the
 material and weight of every component, and the CAD document. This is the
-earliest point at which an assessment is possible — long before an order exists
+earliest point at which an assessment is possible, long before an order exists
 in the ERP system or a machine has produced anything.
 
 `src/PLM.json` implements this step against a CONTACT Elements installation. It
@@ -1165,7 +1167,7 @@ tab handles the product, the second is entered once per component.
 | Position | `/api/v1/collection/bom_item/<id>` | quantity, unit, weight, material |
 | Documents | the document link of the part | metadata of the first document |
 | Files | the file list of the document | CAD file and preview image |
-| Shell | — | AASX package per part, built by an external script |
+| Shell | (nothing) | AASX package per part, built by an external script |
 
 The collected data is written to a JSON file and handed to the script named in
 `SDI_PLM_SCRIPT`. That script builds the AASX package from a template shell.
@@ -1224,13 +1226,13 @@ them sequential. For six positions this costs six seconds; for a large bill of
 material it is what keeps the run from being refused altogether.
 
 **Purchased parts without CAD still produce a shell.** A part without a document
-is not an error — the flow skips the document chain and builds a shell without a
+is not an error. The flow skips the document chain and builds a shell without a
 model file. In the reference product this applies to the compression spring.
 
 **Every request builds its own headers.** After an HTTP node, `msg.headers`
 holds the headers of the *response*. Carrying them into the next request sends
 the previous `content-length` along, and the server then waits for a body that
-never arrives — visible only as a timeout two minutes later.
+never arrives, visible only as a timeout two minutes later.
 
 ### From the packages to the assessment
 
@@ -1277,7 +1279,7 @@ It builds on master's thesis MA 468 (Rajab, 2026), which coupled Odoo with openL
 | Data flow | Odoo → openLCA → Odoo | Odoo → AAS |
 | Reused | data model, field names, variant and fallback logic | |
 
-The additional fields that the thesis introduced to display results inside Odoo — `x_lca_gwp_per_kg`, `x_studio_lca_impact_tabelle`, `x_studio_total_co` — are deliberately **not** read. The KIT calculates the impacts itself from the AAS and takes only primary data from Odoo. The single exception is `x_studio_lca_flow_uuid`, because that identifier links a component to its dataset in the LCA database.
+The additional fields that the thesis introduced to display results inside Odoo (`x_lca_gwp_per_kg`, `x_studio_lca_impact_tabelle` and `x_studio_total_co`) are deliberately **not** read. The KIT calculates the impacts itself from the AAS and takes only primary data from Odoo. The single exception is `x_studio_lca_flow_uuid`, because that identifier links a component to its dataset in the LCA database.
 
 ### Data sources in Odoo
 
@@ -1318,7 +1320,7 @@ DataSources                          [Submodel]
         ├── BillOfMaterialId         [Property, xs:string]
         ├── BillOfMaterialQuantity   [Property, xs:double]
         ├── BillOfMaterial           [SMC]
-        │   └── <component>          [SMC]   — one per position
+        │   └── <component>          [SMC]   one per position
         │       ├── ComponentName    [Property, xs:string]
         │       ├── ProductCode      [Property, xs:string]
         │       ├── Quantity         [Property, xs:double]
@@ -1333,7 +1335,7 @@ DataSources                          [Submodel]
         │       ├── LCAProcessId     [Property, xs:string]
         │       ├── LCAParameterName [Property, xs:string]
         │       └── LCAZeroParameters[Property, xs:string]
-        └── ManufacturingOrder       [SMC]   — where an order exists
+        └── ManufacturingOrder       [SMC]   where an order exists
             ├── OrderNumber          [Property, xs:string]
             ├── OrderQuantity        [Property, xs:double]
             ├── OrderUnit            [Property, xs:string]
@@ -1378,7 +1380,7 @@ The mapping from component to LCA process is defined in the script and **has to 
 
 Three points that arise in any ERP connection for an environmental assessment, recorded here because none of them produces an error message.
 
-**Weights are silently rounded.** Odoo stores weights with two decimal places by default. Parts weighing a few grams therefore become 0.00 kg — the interface reports no error, the data looks complete, and the assessment consists mostly of zeros. In our test exactly one of six components survived. The decimal precision for *Stock Weight* has to be raised before the first data transfer; the setup script does this and reads the weights back for verification.
+**Weights are silently rounded.** Odoo stores weights with two decimal places by default. Parts weighing a few grams therefore become 0.00 kg. The interface reports no error, the data looks complete, and the assessment consists mostly of zeros. In our test exactly one of six components survived. The decimal precision for *Stock Weight* has to be raised before the first data transfer; the setup script does this and reads the weights back for verification.
 
 **Field names change between Odoo versions.** In Odoo 19 `uom_po_id` was removed from `product.template` and `product_uom_id` from `mrp.bom.line`, while `type` was replaced by `is_storable`. The flow therefore requests only the fields it actually needs and takes the unit of measure from the product rather than from the bill of material position. The setup script determines the available fields at runtime through `fields_get`.
 
@@ -1459,7 +1461,7 @@ The minimal workflow requires three components; everything else is optional and 
 | Data Management Tool (DMT) | Orchestrates data flows, mapping and UI | Yes | Node-RED |
 | AAS server | Stores AAS, submodels and LCA results | Yes | Eclipse BaSyx |
 | Sustainability calculation tool | Calculates environmental indicators | Yes | openLCA |
-| Digital Twin Registry (DTR) | Makes twins discoverable in the dataspace | Only for dataspace operation | — (see Restrictions) |
+| Digital Twin Registry (DTR) | Makes twins discoverable in the dataspace | Only for dataspace operation | none yet, see Restrictions |
 | EDC connector | Sovereign data exchange (use cases 4 and 5) | Only for dataspace operation | Tractus-X EDC |
 | PLM system | Product master data, BOM, CAD properties | Optional | CONTACT Software |
 | ERP system | Order-specific data, configuration, BOM | Optional | Odoo |
@@ -1481,12 +1483,12 @@ The published reference implementation does not yet cover all documented use cas
 | OPC UA → AAS | Use case 3 | Available (`src/OPCUA_Manufacturing.json`). The flow reads the submodel written by the OPC UA connection; the connection to the machines themselves is plant-specific and not part of the published sources. Each run is stored with its own identifier, time window, piece count and the serial number of the piece it produced. |
 | Serial numbers and assembly booking | Use case 3 | Available (`src/Assembly_Booking.json`, `src/Assembly_Backfill.json`). Odoo issues the numbers from a configured pattern; the booking ties the components of an assembly to the piece and is written into `DataSources → ERP → AssemblyRecords`. |
 | Operating interface | Use cases 1–3 | Available (`src/Dashboard.json`). One page for the run, the chosen piece, the state of every data source and the result split by part. |
-| **EDC → AAS** | **Use cases 4 and 5** | **Planned — not yet implemented.** Dataspace exchange is delegated to the connector; the DMT-side integration flow is not published yet. |
+| **EDC → AAS** | **Use cases 4 and 5** | **Planned, not yet implemented.** Dataspace exchange is delegated to the connector; the DMT-side integration flow is not published yet. |
 
 Use cases 1 to 3 run end to end in the reference installation. Use cases 4 and 5 depend on the connector integration, which is not published yet.
 
 Two things in the sequence view are worth reading against this table. It shows
-`update PLM` at the end of use case 1 — the published flow reads from the PLM
+`update PLM` at the end of use case 1, but the published flow reads from the PLM
 and does not write back to it. And it shows `update ERP` in use case 3, which
 does happen, but through the serial numbers and the assembly booking rather
 than through a return of the assessment result.
@@ -1527,7 +1529,7 @@ All cross-company exchange is delegated to the EDC connector and inherits the se
 
 | Requirement | Description |
 | --- | --- |
-| No credentials in flows | The published Node-RED flows contain no credentials — all authentication settings are configured but empty. Adopters MUST supply credentials through the Node-RED credentials store or environment variables and MUST NOT hard-code them into flow files before committing them. |
+| No credentials in flows | The published Node-RED flows contain no credentials; all authentication settings are configured but empty. Adopters MUST supply credentials through the Node-RED credentials store or environment variables and MUST NOT hard-code them into flow files before committing them. |
 | Credential encryption | Node-RED stores credentials in `flows_cred.json`. Operators MUST set `credentialSecret` in `settings.js`; otherwise the file is encrypted with a key stored alongside it. |
 | Least privilege | The PLM and ERP accounts used by the DMT SHOULD be read-only wherever write-back is not required. Write-back to PLM is an optional step of the sequence and can be disabled. |
 | Rotation | Credentials for source systems and the connector MUST be rotated according to the operator's policy; the DMT holds no long-lived tokens of its own. |
@@ -1540,7 +1542,7 @@ The reference implementation was built as a laboratory demonstrator at the Smart
 - The AAS server is addressed without authentication.
 - The DMT user interface has no authentication layer.
 - No Digital Twin Registry is deployed, so no dataspace-side access control on twin discovery applies.
-- Credentials for PLM and ERP are held as environment variables of the Node-RED process. They are not stored in the flows, so an exported flow carries none — but any operator of that process can read them. A secret store is the productive answer.
+- Credentials for PLM and ERP are held as environment variables of the Node-RED process. They are not stored in the flows, so an exported flow carries none. But any operator of that process can read them. A secret store is the productive answer.
 - The script that builds the administration shell from PLM data is specific to the object model of the PLM system and is therefore not part of this repository.
 
 These are properties of the demonstrator, not of the KIT concept. The architecture places no constraint on adding TLS, authentication and a registry.
@@ -1588,7 +1590,7 @@ Operators configure the following before first use. No values are shipped with t
 | Simulation export path | File system path from which the simulation export is imported. |
 | ERP endpoint and credentials | Base URL, database name and the API key of an account with access to manufacturing. Odoo is addressed through JSON-RPC. |
 | OPC UA endpoints | Endpoint of the machine server and the node identifiers to be read, per machine, together with the threshold that separates production from standby. |
-| EDC management endpoint | *Placeholder — required for use cases 4 and 5 (planned).* |
+| EDC management endpoint | *Placeholder, required for use cases 4 and 5 (planned).* |
 | Type-AAS template | The preconfigured AAS that instance twins are derived from. |
 
 ### Operational Procedures
@@ -1666,7 +1668,7 @@ The following indicators are specific to sustainability data integration and SHO
 
 The base KIT is written so that any industry can adopt it: a data source is
 read, mapped into the AAS and used in a calculation. This extension covers the
-sector the reference implementation was built and measured in — **discrete
+sector the reference implementation was built and measured in: **discrete
 manufacturing in small batches**, where parts are machined, turned, milled or
 printed individually and can be told apart afterwards.
 
@@ -1701,7 +1703,7 @@ against instead of reading vendor-specific nodes.
 | Standard | Description | Compliance | Link |
 | --- | --- | --- | --- |
 | OPC 40001 OPC UA for Machinery | Common information model for machines: identification, machine state, components. The layer on which the sector-specific companions build. | Recommended | [OPC Foundation](https://reference.opcfoundation.org/Machinery/v103/docs/) |
-| OPC 34100 Energy Consumption Management | Standardises how a machine exposes its energy consumption — jointly developed by ODVA, OPC Foundation, PI and VDMA, and the basis of the energy management part of OPC UA for Machinery. It names Product Carbon Footprint as one of its three use cases, which is precisely the reading this KIT performs. | Recommended | [umati](https://umati.org/industries_machinery/) |
+| OPC 34100 Energy Consumption Management | Standardises how a machine exposes its energy consumption. It was developed jointly by ODVA, the OPC Foundation, PI and VDMA, and is the basis of the energy management part of OPC UA for Machinery. It names Product Carbon Footprint as one of its three use cases, which is precisely the reading this KIT performs. | Recommended | [umati](https://umati.org/industries_machinery/) |
 | OPC 40501-1 OPC UA for Machine Tools | Monitoring and job overview for machine tools, including the machine states that separate producing from idle, and KPI monitoring based on ISO 22400. | Recommended | [OPC Foundation](https://reference.opcfoundation.org/MachineTool/v100/docs/) |
 | ISO 22400 | Key performance indicators for manufacturing operations management; referenced by OPC 40501-1 for the state and KPI definitions. | Optional | [iso.org](https://www.iso.org/standard/56847.html) |
 | CX-0126 Industry Core: Part Type Information | Aspect model describing a part type. Makes the type-AAS of a machined part findable for other Catena-X use cases. | Recommended | [go to standard](https://catenax-ev.github.io/docs/standards/CX-0126-IndustryCorePartType) |
@@ -1723,20 +1725,20 @@ next to the measurement so that a later reader can see it.
 **Where production begins.** A machine under power is not a machine that is
 working. In the demonstrator the mill idles between 660 and 730 W and cuts above
 2800 W; the lathe idles around 420 W and turns above 1700 W. A threshold set too
-low turns standby into recorded production — during development a threshold of
+low turns standby into recorded production. During development a threshold of
 650 W produced hours of "manufacturing" that never happened, and the figures
 looked entirely plausible. Derive the threshold from a measured curve per
 machine, and store it with the measurement.
 
 A second failure mode is worth naming because it is invisible: a meter whose
 value does not move at all. A reading constant to the watt over three hours is
-not a machine at constant load, it is a meter that is not measuring — in the
-demonstrator, a mis-wired current transformer. Checking the spread of the
+not a machine at constant load, it is a meter that is not measuring; in the
+demonstrator it was a mis-wired current transformer. Checking the spread of the
 readings catches it; checking only the average does not.
 
 **How energy is allocated to a piece.** Divide the energy of a run by its piece
 count, and state that the result is an average over the run. Where the count was
-not recorded, treat it as one piece and say so — the per-piece figure is then an
+not recorded, treat it as one piece and say so. The per-piece figure is then an
 upper bound, which is a defensible statement, whereas a guessed count divides by
 a number that was invented.
 
@@ -1751,8 +1753,8 @@ operator's account of the recording sessions, and the submodel says so.
 
 Continuous process industries. Where output is measured in tonnes or litres
 rather than pieces, energy per piece has no meaning and the allocation has to
-follow mass, volume or time. The data path of the KIT is unchanged — a source is
-read, mapped and used in a calculation — but the three decisions above would
+follow mass, volume or time. The data path of the KIT is unchanged: a source is
+read, mapped and used in a calculation. But the three decisions above would
 have to be answered differently, and this extension gives no guidance for that.
 
 # Documentation
