@@ -69,7 +69,7 @@ https://eclipse-tractusx.github.io/documentation/kit-framework/#kit-template
     - [Flow sequence](#flow-sequence)
     - [Setting up the sample data](#setting-up-the-sample-data)
     - [Experience from building the connection](#experience-from-building-the-connection)
-  - [Decision support for sustainable product engineering](#decision-support-for-sustainable-product-engineering)
+- [Decision support for sustainable product engineering](#decision-support-for-sustainable-product-engineering)
     - [Dashboards for decision support](#dashboards-for-decision-support)
     - [Sample Data: Gripper of a robotic arm](#sample-data-gripper-of-a-robotic-arm)
 - [Operations View](#operations-view)
