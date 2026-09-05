@@ -139,9 +139,21 @@ Three things it deliberately does **not** do:
 - The **export** is its own button. It writes AASX packages into the `export`
   folder on the machine running Node-RED - not a browser download.
 
-A run stops rather than calculating on missing data. Machine data is the one
-exception: nothing is manufactured on a purchased part, so a missing
-measurement is noted and the run continues.
+A run stops rather than calculating on missing data, but not every missing
+source is missing data. Two are passed over:
+
+- **Machine data.** Nothing is manufactured on a purchased part, so a missing
+  measurement is noted and the run continues.
+- **ERP**, as long as the quantities are available elsewhere. The calculation
+  takes the bill of material from the ERP where there is a fresh one, and
+  otherwise from whatever else carries one - an older ERP entry still in the
+  shell, or the PLM. So a run works before an ERP is connected. The ERP row
+  goes red, the closing message names the source the quantities came from
+  instead, and the result stands: it just does not rest on figures booked
+  during this run.
+
+A run is only stopped when nothing at all carries a bill of material - then
+there is nothing to allocate the material masses to.
 
 ## Pieces instead of types
 
