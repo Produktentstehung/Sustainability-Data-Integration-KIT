@@ -19,7 +19,7 @@
 # under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-"""Legt die Beispieldaten des TRACEpen in einer Odoo-Instanz an.
+"""Creates the TRACEpen sample data in an Odoo instance.
 
 Creates the product categories, the custom field for the LCA flow UUID,
 the six products with weight and category, and the bill of material. The
@@ -43,14 +43,14 @@ USER = os.environ.get("SDI_ODOO_USER", "")
 APIKEY = os.environ.get("SDI_ODOO_APIKEY", "")
 FLOW_FIELD = os.environ.get("SDI_ODOO_FLOW_FIELD", "x_studio_lca_flow_uuid")
 
-# Die Hilfe muss vor der Pruefung der Umgebung kommen: wer wissen will, was
-# das Programm tut, hat die Zugangsdaten typischerweise noch nicht gesetzt.
+# The help has to come before the environment is checked: whoever wants to
+# know what the program does has typically not set the credentials yet.
 if len(sys.argv) > 1 and sys.argv[1] in ('--help', '-h', '/?'):
     print((__doc__ or '').strip())
     sys.exit(0)
 
 if not all([URL, DB, USER, APIKEY]):
-    sys.exit("SDI_ODOO_URL, SDI_ODOO_DB, SDI_ODOO_USER und SDI_ODOO_APIKEY muessen gesetzt sein")
+    sys.exit("SDI_ODOO_URL, SDI_ODOO_DB, SDI_ODOO_USER and SDI_ODOO_APIKEY must be set")
 
 # Source of the bill of material: the PLM export in the repository. That way
 # the values in Odoo, in the AAS and in the sample data agree.
@@ -71,18 +71,18 @@ MATERIAL_GROUP = {
     "Mehrmaterial-Baugruppe": "Fertigprodukte",
 }
 
-# Zuordnung Komponente -> Datensaetze in der openLCA-Datenbank.
-# Ermittelt aus der Datenbank idemat_2023_01_02_Kugelschreiber_2026_06_23
+# Which openLCA records a component maps to.
+# Read out of the database idemat_2023_01_02_Kugelschreiber_2026_06_23
 # through the IPC server.
 #
-# flow      = Produktfluss, den der Montageprozess des TRACEpen verbraucht
+# flow      = product flow the assembly process of the TRACEpen consumes
 # process   = the process producing this flow
 # parameter = quantity parameter of the material stated in the PLM
 # zero      = the remaining quantity parameters of the same process
 #
-# The processes are modelled as templates: they carry several materials
-# gleichzeitig, damit sich der Werkstoff eines Bauteils wechseln laesst, ohne
-# without changing the model. The material that does not apply is set to 0.
+# The processes are modelled as templates: they carry several materials at
+# once, so the material of a part can be changed without touching the
+# model. The material that does not apply is set to 0.
 # Therefore all quantity parameters must always be passed.
 LCA_MAPPING = {
     "000115": {  # Mine, Polypropylene (PP)
@@ -123,8 +123,8 @@ LCA_MAPPING = {
     },
 }
 
-# Produktsystem und Montageprozess des Endprodukts
-PRODUCT_SYSTEM = "dc5bf90b-5ad5-4808-934f-f7a863ae1453"   # LCA Prozess: Kugelschreiber TRACEpen
+# Product system and assembly process of the finished product
+PRODUCT_SYSTEM = "dc5bf90b-5ad5-4808-934f-f7a863ae1453"   # LCA process: Kugelschreiber TRACEpen
 ASSEMBLY_PROCESS = "5c609b0a-d929-4789-9024-e3dc11aff29f"
 
 MATERIAL_FIELD = "x_lca_material"
@@ -195,7 +195,7 @@ _field_cache = {}
 
 def available_fields(model):
     """Field names of the model. Odoo versions differ considerably here
-    (z. B. entfiel uom_po_id in Odoo 19, type wurde durch is_storable ersetzt),
+    (uom_po_id is gone in Odoo 19, type was replaced by is_storable),
     so only fields that actually exist are sent."""
     if model not in _field_cache:
         _field_cache[model] = set(kw(model, "fields_get", [[], ["type"]]).keys())
@@ -216,7 +216,7 @@ def find_or_create(model, domain, values, label):
     ids = kw(model, "search", [domain], {"limit": 1})
     if ids:
         kw(model, "write", [ids, values])
-        print(f"    aktualisiert: {label}")
+        print(f"    updated:      {label}")
         return ids[0]
     new_id = kw(model, "create", [values])
     print(f"    created:      {label}")
@@ -225,14 +225,14 @@ def find_or_create(model, domain, values, label):
 
 def main():
     global _uid
-    print(f"Verbinde mit {URL} (DB {DB})")
+    print(f"Connecting to {URL} (database {DB})")
     version = rpc("common", "version", [])
-    print(f"  Serverversion: {version.get('server_version')}")
+    print(f"  Server version: {version.get('server_version')}")
 
     _uid = rpc("common", "authenticate", [DB, USER, APIKEY, {}])
     if not _uid:
-        sys.exit("  Anmeldung fehlgeschlagen - Benutzer oder API-Schluessel pruefen")
-    print(f"  Angemeldet als uid={_uid}")
+        sys.exit("  Login failed - check the user and the API key")
+    print(f"  Logged in as uid={_uid}")
 
     # --- Custom fields ------------------------------------------------------
     print("\n1. Custom fields")
@@ -258,8 +258,8 @@ def main():
 
     # --- Decimal places for weights -----------------------------------------
     # By default Odoo rounds the weight field to two decimal places.
-    # Part weights in the gram range then become 0.00, which is useless for
-    # eine Oekobilanz unbrauchbar.
+    # Part weights in the gram range then become 0.00, and every life cycle
+    # assessment resting on them is wrong.
     print("\n1b. Decimal places for weights")
     try:
         prec_ids = kw("decimal.precision", "search", [[["name", "=", "Stock Weight"]]], {"limit": 1})
@@ -279,14 +279,14 @@ def main():
     # --- Bill of material from the PLM export -------------------------------
     bom_items = read_bom()
     print(f"\n2. Bill of material from {os.path.basename(BOM_CSV)}")
-    print(f"    {len(bom_items)} Positionen gelesen")
+    print(f"    {len(bom_items)} positions read")
     ohne_uuid = [i["name"] for i in bom_items if not i["lca"].get("flow")]
     if ohne_uuid:
         print(f"    ohne Flow-UUID: {', '.join(ohne_uuid)}")
         print("    -> these positions are skipped by the flow.")
 
-    # --- Produktkategorien --------------------------------------------------
-    print("\n2b. Produktkategorien")
+    # --- Product categories -------------------------------------------------
+    print("\n2b. Product categories")
     groups = {MATERIAL_GROUP.get(i["material"], "Sonstige") for i in bom_items}
     groups.add(MATERIAL_GROUP.get(FINAL_PRODUCT["material"], "Fertigprodukte"))
     categories = {}
@@ -299,8 +299,8 @@ def main():
                  {"limit": 1})
     uom_id = uom_ids[0] if uom_ids else None
 
-    # --- Produkte -----------------------------------------------------------
-    print("\n3. Produkte")
+    # --- Products -----------------------------------------------------------
+    print("\n3. Products")
     entries = [(FINAL_PRODUCT["name"], FINAL_PRODUCT["code"], FINAL_PRODUCT["weight"],
                 FINAL_PRODUCT["material"], {}, True)]
     entries += [(i["name"], i["code"], i["weight"], i["material"], i["lca"], False)
@@ -324,10 +324,10 @@ def main():
         }
         if uom_id:
             values["uom_id"] = uom_id
-            values["uom_po_id"] = uom_id  # bis Odoo 18
-        # The UUID is always written, even when empty. Otherwise a value from an
-        # bei einem umbenannten Produkt der Wert des Vorgaengers stehen und
-        # eine Komponente wuerde mit einem fremden Materialdatensatz gerechnet.
+            values["uom_po_id"] = uom_id  # up to Odoo 18
+        # The UUID is always written, even when empty. Otherwise a renamed
+        # product would keep the value of its predecessor, and a component
+        # would be calculated against someone else's material record.
         values[FLOW_FIELD] = (lca or {}).get("flow", "")
         values[PROCESS_FIELD] = (lca or {}).get("process", "")
         values[PARAMETER_FIELD] = (lca or {}).get("parameter", "")
@@ -340,30 +340,30 @@ def main():
     print("\n3b. Checking the stored weights")
     stored = kw("product.template", "read", [list(product_ids.values())],
                 {"fields": ["name", "weight"]})
-    soll = {e[0]: e[2] for e in entries}
+    wanted = {e[0]: e[2] for e in entries}
     for row in stored:
-        ist = row.get("weight") or 0.0
-        erwartet = soll.get(row["name"], 0.0)
-        ok = abs(ist - erwartet) < 1e-9
-        marke = "ok" if ok else "ABWEICHUNG"
-        print(f"    {row['name']:14} soll {erwartet:<10} ist {ist:<10} {marke}")
+        found = row.get("weight") or 0.0
+        expected = wanted.get(row["name"], 0.0)
+        ok = abs(found - expected) < 1e-9
+        mark = "ok" if ok else "MISMATCH"
+        print(f"    {row['name']:14} want {expected:<10} got {found:<10} {mark}")
         if not ok:
             print("      -> check the decimal places of the weight field "
-                  "(Einstellungen -> Technisch -> Dezimalgenauigkeit)")
+                  "(Settings -> Technical -> Decimal Accuracy)")
 
-    # Flow-UUIDs auf Eindeutigkeit pruefen. Zwei Komponenten mit derselben UUID
-    # wuerden auf denselben Materialdatensatz rechnen.
-    print("\n3c. Kontrolle der Flow-UUIDs")
+    # Check the flow UUIDs are unique. Two components sharing a UUID would
+    # both be calculated against the same material record.
+    print("\n3c. Checking the flow UUIDs")
     uuids = kw("product.template", "read", [list(product_ids.values())],
                {"fields": ["name", "default_code", FLOW_FIELD, PARAMETER_FIELD]})
     seen = {}
     for row in uuids:
         val = row.get(FLOW_FIELD) or ""
-        marke = "ohne UUID" if not val else ("DOPPELT mit " + seen[val] if val in seen else "ok")
+        mark = "no UUID" if not val else ("DUPLICATE of " + seen[val] if val in seen else "ok")
         if val and val not in seen:
             seen[val] = row["name"]
         par = row.get(PARAMETER_FIELD) or "-"
-        print(f"    {row['name']:24} {(val[:8] + '...') if val else '-':<12} {marke:<24} {par}")
+        print(f"    {row['name']:24} {(val[:8] + '...') if val else '-':<12} {mark:<24} {par}")
 
     # --- Bill of material ---------------------------------------------------
     print(f"\n4. Bill of material {FINAL_PRODUCT['name']}")
