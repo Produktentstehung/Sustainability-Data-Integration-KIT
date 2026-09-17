@@ -152,6 +152,59 @@ def olca(method, params, timeout=60):
 # ---------------------------------------------------------------------------
 # Step 1 - prerequisites
 # ---------------------------------------------------------------------------
+def report_env(check=False):
+    """Say what the configuration file is and what it currently holds.
+
+    Everything below reads its settings from .env, and load_env() simply
+    returns when the file is not there. Someone following the quick setup
+    then never learns that the file exists, sets no product system and no
+    credentials, and finds out several steps later that nothing works - the
+    errors by then point at the flows, not at the missing file.
+    """
+    beispiel = os.path.join(HERE, ".env.example")
+    pfad = os.path.join(HERE, ".env")
+    heading("Configuration")
+
+    if not os.path.exists(pfad):
+        print(f"{MISS} No .env - the settings of every step come from there")
+        if os.path.exists(beispiel):
+            if check:
+                print("           Copy .env.example to .env")
+                return
+            else:
+                shutil.copyfile(beispiel, pfad)
+                print(f"{OK}.env created from .env.example")
+        else:
+            print("           .env.example is missing as well")
+            return
+        load_env()
+
+    print(f"{OK}.env read from {pfad}")
+
+    # What is optional, and what is missing without it. A KIT that stays
+    # silent here leaves the reader to find out from a flow error that no
+    # bill of material exists.
+    optional = [
+        ("SDI_ODOO_DB", "ERP", "quantities, order and the booked assembly"),
+        ("SDI_PLM_URL", "PLM", "weight and material straight from the PLM"),
+    ]
+    fehlt = [(kurz, was) for name, kurz, was in optional
+             if not os.environ.get(name)]
+    for name, kurz, was in optional:
+        if os.environ.get(name):
+            print(f"{OK}{kurz:<4} configured")
+        else:
+            print(f"{WARN}{kurz:<4} not configured - no {was}")
+    if fehlt:
+        print()
+        print("           Without them the chain runs on the sample data in the")
+        print("           shells: simulation and machine data go through, and the")
+        print("           calculation uses the bill of material already stored.")
+        print("           Credentials are never written into .env; the start")
+        print("           script asks for them once SDI_ODOO_DB or SDI_PLM_URL")
+        print("           is filled in.")
+
+
 def step_1(check=False):
     heading("Step 1 - prerequisites")
     missing = []
@@ -334,24 +387,37 @@ def step_4(check=False):
         print(f"{WARN}Default impact method not found ({default})")
         print("           Set a different one via SDI_OPENLCA_DEFAULT_METHOD")
 
-    system = os.environ.get("SDI_OPENLCA_PRODUCT_SYSTEM", "")
-    if system:
-        hit = next((s for s in systems if s.get("@id") == system), None)
-        print((OK + "Product system present: " + hit.get("name")) if hit
-              else (WARN + "Product system not found: " + system))
-    else:
-        print(f"{WARN}SDI_OPENLCA_PRODUCT_SYSTEM is not set")
-        if systems:
-            print("           Available product systems:")
-            for s in systems[:10]:
-                print(f"             {s.get('name')}  ->  {s.get('@id')}")
-
     if not systems:
         print(f"{MISS} The open database contains no product system")
         print("           Import the data package of the KIT and open the database,")
         print("           see getting-started/openlca/README.md")
         return False
-    return True
+
+    # The product system decides the outcome of this step. Without it the
+    # calculation has nothing to calculate, so the step is not "ok" - it used
+    # to be, as long as the database held any product system at all, and the
+    # summary then printed "Setup complete." over a setup that could not run.
+    system = os.environ.get("SDI_OPENLCA_PRODUCT_SYSTEM", "")
+    if system:
+        hit = next((s for s in systems if s.get("@id") == system), None)
+        if hit:
+            print(f"{OK}Product system present: {hit.get('name')}")
+            return True
+        print(f"{MISS} Product system not found: {system}")
+        print("           The identifier in .env belongs to no product system in")
+        print("           the open database. Either the wrong database is open,")
+        print("           or the data package of the KIT has not been imported.")
+    else:
+        print(f"{MISS} SDI_OPENLCA_PRODUCT_SYSTEM is not set")
+        print("           Without it the calculation does not know what to")
+        print("           calculate. Put one of the identifiers below into .env.")
+
+    print("           Product systems in the open database:")
+    for s in systems[:10]:
+        print(f"             {s.get('name')}  ->  {s.get('@id')}")
+    if len(systems) > 10:
+        print(f"             ... and {len(systems) - 10} more")
+    return False
 
 
 # Nodes the flows use that are not part of the Node-RED core. Without them
@@ -471,6 +537,7 @@ def main():
     print(f"Repository : {REPO}")
     print(f"AAS server : {AAS_URL}")
     print(f"openLCA    : {OPENLCA_URL}")
+    report_env(args.check)
 
     steps = {1: step_1, 2: step_2, 3: step_3, 4: step_4, 5: step_5}
     order = [args.step] if args.step else [1, 2, 3, 4, 5]

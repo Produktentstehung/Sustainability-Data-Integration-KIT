@@ -32,7 +32,8 @@ The package has been checked for completeness: all 1079 references it contains r
 
 1. **Obtain the background database.** The model refers to datasets from *idemat 2023*, freely available from <https://www.openlca.org/idemat-2023-available-for-openlca/>
 2. Import it into openLCA and open it
-3. `File → Import → Data package`, select this file
+3. `File → Import → Other → Data formats of openLCA → JSON package (*.zip)`,
+   select this file
 4. Start the IPC server: `Tools → Developer tools → IPC Server`, port `8080`
 
 During the import openLCA recognises the idemat datasets that are already present by their identifier and does not duplicate them.

@@ -41,6 +41,11 @@ cd getting-started
 python setup.py
 ```
 
+Two things are worth doing first, because step 4 cannot pass without them:
+import the openLCA data package and open the database (see *The openLCA
+database* below), and start its IPC server on port 8080. Everything else the
+script handles, including creating `.env` from `.env.example`.
+
 The script works through five steps and stops with a readable message as soon as something is missing. It is repeatable — steps already completed are recognised and skipped.
 
 | Step | What happens |
@@ -120,6 +125,10 @@ The page is at **http://localhost:1880/dashboard/kit** once `Dashboard.json` is
 imported. Each flow file can be imported on its own; the dashboard brings its
 own user interface base, so the order does not matter.
 
+The address has to be typed. In the Node-RED editor the *Dashboard 2.0* panel
+lists the page but shows no preview of it, so an empty panel there says
+nothing about whether the dashboard works.
+
 What the page shows, from top to bottom: the footprint with its reference
 quantity, the piece it belongs to, the button that runs the chain, the choice
 of product, method and piece, the result split by part, the state of each data
@@ -173,17 +182,29 @@ The serial numbers themselves are described in [ODOO.md](ODOO.md).
 
 ## Starting Node-RED
 
-```bash
-node-red -u getting-started/nodered -s getting-started/nodered/settings.js
-```
-
-Then open `http://localhost:1880` in a browser. The flows are already loaded.
-
-On Windows, `start-nodered.ps1` additionally sets the environment variables and asks for the Odoo key without echoing it:
+Use the start script:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File getting-started/start-nodered.ps1
 ```
+
+It puts the values from `.env` into the process and asks for the Odoo key and
+the PLM password without echoing them, then starts Node-RED. Then open
+`http://localhost:1880` in a browser; the flows are already loaded.
+
+This is not a convenience. The flows take every path and address from
+environment variables, and a process that was not started this way has none
+of them. Started with the plain command below, the first flow stops at
+*SDI_EMA_EXPORT has to point at the export file*, and every later one fails
+the same way for its own setting:
+
+```bash
+node-red -u getting-started/nodered -s getting-started/nodered/settings.js
+```
+
+That command is worth knowing for the case where the variables are already
+set in the environment, on a server for instance. For a first setup it is the
+wrong one.
 
 ## The processing chain
 
@@ -264,11 +285,39 @@ back afterwards.
 
 ## First run
 
-1. `python setup.py` — services and data
-2. Start Node-RED
+Two things have to be in place before the first step, and the setup cannot
+do either of them for you:
+
+- **The openLCA database.** Import the data package under
+  `getting-started/openlca`, open the database and start the IPC server. The
+  section *The openLCA database* above describes it.
+- **`.env`.** `python setup.py` creates it from `.env.example` and says what
+  is configured and what is not. The product system of the shipped model is
+  already filled in there; a different model needs a different identifier,
+  and `python setup.py --step 4` lists what the open database holds.
+
+Then:
+
+1. `python setup.py` — services, sample data and flows
+2. Start Node-RED **through the start script**, not with `node-red` on its
+   own:
+
+   ```bash
+   powershell -ExecutionPolicy Bypass -File start-nodered.ps1
+   ```
+
+   The flows read their paths and addresses from environment variables, and
+   the script is what puts them into the process. Started any other way, the
+   first flow stops at *SDI_EMA_EXPORT has to point at the export file*.
 3. In the flow *ema Simulation → AAS*, click the inject button
-4. In the flow *OpenLCA_to_AAS*, select the shell and start the calculation
+4. In the flow *openLCA calculation* — that is the tab; `OpenLCA_to_AAS.json`
+   is the file it was imported from — press *▶ Run chain without dashboard*
 5. Inspect the result at `http://localhost:3000`, submodel `ILCD`
+
+Or skip steps 3 to 5 and use the dashboard at
+**`http://localhost:1880/dashboard/kit`**, which runs the same chain from one
+button. The address has to be typed: the Node-RED editor lists the dashboard
+under *Dashboard 2.0* but shows no preview there.
 
 Without Odoo and without the machine connection the chain already runs end to end and produces a result. Be aware of what that first result rests on: only the assembly energy comes from the simulation data. The masses remain the default values of the openLCA model, because the PLM data source of the sample holds the weight of the product as a whole rather than a bill of material per part. Connecting the ERP system replaces those defaults, and the machine connection replaces the manufacturing energy — in the reference setup the two together move the result from 0.12 to 0.29 kg CO₂ eq.
 

@@ -223,7 +223,8 @@ Then open `http://localhost:1880`. You should see four tabs:
 type*. If some are, step 5 of the setup could not install the additional nodes;
 run `npm install` in `getting-started/nodered` and restart Node-RED.
 
-The dashboard for the calculation is at `http://localhost:1880/dashboard`.
+The dashboard for the calculation is at `http://localhost:1880/dashboard/kit`. The address has to be typed; the
+*Dashboard 2.0* panel in the editor shows no preview of the page.
 
 ---
 
