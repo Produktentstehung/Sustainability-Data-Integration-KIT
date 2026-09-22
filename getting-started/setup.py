@@ -85,6 +85,10 @@ NODERED_DIR = os.path.join(HERE, "nodered")
 
 AAS_URL = os.environ.get("SDI_AAS_URL", "http://localhost:8081")
 OPENLCA_URL = os.environ.get("SDI_OPENLCA_URL", "http://localhost:8080")
+# The registries run on their own ports. docker-compose.yml takes the same two
+# variables, so a port moved there is moved here as well.
+AAS_REGISTRY_URL = "http://localhost:" + os.environ.get("AAS_REGISTRY_PORT", "8082")
+SM_REGISTRY_URL = "http://localhost:" + os.environ.get("SM_REGISTRY_PORT", "8083")
 
 # The flows that together form the processing chain.
 # PLM.json is not included: it is a reference implementation for a CONTACT
@@ -312,7 +316,7 @@ def step_3(check=False):
 
     if check:
         print(f"  {len(packages)} packages found, {len(names)} shells present")
-        return True
+        return register_shells(check=True)
 
     added = 0
     for path in sorted(packages):
@@ -328,7 +332,105 @@ def step_3(check=False):
 
     after = http_json(AAS_URL + "/shells").get("result", [])
     print(f"\n  {len(after)} shells on the AAS server, {added} newly imported")
-    return len(after) > 0
+    if not after:
+        return False
+    return register_shells()
+
+
+def register_shells(check=False):
+    """Enter every shell and submodel of the repository into the registries.
+
+    The AAS server registers a shell when it is created. What was there
+    before is registered by nobody - after the registries were changed, or,
+    as long as they only kept their entries in memory, after every restart
+    of Docker. The shells then sat in MongoDB while the registry, the place
+    others look for twins, said there were none.
+
+    The entries have the form the AAS server itself writes: read off a
+    probe shell and a probe submodel it registered, both removed again.
+    Entries already present are left alone, so this can run any number of
+    times.
+    """
+    import base64
+
+    def b64(text):
+        return base64.urlsafe_b64encode(text.encode("utf-8")).decode().rstrip("=")
+
+    def endpunkt(art, kennung):
+        return [{
+            "interface": "AAS-3.0" if art == "shells" else "SUBMODEL-3.0",
+            "protocolInformation": {
+                "href": f"{AAS_URL}/{art}/{b64(kennung)}",
+                "endpointProtocol": "http",
+            },
+        }]
+
+    def vorhanden(url):
+        try:
+            http_json(url)
+            return True
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return False
+            raise
+
+    for name, url in (("AAS registry", AAS_REGISTRY_URL),
+                      ("submodel registry", SM_REGISTRY_URL)):
+        if not reachable(url + "/description"):
+            print(f"{WARN}{name} not reachable at {url} - entries not checked")
+            return True
+
+    schalen = http_json(AAS_URL + "/shells?limit=1000").get("result", [])
+    modelle = http_json(AAS_URL + "/submodels?limit=1000").get("result", [])
+
+    neu_s = neu_m = 0
+    for s in schalen:
+        ziel = f"{AAS_REGISTRY_URL}/shell-descriptors/{b64(s['id'])}"
+        if vorhanden(ziel):
+            continue
+        if check:
+            neu_s += 1
+            continue
+        info = s.get("assetInformation") or {}
+        eintrag = {
+            "id": s["id"],
+            "idShort": s.get("idShort"),
+            "assetKind": info.get("assetKind", "Instance"),
+            "globalAssetId": info.get("globalAssetId"),
+            "endpoints": endpunkt("shells", s["id"]),
+        }
+        http_json(AAS_REGISTRY_URL + "/shell-descriptors",
+                  {k: v for k, v in eintrag.items() if v is not None})
+        neu_s += 1
+
+    for m in modelle:
+        ziel = f"{SM_REGISTRY_URL}/submodel-descriptors/{b64(m['id'])}"
+        if vorhanden(ziel):
+            continue
+        if check:
+            neu_m += 1
+            continue
+        eintrag = {
+            "id": m["id"],
+            "idShort": m.get("idShort"),
+            "semanticId": m.get("semanticId"),
+            "endpoints": endpunkt("submodels", m["id"]),
+        }
+        http_json(SM_REGISTRY_URL + "/submodel-descriptors",
+                  {k: v for k, v in eintrag.items() if v is not None})
+        neu_m += 1
+
+    if check:
+        if neu_s or neu_m:
+            print(f"{WARN}Not in the registries yet: {neu_s} shells, "
+                  f"{neu_m} submodels")
+        else:
+            print(f"{OK}Registries hold all {len(schalen)} shells and "
+                  f"{len(modelle)} submodels")
+        return not (neu_s or neu_m)
+    print(f"{OK}Registries: {len(schalen)} shells, {len(modelle)} submodels "
+          f"({neu_s} and {neu_m} newly entered)")
+    return True
 
 
 def upload_aasx(path):

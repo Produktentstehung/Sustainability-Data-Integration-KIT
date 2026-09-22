@@ -76,22 +76,58 @@ services:
   # Registries - needed as soon as data has to be discoverable in the dataspace
   # ---------------------------------------------------------------------------
   aas-registry:
-    image: eclipsebasyx/aas-registry-log-mem:2.0.0-milestone-05
+    # Stored in MongoDB, not in memory. The in-memory variant lost every
+    # entry on each restart of Docker, while the shells themselves survived
+    # in MongoDB - after a restart the registry said there was nothing here,
+    # and nothing re-registered the shells that were. A registry is the
+    # place others look for twins; an empty one tells them there are none.
+    image: eclipsebasyx/aas-registry-log-mongodb:2.0.0-milestone-05
     container_name: sdi-aas-registry
     restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
     ports:
       - "${AAS_REGISTRY_PORT:-8082}:8080"
     environment:
       SERVER_PORT: 8080
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER:-mongoAdmin}:${MONGO_PASSWORD:-mongoPassword}@mongo:27017
+      SPRING_DATA_MONGODB_DATABASE: sdi_aas_registry
+      # The web interface on AAS_UI_PORT queries the registries straight from
+      # the browser. Without these two lines the registry answers without an
+      # Access-Control-Allow-Origin header, the browser blocks the reply, and
+      # the interface shows "Failed to fetch" on every page. The AAS
+      # environment above has always carried the same two lines, which is
+      # why the shells themselves were visible all along.
+      BASYX_CORS_ALLOWED-ORIGINS: "*"
+      BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
 
   sm-registry:
-    image: eclipsebasyx/submodel-registry-log-mem:2.0.0-milestone-05
+    # Stored in MongoDB, not in memory. The in-memory variant lost every
+    # entry on each restart of Docker, while the shells themselves survived
+    # in MongoDB - after a restart the registry said there was nothing here,
+    # and nothing re-registered the shells that were. A registry is the
+    # place others look for twins; an empty one tells them there are none.
+    image: eclipsebasyx/submodel-registry-log-mongodb:2.0.0-milestone-05
     container_name: sdi-sm-registry
     restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
     ports:
       - "${SM_REGISTRY_PORT:-8083}:8080"
     environment:
       SERVER_PORT: 8080
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER:-mongoAdmin}:${MONGO_PASSWORD:-mongoPassword}@mongo:27017
+      SPRING_DATA_MONGODB_DATABASE: sdi_sm_registry
+      # The web interface on AAS_UI_PORT queries the registries straight from
+      # the browser. Without these two lines the registry answers without an
+      # Access-Control-Allow-Origin header, the browser blocks the reply, and
+      # the interface shows "Failed to fetch" on every page. The AAS
+      # environment above has always carried the same two lines, which is
+      # why the shells themselves were visible all along.
+      BASYX_CORS_ALLOWED-ORIGINS: "*"
+      BASYX_CORS_ALLOWED-METHODS: GET,POST,PATCH,DELETE,PUT,OPTIONS,HEAD
 
   # ---------------------------------------------------------------------------
   # Web interface for inspecting the twins - not required for processing, but
