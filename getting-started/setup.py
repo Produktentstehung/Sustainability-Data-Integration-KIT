@@ -95,7 +95,15 @@ SM_REGISTRY_URL = "http://localhost:" + os.environ.get("SM_REGISTRY_PORT", "8083
 # Elements PLM system and needs a PLM server reachable from your own network,
 # plus the export paths of your installation. Adapt its configuration node and
 # add it here once that is in place.
-FLOWS = ["Odoo_ERP.json", "EMA.json", "OPCUA_Manufacturing.json", "OpenLCA_to_AAS.json"]
+FLOWS = ["Odoo_ERP.json", "EMA.json", "OPCUA_Manufacturing.json",
+         "OpenLCA_to_AAS.json",
+         # The dashboard is the interface the whole getting-started text is
+         # written around. It used to be missing here, so a fresh setup ended
+         # at "There was an error loading the Dashboard" - there was none.
+         "Dashboard.json",
+         # Booking an assembly and filling records in afterwards. Both are
+         # operated from the dashboard and needed as soon as an ERP is there.
+         "Assembly_Booking.json", "Assembly_Backfill.json"]
 
 # PLM.json is added only once a PLM system is configured. It is a reference
 # implementation for CONTACT Elements and needs a server reachable from your
@@ -201,12 +209,12 @@ def report_env(check=False):
             print(f"{WARN}{kurz:<4} not configured - no {was}")
     if fehlt:
         print()
-        print("           Without them the chain runs on the sample data in the")
-        print("           shells: simulation and machine data go through, and the")
-        print("           calculation uses the bill of material already stored.")
+        print("           Without ERP and PLM the chain still runs on the data")
+        print("           in the shells: simulation and machine data go through,")
+        print("           and the calculation uses the bill of material already")
         print("           Credentials are never written into .env; the start")
-        print("           script asks for them once SDI_ODOO_DB or SDI_PLM_URL")
-        print("           is filled in.")
+        print("           script asks for them once the matching address or")
+        print("           database is filled in.")
 
 
 def step_1(check=False):
@@ -599,12 +607,34 @@ def step_5(check=False):
         with open(settings, "w", encoding="utf-8") as fh:
             fh.write(SETTINGS_JS)
         print(f"{OK}settings.js created")
+    else:
+        # An existing file is never overwritten - it may have been adapted.
+        # But a setting added later is missing from it, and the flows that
+        # need it then fail with an error that says nothing about settings.js.
+        vorhanden = open(settings, encoding="utf-8").read()
+        if "functionExternalModules" not in vorhanden:
+            print(f"{WARN}settings.js has no functionExternalModules")
+            print("           Function nodes cannot load npm modules without it,")
+            print("           which the AAS-EDC-S3 bridge needs. Add this line")
+            print("           next to flowFile and restart Node-RED:")
+            print("             functionExternalModules: true,")
+        else:
+            print(f"{OK}settings.js present")
 
     install_extra_nodes()
 
+    # The start script, not node-red on its own. It is what puts the values
+    # from .env into the process; started any other way the first flow stops
+    # at "SDI_EMA_EXPORT has to point at the export file". Suggesting the bare
+    # command here contradicted the README two sections further on, which
+    # calls it the wrong one for a first setup.
     print("\n  Start Node-RED with:")
+    print(f"    powershell -ExecutionPolicy Bypass -File \"{os.path.join(HERE, 'start-nodered.ps1')}\"")
+    print("  It reads .env, asks for the Odoo key and the PLM password, and")
+    print("  starts Node-RED. Then open http://localhost:1880/dashboard/kit")
+    print()
+    print("  Without the script the flows find none of their settings:")
     print(f"    node-red -u \"{NODERED_DIR}\" -s \"{settings}\"")
-    print("  Then open http://localhost:1880")
     return True
 
 
@@ -619,6 +649,11 @@ module.exports = {
     // The PLM flow writes intermediate files and reads the shell template,
     // so it needs fs and path in the global context.
     functionGlobalContext: { fs: require('fs'), path: require('path') },
+    // Lets a Function node load npm modules declared on its Setup tab, and
+    // lets Node-RED install them by itself. The AAS-EDC-S3 bridge needs it
+    // for the S3 client; without it those nodes fail with "require is not
+    // defined" and the module has to be installed by hand.
+    functionExternalModules: true,
     logging: { console: { level: 'info', metrics: false, audit: false } },
     editorTheme: { projects: { enabled: false } }
 };
@@ -661,8 +696,18 @@ def main():
     for nr in order:
         if nr in result:
             print(f"  {nr}. {names[nr]:<16} {'ok' if result[nr] else 'open'}")
+    # What is still unconfigured belongs into the last line as well. It was
+    # said once at the top, and several screens later "Setup complete." reads
+    # like everything is in place.
+    offen = [k for name, k in (("SDI_ODOO_DB", "ERP"), ("SDI_PLM_URL", "PLM"))
+             if not os.environ.get(name)]
     if all(result.get(n) for n in order):
-        print("\nSetup complete.")
+        if offen:
+            print(f"\nSetup complete, without {' and '.join(offen)}.")
+            print("The chain runs on the data in the shells. Fill in the")
+            print("matching section of .env to connect them.")
+        else:
+            print("\nSetup complete.")
     else:
         print("\nSome points are still open, see the notes above.")
 
