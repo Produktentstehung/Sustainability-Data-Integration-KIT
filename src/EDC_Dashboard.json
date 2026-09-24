@@ -1,0 +1,4683 @@
+[
+    {
+        "id": "b52a70122308a06e",
+        "type": "tab",
+        "label": "EDC Consumer HNI-01",
+        "disabled": false,
+        "info": "",
+        "env": [
+            {
+                "name": "BASYX_BASE_URL",
+                "type": "str",
+                "value": "http://localhost:8081"
+            },
+            {
+                "name": "S3_BUCKET",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "S3_REGION",
+                "type": "str",
+                "value": "auto"
+            },
+            {
+                "name": "S3_ENDPOINT",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "S3_PUBLIC_BASE_URL",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "AWS_ACCESS_KEY_ID",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "AWS_SECRET_ACCESS_KEY",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_MANAGEMENT_URL_HNI02",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_API_KEY_HNI02",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_ACCESS_POLICY_ID_HNI02",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_CONTRACT_POLICY_ID_HNI02",
+                "type": "str",
+                "value": ""
+            }
+        ]
+    },
+    {
+        "id": "b804a5ed07792fb4",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "Consumer: Catalog",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "aa11e3b4dc0e93f0",
+            "79ef38a496b4416b",
+            "fc57215770dc42db",
+            "5349faf17b5e8b52",
+            "04c9bbf923e5bf20"
+        ],
+        "x": 34,
+        "y": 379,
+        "w": 832,
+        "h": 142
+    },
+    {
+        "id": "e8f3b01f8d696740",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "Consumer: EDR",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "09758b149fd309f3",
+            "0a36e4377f4766bf",
+            "69b2b37def3d3a31",
+            "61666fe2aea7880b",
+            "41dbcfe62656c7b1"
+        ],
+        "x": 34,
+        "y": 639,
+        "w": 812,
+        "h": 142
+    },
+    {
+        "id": "d5dffa03b85d2729",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "Consumer: Retrieving EDR entries from the Consumer Control Plane",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "b37a331830475074",
+            "f0238f1f09ab8268",
+            "b9d7c2f3ba554282",
+            "7b1f0205f97f8f6c"
+        ],
+        "x": 34,
+        "y": 799,
+        "w": 592,
+        "h": 142
+    },
+    {
+        "id": "3f81adf02c11e678",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "Consumer: Pull out the EDR",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "d32dc71721ebd360",
+            "4888d688f6951074",
+            "7f33dcd7605cd814",
+            "0dc1c1dd7d5fe9ad"
+        ],
+        "x": 34,
+        "y": 959,
+        "w": 592,
+        "h": 142
+    },
+    {
+        "id": "577531163dee6916",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "Consumer: Use EDR for Data Access",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "510e7d2b0d8f99d1",
+            "bec9426af051c83e",
+            "4c6d785ec0382aa4",
+            "d0f1a2b3c4d5e6f7"
+        ],
+        "x": 34,
+        "y": 1119,
+        "w": 432,
+        "h": 142
+    },
+    {
+        "id": "e3897cfe7adfe8e5",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "UI Catalog",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "5fad0f143181264a",
+            "40ae83b6f26c8f0d",
+            "1c571e76ad6336af",
+            "5563b3b60bc14481",
+            "18542fd162b16f27",
+            "ba7511acc2a0b4c2",
+            "8e0b4f9b14e8aef3",
+            "661e0f936538275e",
+            "f5a8b539d3a64fb3",
+            "c6b027a15952f888",
+            "1b6f82a326f8d720",
+            "0646c0163f735c59"
+        ],
+        "x": 34,
+        "y": 39,
+        "w": 892,
+        "h": 309.5
+    },
+    {
+        "id": "064248d6fd964d37",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "Download UI",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "baf05ccd5d4fd494",
+            "32c32e4baf92cfe2",
+            "aee6d5c356fc7d48"
+        ],
+        "x": 34,
+        "y": 1279,
+        "w": 592,
+        "h": 82
+    },
+    {
+        "id": "c66b15397b29eae3",
+        "type": "group",
+        "z": "b52a70122308a06e",
+        "name": "Downloadlink erstellen",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "5f075871eef4ab3c",
+            "a54d9b877fe27fc0",
+            "a1b3ef1902045f80"
+        ],
+        "x": 34,
+        "y": 1399,
+        "w": 572,
+        "h": 82
+    },
+    {
+        "id": "aa11e3b4dc0e93f0",
+        "type": "http request",
+        "z": "b52a70122308a06e",
+        "g": "b804a5ed07792fb4",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/catalog/request",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "AuweANlp"
+            }
+        ],
+        "x": 510,
+        "y": 420,
+        "wires": [
+            [
+                "fc57215770dc42db",
+                "04c9bbf923e5bf20"
+            ]
+        ]
+    },
+    {
+        "id": "79ef38a496b4416b",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "b804a5ed07792fb4",
+        "name": "function 9",
+        "func": "const form = flow.get(\"catalogForm\") || {};\n\nconst dspurl = form.dsp_url;\nconst bpn_provider = form.provider_bnp;\n\nmsg.payload = {\n  \"@context\": {\n    \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n  },\n  \"protocol\": \"dataspace-protocol-http\",\n  \"counterPartyAddress\": dspurl,\n  \"counterPartyId\": bpn_provider,\n  \"querySpec\": {\n    \"offset\": 0,\n    \"limit\": 50\n  }\n};\n\nreturn msg; ",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 420,
+        "wires": [
+            [
+                "aa11e3b4dc0e93f0"
+            ]
+        ]
+    },
+    {
+        "id": "fc57215770dc42db",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "g": "b804a5ed07792fb4",
+        "name": "debug Catalog",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "09758b149fd309f3",
+        "type": "http request",
+        "z": "b52a70122308a06e",
+        "g": "e8f3b01f8d696740",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/edrs",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "AuweANlp"
+            }
+        ],
+        "x": 510,
+        "y": 680,
+        "wires": [
+            [
+                "69b2b37def3d3a31",
+                "41dbcfe62656c7b1"
+            ]
+        ]
+    },
+    {
+        "id": "0a36e4377f4766bf",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "e8f3b01f8d696740",
+        "name": "function 10",
+        "func": "const assetId = flow.get(\"selectedAssetId\");\nconst index = flow.get(\"catalogIndex\") || {};\nconst item = index[assetId] || {};\nconst flow1 = flow.get(\"catalogForm\");\nconst bpn_provider = flow1.provider_bnp; \nconst bpn_consumer = \"BPNL000000003HN2\";\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/policy/v1.0.0\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    {\n      \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\",\n      \"tx\": \"https://w3id.org/tractusx/v0.0.1/ns/\"\n    }\n  ],\n  \"@type\": \"ContractRequest\",\n  \"counterPartyAddress\": item.providerEndpoint,\n  \"protocol\": \"dataspace-protocol-http\",\n  \"policy\": {\n    \"@id\": item.offerId,\n    \"@type\": \"Offer\",\n    \"assigner\": bpn_provider,\n    \"permission\": [\n      {\n        \"action\": \"use\",\n        \"constraint\": {\n          \"leftOperand\": \"tx:BusinessPartnerNumber\",\n          \"operator\": \"eq\",\n          \"rightOperand\": bpn_consumer\n        }\n      }\n    ],\n    \"prohibition\": [],\n    \"obligation\": [],\n    \"target\": assetId\n  },\n  \"callbackAddresses\": []\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 680,
+        "wires": [
+            [
+                "09758b149fd309f3"
+            ]
+        ]
+    },
+    {
+        "id": "69b2b37def3d3a31",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "g": "e8f3b01f8d696740",
+        "name": "debug asset",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 730,
+        "y": 740,
+        "wires": []
+    },
+    {
+        "id": "b37a331830475074",
+        "type": "http request",
+        "z": "b52a70122308a06e",
+        "g": "d5dffa03b85d2729",
+        "name": "",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/edrs/request",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "AuweANlp"
+            }
+        ],
+        "x": 310,
+        "y": 840,
+        "wires": [
+            [
+                "b9d7c2f3ba554282",
+                "7b1f0205f97f8f6c"
+            ]
+        ]
+    },
+    {
+        "id": "f0238f1f09ab8268",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "d5dffa03b85d2729",
+        "name": "function 5",
+        "func": "const assetId = flow.get(\"selectedAssetId\");\n\nmsg.payload = {\n  \"@context\": {\n    \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n  },\n  \"@type\": \"QuerySpec\",\n  \"filterExpression\": [\n    {\n      \"operandLeft\": \"assetId\",\n      \"operator\": \"=\",\n      \"operandRight\": assetId\n    }\n  ]\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 120,
+        "y": 840,
+        "wires": [
+            [
+                "b37a331830475074"
+            ]
+        ]
+    },
+    {
+        "id": "b9d7c2f3ba554282",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "g": "d5dffa03b85d2729",
+        "name": "debug edr1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 510,
+        "y": 900,
+        "wires": []
+    },
+    {
+        "id": "d32dc71721ebd360",
+        "type": "http request",
+        "z": "b52a70122308a06e",
+        "g": "3f81adf02c11e678",
+        "name": "",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/edrs/{{payload}}/dataaddress",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "AuweANlp"
+            }
+        ],
+        "x": 130,
+        "y": 1000,
+        "wires": [
+            [
+                "4888d688f6951074",
+                "7f33dcd7605cd814"
+            ]
+        ]
+    },
+    {
+        "id": "4888d688f6951074",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "g": "3f81adf02c11e678",
+        "name": "debug edr2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 310,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "510e7d2b0d8f99d1",
+        "type": "http request",
+        "z": "b52a70122308a06e",
+        "g": "577531163dee6916",
+        "name": "",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Authorization",
+                "valueType": "msg",
+                "valueValue": "payload.authorization"
+            }
+        ],
+        "x": 130,
+        "y": 1160,
+        "wires": [
+            [
+                "bec9426af051c83e",
+                "4c6d785ec0382aa4",
+                "afced7b6a1705c99",
+                "d0f1a2b3c4d5e6f7"
+            ]
+        ]
+    },
+    {
+        "id": "d0f1a2b3c4d5e6f7",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "577531163dee6916",
+        "name": "Set Status: Ready",
+        "func": "msg.payload = \"Bereit zum Download \\u2714\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 1200,
+        "wires": [
+            [
+                "5f9341abec10dc44"
+            ]
+        ]
+    },
+    {
+        "id": "bec9426af051c83e",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "g": "577531163dee6916",
+        "name": "debug edr3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 350,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "5fad0f143181264a",
+        "type": "ui-text-input",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "group": "951e3c2dc40cecf7",
+        "name": "Provider Business Partner Number",
+        "label": "Provider Business Partner Number",
+        "order": 1,
+        "width": "5",
+        "height": "1",
+        "topic": "provider_bnp",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": false,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-numeric",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 200,
+        "y": 80,
+        "wires": [
+            [
+                "8e0b4f9b14e8aef3"
+            ]
+        ]
+    },
+    {
+        "id": "40ae83b6f26c8f0d",
+        "type": "ui-text-input",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "group": "951e3c2dc40cecf7",
+        "name": "Provider Data Space Protocol URL",
+        "label": "Provider Data Space Protocol URL",
+        "order": 4,
+        "width": "5",
+        "height": "1",
+        "topic": "dsp_url",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": false,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-protocol",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 200,
+        "y": 160,
+        "wires": [
+            [
+                "8e0b4f9b14e8aef3"
+            ]
+        ]
+    },
+    {
+        "id": "1c571e76ad6336af",
+        "type": "ui-text",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "group": "951e3c2dc40cecf7",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-BPN",
+        "label": "Gib die BPN des Providers ein, dessen Daten du sehen möchtest. ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 470,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "5563b3b60bc14481",
+        "type": "ui-text",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "group": "951e3c2dc40cecf7",
+        "order": 5,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-DSP",
+        "label": "Die Basis-URL des Endpunkts, unter dem ein EDC‑Connector das Dataspace Protocol (DSP) anbietet.",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 470,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "5349faf17b5e8b52",
+        "type": "ui-button",
+        "z": "b52a70122308a06e",
+        "g": "b804a5ed07792fb4",
+        "group": "951e3c2dc40cecf7",
+        "name": "Submit",
+        "label": "Erstelle Katalog",
+        "order": 8,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-plus-box",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "payload",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 120,
+        "y": 420,
+        "wires": [
+            [
+                "79ef38a496b4416b"
+            ]
+        ]
+    },
+    {
+        "id": "18542fd162b16f27",
+        "type": "ui-text",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "group": "951e3c2dc40cecf7",
+        "order": 3,
+        "width": "6",
+        "height": "1",
+        "name": "BPN",
+        "label": "BPN HNI-02 Connector (Provider): BPNL000000003HN2",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "x": 450,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "ba7511acc2a0b4c2",
+        "type": "ui-text",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "group": "951e3c2dc40cecf7",
+        "order": 6,
+        "width": "6",
+        "height": "1",
+        "name": "DSP URL",
+        "label": "Provider Data Space Protocol URL: https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "x": 460,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "8e0b4f9b14e8aef3",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "name": "Store form fields",
+        "func": "const key = (msg.topic ?? \"\").toString().trim();\nif (!key) return null;\n\nlet val = msg.payload;\n\n// trim strings\nif (typeof val === \"string\") val = val.trim();\n\n// optional: leere Strings als \"nicht gesetzt\" behandeln\nif (val === \"\") val = undefined;\n\nconst form = flow.get(\"catalogForm\") || {};\nform[key] = val;\n\nflow.set(\"catalogForm\", form);\nmsg.form = form; // fürs Debuggen\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 120,
+        "wires": [
+            [
+                "661e0f936538275e"
+            ]
+        ]
+    },
+    {
+        "id": "661e0f936538275e",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "name": "debug 9",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 820,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "12cba2ca35748aa5",
+        "type": "ui-dropdown",
+        "z": "b52a70122308a06e",
+        "group": "f4e2d8d3839e948b",
+        "name": "Asset wählen",
+        "label": "Wähle ein Asset: ",
+        "tooltip": "",
+        "order": 1,
+        "width": "5",
+        "height": "1",
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 170,
+        "y": 600,
+        "wires": [
+            [
+                "1de3eb410abbd559"
+            ]
+        ]
+    },
+    {
+        "id": "61666fe2aea7880b",
+        "type": "ui-button",
+        "z": "b52a70122308a06e",
+        "g": "e8f3b01f8d696740",
+        "group": "f4e2d8d3839e948b",
+        "name": "Anfordern",
+        "label": "Asset anfordern",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-basket-plus",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 120,
+        "y": 680,
+        "wires": [
+            [
+                "0a36e4377f4766bf"
+            ]
+        ]
+    },
+    {
+        "id": "ff39dee46cede728",
+        "type": "ui-table",
+        "z": "b52a70122308a06e",
+        "group": "3774a9d58fb37a1f",
+        "name": "Katalog",
+        "label": "Verfügbare Assets",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": false,
+        "showSearch": true,
+        "deselect": true,
+        "selectionType": "none",
+        "columns": [
+            {
+                "title": "Asset-ID",
+                "key": "assetId",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            },
+            {
+                "title": "Beschreibung des Assets",
+                "key": "description",
+                "keyType": "key",
+                "type": "text",
+                "width": "",
+                "align": "start"
+            }
+        ],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "x": 1140,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "04c9bbf923e5bf20",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "b804a5ed07792fb4",
+        "name": "function 15",
+        "func": "const catalog = msg.payload || {};\nconst datasets = catalog[\"dcat:dataset\"] || [];\n\nconst uiRows = [];\nconst options = [];\nconst index = {};\n\nfunction getEndpoint(ds) {\n  const dists = ds[\"dcat:distribution\"] || [];\n  for (const d of dists) {\n    const svc = d?.[\"dcat:accessService\"];\n    const url = svc?.[\"dcat:endpointUrl\"] || svc?.[\"dcat:endpointURL\"];\n    if (url) return url;\n  }\n  return \"\";\n}\n\nfor (const ds of datasets) {\n  const assetId = ds[\"@id\"] || ds[\"id\"];\n  const description = ds[\"description\"] || \"\";\n  const offerId = ds[\"odrl:hasPolicy\"]?.[\"@id\"] || \"\";\n  const providerEndpoint = getEndpoint(ds);\n\n  uiRows.push({ assetId, description });\n  options.push({ label: assetId, value: assetId });\n\n  index[assetId] = { assetId, description, offerId, providerEndpoint };\n}\n\nflow.set(\"catalogIndex\", index);\n\n// an ui-table\nconst msgTable = { payload: uiRows };\n\n// an ui-dropdown (Dashboard 2.0): Optionen dynamisch setzen\nconst msgDropdown = {\n  ui_update: {\n    options: options   // [{label, value}, ...]\n  }\n  // optional: payload: options[0]?.value  // wenn du direkt das erste auswählen willst\n};\n\nreturn [msgTable, msgDropdown];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 420,
+        "wires": [
+            [
+                "ff39dee46cede728"
+            ],
+            [
+                "12cba2ca35748aa5"
+            ]
+        ]
+    },
+    {
+        "id": "1de3eb410abbd559",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "function 16",
+        "func": "flow.set(\"selectedAssetId\", msg.payload);\n// Auch global ablegen, damit der \"EDC Consumer HNI-02\"-Tab (eigener flow-Kontext)\n// weiss, welche Shell zuletzt bearbeitet wurde - fuer den Zuliefererdaten-Rueckweg.\nglobal.set(\"selectedAssetId\", msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 370,
+        "y": 600,
+        "wires": [
+            [
+                "4ed4734ad94c1bf7"
+            ]
+        ]
+    },
+    {
+        "id": "4ed4734ad94c1bf7",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "name": "debug 10",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 560,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "41dbcfe62656c7b1",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "e8f3b01f8d696740",
+        "name": "function 17",
+        "func": "const code = msg.statusCode;\n\nif (code >= 200 && code < 300) {\n  msg.payload = \"Asset angefordert\";\n} else {\n  msg.payload = \"Fehlgeschlagen\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 730,
+        "y": 680,
+        "wires": [
+            [
+                "f0238f1f09ab8268",
+                "5f9341abec10dc44"
+            ]
+        ]
+    },
+    {
+        "id": "7b1f0205f97f8f6c",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "d5dffa03b85d2729",
+        "name": "function 18",
+        "func": "// msg.payload ist ein Array von EndpointDataReferenceEntry-Objekten\nmsg.transferProcessId = msg.payload[0].transferProcessId;\n\n// optional: als payload für den nächsten Schritt\nmsg.payload = msg.transferProcessId;\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 840,
+        "wires": [
+            [
+                "d32dc71721ebd360"
+            ]
+        ]
+    },
+    {
+        "id": "7f33dcd7605cd814",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "3f81adf02c11e678",
+        "name": "function 19",
+        "func": "let da = msg.payload;\n\n// falls ret=txt\nif (typeof da === \"string\") {\n  da = JSON.parse(da);\n}\n\nmsg.endpoint = da.endpoint;\nmsg.authorization = da.authorization;\n\n// optional für den nächsten Schritt als payload bündeln:\nmsg.payload = {\n  endpoint: msg.endpoint,\n  authorization: msg.authorization\n};\n\n// WICHTIG: URL für den nächsten http request setzen\nmsg.url = msg.endpoint;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 1000,
+        "wires": [
+            [
+                "510e7d2b0d8f99d1",
+                "0dc1c1dd7d5fe9ad"
+            ]
+        ]
+    },
+    {
+        "id": "0dc1c1dd7d5fe9ad",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "g": "3f81adf02c11e678",
+        "name": "debug 11",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 520,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "baf05ccd5d4fd494",
+        "type": "ui-text-input",
+        "z": "b52a70122308a06e",
+        "g": "064248d6fd964d37",
+        "group": "95446da12b5801ed",
+        "name": "Dateiname",
+        "label": "Dateiname",
+        "order": 1,
+        "width": "5",
+        "height": "1",
+        "topic": "filename",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-rename",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 130,
+        "y": 1320,
+        "wires": [
+            [
+                "32c32e4baf92cfe2"
+            ]
+        ]
+    },
+    {
+        "id": "4c6d785ec0382aa4",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "577531163dee6916",
+        "name": "function 20",
+        "func": "// msg.payload enthält die Response (obj oder string)\nflow.set(\"lastResponse\", msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 1160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "32c32e4baf92cfe2",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "064248d6fd964d37",
+        "name": "function 21",
+        "func": "flow.set(\"download_filename\", msg.payload);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 1320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a54d9b877fe27fc0",
+        "type": "http in",
+        "z": "b52a70122308a06e",
+        "g": "c66b15397b29eae3",
+        "name": "",
+        "url": "/download/edc",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 1440,
+        "wires": [
+            [
+                "5f075871eef4ab3c"
+            ]
+        ]
+    },
+    {
+        "id": "5f075871eef4ab3c",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "c66b15397b29eae3",
+        "name": "function 22",
+        "func": "let data = flow.get(\"lastResponse\");\nlet filename = flow.get(\"download_filename\") || \"response.json\";\n\nif (data == null) {\n  msg.statusCode = 404;\n  msg.payload = \"No data available yet.\";\n  return msg;\n}\n\n// Wenn Objekt -> JSON String\nif (typeof data !== \"string\") data = JSON.stringify(data, null, 2);\n\n// Dateiname vereinfachen\nfilename = filename.toString().trim().replace(/[^a-zA-Z0-9._-]/g, \"_\");\nif (!filename) filename = \"response.json\";\nif (!filename.endsWith(\".json\")) filename += \".json\";\n\nmsg.headers = {\n  \"Content-Type\": \"application/json; charset=utf-8\",\n  \"Content-Disposition\": `attachment; filename=\"${filename}\"`\n};\n\nmsg.payload = data;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 350,
+        "y": 1440,
+        "wires": [
+            [
+                "a1b3ef1902045f80"
+            ]
+        ]
+    },
+    {
+        "id": "a1b3ef1902045f80",
+        "type": "http response",
+        "z": "b52a70122308a06e",
+        "g": "c66b15397b29eae3",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 530,
+        "y": 1440,
+        "wires": []
+    },
+    {
+        "id": "aee6d5c356fc7d48",
+        "type": "ui-template",
+        "z": "b52a70122308a06e",
+        "g": "064248d6fd964d37",
+        "group": "95446da12b5801ed",
+        "page": "",
+        "ui": "",
+        "name": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "head": "",
+        "format": "<template>\n  <v-btn\n    color=\"primary\"\n    block\n    class=\"text-none\"\n    @click=\"download()\"\n  >\n    <v-icon start>mdi-download</v-icon>\n    Herunterladen\n  </v-btn>\n</template>\n\n<script>\nexport default {\n  methods: {\n    download () {\n      // gleicher Tab:\n      window.location.href = '/download/edc'\n\n      // alternativ neuer Tab:\n      // window.open('/download/edc', '_blank', 'noopener')\n    }\n  }\n}\n</script>",
+        "storeOutMessages": true,
+        "passthru": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 540,
+        "y": 1320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5f9341abec10dc44",
+        "type": "ui-text",
+        "z": "b52a70122308a06e",
+        "group": "c7b0d6442df7e363",
+        "order": 1,
+        "width": "6",
+        "height": "1",
+        "name": "Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#14387f",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 950,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "f5a8b539d3a64fb3",
+        "type": "ui-dropdown",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "group": "951e3c2dc40cecf7",
+        "name": "Adressbuch",
+        "label": "Adressbuch",
+        "tooltip": "",
+        "order": 7,
+        "width": "5",
+        "height": "1",
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 490,
+        "y": 300,
+        "wires": [
+            [
+                "1b6f82a326f8d720"
+            ]
+        ]
+    },
+    {
+        "id": "c6b027a15952f888",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "name": "Adressbuch",
+        "func": "// Adressbuch \nconst book = {\n  \"HNI-01\":  { name:\"HNI-01\", bpn:\"BPNL000000003HN1\", dsp:\"https://hni-01-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"HNI-02\": { name:\"HNI-02\", bpn:\"BPNL000000003HN2\", dsp:\"https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Sonova\": { name:\"Sonova\", bpn:\"BPNL000000003PS2\", dsp:\"https://prostep-sonova-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"BOS\": { name:\"BOS\", bpn:\"BPNL000000003LJ2\", dsp:\"https://prostep-bos-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"Hadi-Plast\": { name:\"Hadi-Plast\", bpn:\"BPNL000000003PH1\", dsp:\"https://prostep-hadiplast-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n};\n\n// Dropdown-Optionen erzeugen (label = sichtbarer Name, value = ID)\nmsg.ui_update = msg.ui_update || {};\nmsg.ui_update.options = Object.entries(book).map(([id, e]) => ({\n  label: e.name,\n  value: id\n}));\n\n// Buch speichern für spätere Lookup-Nodes\nglobal.set(\"addressbook\", book);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 300,
+        "wires": [
+            [
+                "f5a8b539d3a64fb3"
+            ]
+        ]
+    },
+    {
+        "id": "1b6f82a326f8d720",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "name": "Format für Store form fields",
+        "func": "const id = (msg.payload ?? \"\").toString();\nconst book = global.get(\"addressbook\") || {};\nconst e = book[id];\nif (!e) return [null, null, null];\n\nconst msgBpn = { topic: \"provider_bnp\", payload: e.bpn };\nconst msgDsp = { topic: \"dsp_url\",      payload: e.dsp };\n\n// Output 1: beide Messages nacheinander an Store form fields\n// Output 2: nur BPN an BPN-input\n// Output 3: nur DSP an DSP-input\nreturn [\n  [msgBpn, msgDsp],\n  msgBpn,\n  msgDsp\n];",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 300,
+        "wires": [
+            [
+                "8e0b4f9b14e8aef3"
+            ],
+            [
+                "5fad0f143181264a"
+            ],
+            [
+                "40ae83b6f26c8f0d"
+            ]
+        ]
+    },
+    {
+        "id": "0646c0163f735c59",
+        "type": "inject",
+        "z": "b52a70122308a06e",
+        "g": "e3897cfe7adfe8e5",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 130,
+        "y": 300,
+        "wires": [
+            [
+                "c6b027a15952f888"
+            ]
+        ]
+    },
+    {
+        "id": "cc192b72b5e77b61",
+        "type": "inject",
+        "z": "b52a70122308a06e",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "x": 930,
+        "y": 740,
+        "wires": [
+            [
+                "5f9341abec10dc44"
+            ]
+        ]
+    },
+    {
+        "id": "afced7b6a1705c99",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "EDC Meta data enrichment",
+        "func": "const form = flow.get(\"catalogForm\") || {};\nconst bpn = form.provider_bnp || \"UNKNOWN_BPN\";\nconst book = global.get(\"addressbook\") || {};\n\nlet bpName = bpn;\nfor (const k of Object.keys(book)) {\n  if (book[k]?.bpn === bpn) { bpName = book[k].name; break; }\n}\n\nmsg.edcMeta = {\n  bpn,\n  bpName,\n  exchangeTs: new Date().toISOString()\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 1180,
+        "wires": [
+            [
+                "7a359f0ae3b1163e"
+            ]
+        ]
+    },
+    {
+        "id": "7a359f0ae3b1163e",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "EDC normalize payload",
+        "func": "let p = msg.payload;\n\n// Text -> JSON/XML erkennen\nif (typeof p === \"string\") {\n  const t = p.trim();\n  if (t.startsWith(\"{\") || t.startsWith(\"[\")) {\n    try { p = JSON.parse(t); } catch (e) {}\n  } else if (t.startsWith(\"<\")) {\n    msg.edcAasXml = t;\n    return msg;\n  }\n}\n\n// Objektfälle\nif (typeof p === \"object\" && p !== null) {\n  // direkt\n  if (p.environment || p.submodels || p.assetAdministrationShells) {\n    msg.edcAasJson = p;\n    return msg;\n  }\n  // verschachtelt\n  if (p.data && typeof p.data === \"object\") {\n    msg.edcAasJson = p.data;\n    return msg;\n  }\n  if (typeof p.data === \"string\" && p.data.trim().startsWith(\"<\")) {\n    msg.edcAasXml = p.data.trim();\n    return msg;\n  }\n}\n\nnode.error(\"Unbekanntes EDC-AAS-Format\", msg);\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 990,
+        "y": 1180,
+        "wires": [
+            [
+                "b1840b69a329624d"
+            ]
+        ]
+    },
+    {
+        "id": "b1840b69a329624d",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "Property list from external AAS",
+        "func": "const src = msg.edcAasJson;\nif (!src) {\n  node.error(\"Kein edcAasJson vorhanden\", msg);\n  return null;\n}\n\nconst out = [];\n\nfunction walk(el) {\n  if (!el || typeof el !== \"object\") return;\n\n  // AAS Property (vereinfacht, JSON-Varianten tolerant)\n  if (el.modelType === \"Property\" || el.valueType !== undefined && el.idShort) {\n    out.push({\n      baseIdShort: String(el.idShort),\n      value: el.value,\n      valueType: el.valueType || \"xs:string\"\n    });\n  }\n\n  // Rekursion durch typische Felder\n  const keys = [\"submodels\",\"submodelElements\",\"value\",\"elements\",\"statements\",\"children\"];\n  for (const k of keys) {\n    const v = el[k];\n    if (Array.isArray(v)) v.forEach(walk);\n    else if (v && typeof v === \"object\") walk(v);\n  }\n\n  // Generisch alle Objektfelder traversieren (Fallback)\n  for (const [k,v] of Object.entries(el)) {\n    if (keys.includes(k)) continue;\n    if (Array.isArray(v)) v.forEach(x => { if (x && typeof x === \"object\") walk(x); });\n    else if (v && typeof v === \"object\") walk(v);\n  }\n}\n\nwalk(src);\n\nmsg.incomingProps = out;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1310,
+        "y": 1180,
+        "wires": [
+            [
+                "22ab2c6306c35478"
+            ]
+        ]
+    },
+    {
+        "id": "22ab2c6306c35478",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "Merge AASs",
+        "func": "function safeToken(s) {\n  return String(s || \"UNKNOWN\")\n    .replace(/[^a-zA-Z0-9_]/g, \"_\")\n    .replace(/_+/g, \"_\")\n    .replace(/^_+|_+$/g, \"\")\n    .substring(0, 40) || \"UNKNOWN\";\n}\n\nfunction tsToken(iso) {\n  const d = new Date(iso || Date.now());\n  const p = (n)=>String(n).padStart(2,\"0\");\n  return `${d.getUTCFullYear()}${p(d.getUTCMonth()+1)}${p(d.getUTCDate())}T${p(d.getUTCHours())}${p(d.getUTCMinutes())}${p(d.getUTCSeconds())}Z`;\n}\n\n// Die reale (unkodierte) Shell-ID der Original-Shell, an die das neue\n// Zuliefererdaten-Submodell spaeter angehaengt werden soll - kommt idealerweise\n// direkt aus der empfangenen AAS-Umgebung, sonst als Fallback aus der Asset-ID.\nmsg.targetShellId = (msg.edcAasJson && msg.edcAasJson.assetAdministrationShells && msg.edcAasJson.assetAdministrationShells[0] && msg.edcAasJson.assetAdministrationShells[0].id)\n  || (flow.get(\"selectedAssetId\") || \"\").replace(/^aas-shell-/, \"\");\n\n// Ziel-AAS (Platzhalter, bis GET angebunden ist)\nif (!msg.targetAas) {\n  msg.targetAas = { mergedProperties: [] };\n}\nif (!Array.isArray(msg.targetAas.mergedProperties)) {\n  msg.targetAas.mergedProperties = [];\n}\n\nconst bpName = msg.edcMeta?.bpName || \"UNKNOWN_BP\";\nconst exchangeTs = msg.edcMeta?.exchangeTs || new Date().toISOString();\nconst suffix = `${safeToken(bpName)}_${tsToken(exchangeTs)}`;\n\nconst incoming = Array.isArray(msg.incomingProps) ? msg.incomingProps : [];\nlet inserted = 0;\n\nfunction existsIdShort(arr, idShort) {\n  return arr.some(p => p.idShort === idShort);\n}\n\nfor (const p of incoming) {\n  const base = safeToken(p.baseIdShort || \"unknown_property\");\n  let idShort = `${base}_${suffix}`;\n  let i = 1;\n  while (existsIdShort(msg.targetAas.mergedProperties, idShort)) {\n    idShort = `${base}_${suffix}_${i++}`;\n  }\n\n  msg.targetAas.mergedProperties.push({\n    idShort,\n    value: p.value,\n    valueType: p.valueType || \"xs:string\",\n    sourceBpn: msg.edcMeta?.bpn || \"UNKNOWN_BPN\",\n    sourceBpName: bpName,\n    exchangeTs\n  });\n\n  inserted++;\n}\n\nmsg.mergeResult = {\n  inserted,\n  bpName,\n  exchangeTs\n};\n\nmsg.mergedAas = msg.targetAas;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1550,
+        "y": 1180,
+        "wires": [
+            [
+                "8851328ecc307147",
+                "edcbr1d6e0000001"
+            ]
+        ]
+    },
+    {
+        "id": "8851328ecc307147",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "name": "debug 37",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1740,
+        "y": 1180,
+        "wires": []
+    },
+    {
+        "id": "9badf7bf06082c3e",
+        "type": "comment",
+        "z": "b52a70122308a06e",
+        "name": "todo (erledigt, siehe Nodes rechts)",
+        "info": "geändertes Asset in ausgewählte Shell hochladen in neues Submodell \"Zuliefererdaten\" - danach HNI-02 als Provider ueber Bucket/EDC an HNI-01 zurueckmelden.",
+        "x": 830,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "edcbr1d6e0000001",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "Build Zuliefererdaten submodel",
+        "func": "const shellId = msg.targetShellId;\nif (!shellId) {\n    node.error(\"Kein targetShellId ermittelt - Zuliefererdaten-Upload uebersprungen\", msg);\n    return null;\n}\n\nconst props = (msg.mergedAas && msg.mergedAas.mergedProperties) || [];\nconst submodelId = shellId + \"/Zuliefererdaten\";\n\nmsg.zuliefererSubmodel = {\n    idShort: \"Zuliefererdaten\",\n    id: submodelId,\n    modelType: \"Submodel\",\n    submodelElements: props.map(function (p) {\n        return {\n            idShort: p.idShort,\n            modelType: \"Property\",\n            valueType: p.valueType || \"xs:string\",\n            value: (p.value === undefined || p.value === null) ? \"\" : String(p.value)\n        };\n    })\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1240,
+        "wires": [
+            [
+                "edcbr1d6e0000002"
+            ]
+        ]
+    },
+    {
+        "id": "edcbr1d6e0000002",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "Build submodel POST request",
+        "func": "const baseUrl = env.get(\"BASYX_BASE_URL\") || env.get(\"SDI_AAS_URL\") || \"http://localhost:8081\";\nmsg.url = baseUrl.replace(/\\/$/, \"\") + \"/submodels\";\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.payload = msg.zuliefererSubmodel;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1280,
+        "wires": [
+            [
+                "edcbr1d6e0000003"
+            ]
+        ]
+    },
+    {
+        "id": "edcbr1d6e0000003",
+        "type": "http request",
+        "z": "b52a70122308a06e",
+        "name": "POST submodel to Basyx",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 850,
+        "y": 1320,
+        "wires": [
+            [
+                "edcbr1d6e0000004"
+            ]
+        ]
+    },
+    {
+        "id": "edcbr1d6e0000004",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "Handle POST + build ref request",
+        "func": "const status = msg.statusCode;\nif (status && (status < 200 || status >= 300) && status !== 409) {\n    node.error(\"Submodel-POST fehlgeschlagen (HTTP \" + status + \"): \" + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nconst baseUrl = env.get(\"BASYX_BASE_URL\") || env.get(\"SDI_AAS_URL\") || \"http://localhost:8081\";\nconst shellId = msg.targetShellId;\nconst encodedShellId = Buffer.from(shellId).toString(\"base64url\");\n\nmsg.url = baseUrl.replace(/\\/$/, \"\") + \"/shells/\" + encodedShellId + \"/submodel-refs\";\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.payload = {\n    type: \"ModelReference\",\n    keys: [{ type: \"Submodel\", value: msg.zuliefererSubmodel.id }]\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1360,
+        "wires": [
+            [
+                "edcbr1d6e0000005"
+            ]
+        ]
+    },
+    {
+        "id": "edcbr1d6e0000005",
+        "type": "http request",
+        "z": "b52a70122308a06e",
+        "name": "POST submodel-ref to Basyx",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 850,
+        "y": 1400,
+        "wires": [
+            [
+                "edcbr1d6e0000006"
+            ]
+        ]
+    },
+    {
+        "id": "edcbr1d6e0000006",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "Handle submodel-ref result",
+        "func": "const status = msg.statusCode;\nif (status && (status < 200 || status >= 300) && status !== 409) {\n    node.error(\"Submodel-Ref-POST fehlgeschlagen (HTTP \" + status + \"): \" + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nnode.warn(\"Zuliefererdaten-Submodell lokal angelegt: \" + msg.zuliefererSubmodel.id);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 850,
+        "y": 1440,
+        "wires": [
+            [
+                "edcbr1d6e0000007"
+            ]
+        ]
+    },
+    {
+        "id": "edcbr1d6e0000007",
+        "type": "function",
+        "z": "b52a70122308a06e",
+        "name": "Upload Zuliefererdaten + Register EDC Offer (HNI-02 als Provider)",
+        "func": "(async function () {\n    const { S3Client, PutObjectCommand } = awsS3Sdk;\n\n    function postJson(urlStr, headers, bodyObj) {\n        return new Promise((resolve, reject) => {\n            const u = new urlModule.URL(urlStr);\n            const lib = u.protocol === \"http:\" ? httpModule : httpsModule;\n            const bodyStr = JSON.stringify(bodyObj);\n            const req = lib.request(u, {\n                method: \"POST\",\n                headers: Object.assign({ \"Content-Length\": Buffer.byteLength(bodyStr) }, headers)\n            }, (res) => {\n                let data = \"\";\n                res.on(\"data\", (chunk) => { data += chunk; });\n                res.on(\"end\", () => {\n                    resolve({ status: res.statusCode, ok: res.statusCode >= 200 && res.statusCode < 300, body: data });\n                });\n            });\n            req.on(\"error\", reject);\n            req.write(bodyStr);\n            req.end();\n        });\n    }\n\n    function getJson(urlStr, headers) {\n        return new Promise((resolve, reject) => {\n            const u = new urlModule.URL(urlStr);\n            const lib = u.protocol === \"http:\" ? httpModule : httpsModule;\n            const req = lib.request(u, { method: \"GET\", headers }, (res) => {\n                let data = \"\";\n                res.on(\"data\", (chunk) => { data += chunk; });\n                res.on(\"end\", () => {\n                    resolve({ status: res.statusCode, ok: res.statusCode >= 200 && res.statusCode < 300, body: data });\n                });\n            });\n            req.on(\"error\", reject);\n            req.end();\n        });\n    }\n\n    const bucket = (env.get(\"S3_BUCKET\") || env.get(\"SDI_S3_BUCKET\"));\n    const region = (env.get(\"S3_REGION\") || env.get(\"SDI_S3_REGION\")) || \"auto\";\n    const endpoint = (env.get(\"S3_ENDPOINT\") || env.get(\"SDI_S3_ENDPOINT\"));\n    const publicBaseUrl = (env.get(\"S3_PUBLIC_BASE_URL\") || env.get(\"SDI_S3_PUBLIC_URL\"));\n    const accessKeyId = (env.get(\"AWS_ACCESS_KEY_ID\") || env.get(\"SDI_S3_ACCESS_KEY_ID\"));\n    const secretAccessKey = (env.get(\"AWS_SECRET_ACCESS_KEY\") || env.get(\"SDI_S3_SECRET_ACCESS_KEY\"));\n    const edcManagementUrl = (env.get(\"EDC_MANAGEMENT_URL_HNI02\") || env.get(\"SDI_EDC_PARTNER_MANAGEMENT_URL\"));\n    const edcApiKey = (env.get(\"EDC_API_KEY_HNI02\") || env.get(\"SDI_EDC_PARTNER_API_KEY\"));\n    const accessPolicyId = (env.get(\"EDC_ACCESS_POLICY_ID_HNI02\") || env.get(\"SDI_EDC_ACCESS_POLICY_ID\"));\n    const contractPolicyId = (env.get(\"EDC_CONTRACT_POLICY_ID_HNI02\") || env.get(\"SDI_EDC_CONTRACT_POLICY_ID\"));\n\n    if (!bucket || !publicBaseUrl || !accessKeyId || !secretAccessKey) {\n        throw new Error(\"S3_BUCKET / S3_PUBLIC_BASE_URL / AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY fehlen auf diesem Tab\");\n    }\n\n    const shellId = msg.targetShellId;\n    const shellName = String(shellId).split(\"/\").filter(Boolean).pop().replace(/[^A-Za-z0-9._-]/g, \"_\");\n    const objectKey = \"zuliefererdaten/\" + shellName + \".json\";\n    const assetId = \"zuliefererdaten-\" + shellName;\n    const contractDefId = \"zuliefererdaten-contractdef-\" + shellName;\n\n    const envDoc = {\n        assetAdministrationShells: [],\n        submodels: [msg.zuliefererSubmodel],\n        conceptDescriptions: []\n    };\n\n    const s3ClientConfig = { region, credentials: { accessKeyId, secretAccessKey } };\n    if (endpoint) {\n        s3ClientConfig.endpoint = endpoint;\n        s3ClientConfig.forcePathStyle = true;\n    }\n    const s3 = new S3Client(s3ClientConfig);\n    await s3.send(new PutObjectCommand({\n        Bucket: bucket,\n        Key: objectKey,\n        Body: JSON.stringify(envDoc),\n        ContentType: \"application/json\"\n    }));\n\n    msg.zuliefererObjectKey = objectKey;\n    msg.zuliefererPublicUrl = publicBaseUrl.replace(/\\/$/, \"\") + \"/\" + objectKey;\n\n    if (!edcManagementUrl || !edcApiKey || !accessPolicyId || !contractPolicyId) {\n        node.warn(\"EDC_*_HNI02 Env-Vars nicht vollstaendig gesetzt - Zuliefererdaten nur in Bucket hochgeladen, kein EDC-Offer registriert\");\n        msg.payload = { status: \"ok\", objectKey, edcOfferRegistered: false };\n        node.send(msg);\n        node.done();\n        return;\n    }\n\n    const edcHeaders = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcApiKey };\n\n    const existingAsset = await getJson(edcManagementUrl + \"/v3/assets/\" + encodeURIComponent(assetId), edcHeaders);\n    if (!existingAsset.ok) {\n        const assetBody = {\n            \"@context\": {},\n            \"@type\": \"Asset\",\n            \"@id\": assetId,\n            properties: {\n                name: \"Zuliefererdaten \" + shellId,\n                description: \"Zuliefererdaten \" + shellId\n            },\n            dataAddress: {\n                \"@type\": \"DataAddress\",\n                type: \"HttpData\",\n                baseUrl: msg.zuliefererPublicUrl\n            }\n        };\n        const assetRes = await postJson(edcManagementUrl + \"/v3/assets\", edcHeaders, assetBody);\n        if (!assetRes.ok && assetRes.status !== 409) {\n            throw new Error(\"Asset creation failed: \" + assetRes.status + \" \" + assetRes.body);\n        }\n    }\n\n    const existingCd = await getJson(edcManagementUrl + \"/v3/contractdefinitions/\" + encodeURIComponent(contractDefId), edcHeaders);\n    if (!existingCd.ok) {\n        const contractDefBody = {\n            \"@context\": {},\n            \"@type\": \"ContractDefinition\",\n            \"@id\": contractDefId,\n            accessPolicyId: accessPolicyId,\n            contractPolicyId: contractPolicyId,\n            assetsSelector: {\n                \"@type\": \"CriterionDto\",\n                operandLeft: \"https://w3id.org/edc/v0.0.1/ns/id\",\n                operator: \"=\",\n                operandRight: assetId\n            }\n        };\n        const cdRes = await postJson(edcManagementUrl + \"/v3/contractdefinitions\", edcHeaders, contractDefBody);\n        if (!cdRes.ok && cdRes.status !== 409) {\n            throw new Error(\"ContractDefinition creation failed: \" + cdRes.status + \" \" + cdRes.body);\n        }\n    }\n\n    msg.payload = { status: \"ok\", assetId, objectKey, contractDefinitionId: contractDefId, edcOfferRegistered: true };\n    node.send(msg);\n    node.done();\n})().catch(err => {\n    node.error(err, msg);\n});\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "module": "@aws-sdk/client-s3",
+                "var": "awsS3Sdk"
+            },
+            {
+                "module": "https",
+                "var": "httpsModule"
+            },
+            {
+                "module": "http",
+                "var": "httpModule"
+            },
+            {
+                "module": "url",
+                "var": "urlModule"
+            }
+        ],
+        "x": 900,
+        "y": 1480,
+        "wires": [
+            [
+                "edcbr1d6e0000008"
+            ]
+        ]
+    },
+    {
+        "id": "edcbr1d6e0000008",
+        "type": "debug",
+        "z": "b52a70122308a06e",
+        "name": "debug Zuliefererdaten publish",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 1520,
+        "wires": []
+    },
+    {
+        "id": "5dcb186b05559fb8",
+        "type": "tab",
+        "label": "EDC Provider HNI-01",
+        "disabled": false,
+        "info": "",
+        "env": [
+            {
+                "name": "BACKEND_API_KEY",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "PUBLISH_BASE_URL",
+                "type": "str",
+                "value": "http://localhost:1880"
+            },
+            {
+                "name": "BASYX_BASE_URL",
+                "type": "str",
+                "value": "http://localhost:8081"
+            }
+        ]
+    },
+    {
+        "id": "5262b23873fcd161",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "Provider: Create an Asset",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "8c80204d3581d826",
+            "d6702136f91d61ef",
+            "37011fe55c369bc9",
+            "59885a8dab99bcaa",
+            "4c18b2788be072c2"
+        ],
+        "x": 34,
+        "y": 284,
+        "w": 712,
+        "h": 157
+    },
+    {
+        "id": "7a45027c49b9c3e8",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "Provider: Add Access policy in provider",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "9c08b0a2d9e98914",
+            "7b5b491a438ae9e0",
+            "2c41d033a09f4fd4",
+            "5cfa77b25f60fea3",
+            "df12874f6110a221"
+        ],
+        "x": 34,
+        "y": 619,
+        "w": 712,
+        "h": 142
+    },
+    {
+        "id": "e7b9f7aed530b7da",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "Provider: Add Usage/contract policy in provider",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "9b82117f21b03cac",
+            "804c337df1787890",
+            "294d55dfe3cb6af7",
+            "0675b5e233e18673",
+            "2e49c61f24fe420c"
+        ],
+        "x": 34,
+        "y": 999,
+        "w": 712,
+        "h": 142
+    },
+    {
+        "id": "6d45da6a38bbb708",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "Provider: Creating a Contract Definition",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "77e92dfd83e7a86c",
+            "15b3748e8adc41d2",
+            "beb6e737d8f6ea37",
+            "d7401af6e606b91c",
+            "216ebdb44a3b5e17"
+        ],
+        "x": 34,
+        "y": 1299,
+        "w": 712,
+        "h": 142
+    },
+    {
+        "id": "0e70ab0784b6576a",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "UI Create Asset",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "723588b4bedc98d3",
+            "7ba04f5a6e87a7bf",
+            "0ee7d89a6e14ba82",
+            "4d425ce8d759a705",
+            "4f71c57cac035f12",
+            "400e93db7023a9f9",
+            "4846b6b6eabb91ba",
+            "7349ab3ca8d3ddee",
+            "6a085324a385b0a3",
+            "1c73409c0619cf14",
+            "6e6d11fcdcde68d0"
+        ],
+        "x": 34,
+        "y": 19,
+        "w": 1052,
+        "h": 242
+    },
+    {
+        "id": "9c5d6320f6a7304c",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "Asset Übersicht",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "45e3465780e0e2fc",
+            "6f11633c53b323b4",
+            "4c6c4b09876edd63",
+            "2e44a0bac0d7df0f",
+            "2f806c34cabbf204",
+            "bcf4385812464e67",
+            "66a8826f86349601"
+        ],
+        "x": 914,
+        "y": 279,
+        "w": 452,
+        "h": 202
+    },
+    {
+        "id": "da1ce68f86fd6ced",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "UI Create Access Policy",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "2975d6e928a4a39d",
+            "22877c9dc10deb91",
+            "8748e15081991d7a",
+            "ed9cabe937a6c11c"
+        ],
+        "x": 34,
+        "y": 519,
+        "w": 1012,
+        "h": 82
+    },
+    {
+        "id": "883c4f18f7be5fc7",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "UI Create Usage Policy",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "cc363a6850d52567",
+            "b8a7f4ed350862ee",
+            "ab97225c11956048",
+            "f26147cdef7a72a4",
+            "90f9bec99a34390b",
+            "32cc0953160fe42e",
+            "f13978fc51b050c7"
+        ],
+        "x": 34,
+        "y": 799,
+        "w": 972,
+        "h": 202
+    },
+    {
+        "id": "b5d222d4f468427f",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "UI Contract Definition",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "a93620861130b7f5",
+            "d6aedfad2d0dd953",
+            "2b677132e7e7649a",
+            "5789aec4bc911c5c"
+        ],
+        "x": 34,
+        "y": 1199,
+        "w": 952,
+        "h": 82
+    },
+    {
+        "id": "f1e2d3c4b5a6f7e8",
+        "type": "group",
+        "z": "5dcb186b05559fb8",
+        "name": "UI Publish AAS Shell",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "b1d2e3f4a5b6c7d8",
+            "c2e3f4a5b6c7d8e9",
+            "d3f4a5b6c7d8e9f0",
+            "e4a5b6c7d8e9f0a1",
+            "f5b6c7d8e9f0a1b2",
+            "a6c7d8e9f0a1b2c3",
+            "b7d8e9f0a1b2c3d4",
+            "c8e9f0a1b2c3d4e5",
+            "d9f0a1b2c3d4e5f6",
+            "e1a2b3c4d5e6f7a8",
+            "f2b3c4d5e6f7a8b9",
+            "a3c4d5e6f7a8b9c0",
+            "b4d5e6f7a8b9c0d1",
+            "c5e6f7a8b9c0d1e2",
+            "d6f7a8b9c0d1e2f3"
+        ],
+        "x": 34,
+        "y": 1439,
+        "w": 992,
+        "h": 242
+    },
+    {
+        "id": "e1a2b3c4d5e6f7a8",
+        "type": "inject",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "Load shells on startup",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.5,
+        "topic": "",
+        "x": 150,
+        "y": 1660,
+        "wires": [
+            [
+                "a3c4d5e6f7a8b9c0"
+            ]
+        ]
+    },
+    {
+        "id": "f2b3c4d5e6f7a8b9",
+        "type": "ui-button",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "group": "a9c1f3d2b4e5a6c7",
+        "name": "Shells aktualisieren",
+        "label": "Shells aktualisieren",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-refresh",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 1700,
+        "wires": [
+            [
+                "a3c4d5e6f7a8b9c0"
+            ]
+        ]
+    },
+    {
+        "id": "a3c4d5e6f7a8b9c0",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "Build shells list request",
+        "func": "const baseUrl = env.get(\"BASYX_BASE_URL\") || env.get(\"SDI_AAS_URL\") || \"http://localhost:8081\";\nmsg.url = baseUrl.replace(/\\/$/, \"\") + \"/shells?limit=200\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 1680,
+        "wires": [
+            [
+                "b4d5e6f7a8b9c0d1"
+            ]
+        ]
+    },
+    {
+        "id": "b4d5e6f7a8b9c0d1",
+        "type": "http request",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "GET Shells list",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 650,
+        "y": 1680,
+        "wires": [
+            [
+                "c5e6f7a8b9c0d1e2"
+            ]
+        ]
+    },
+    {
+        "id": "c5e6f7a8b9c0d1e2",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "Build dropdown options",
+        "func": "const data = msg.payload;\nconst shells = Array.isArray(data) ? data : (data && data.result) || [];\n\nconst options = shells\n    .filter(s => s && typeof s.id === \"string\")\n    .map(s => ({ label: (s.idShort || s.id), value: s.id }));\n\nmsg.ui_update = { options };\nmsg.payload = \"Shells geladen: \" + options.length;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 1680,
+        "wires": [
+            [
+                "d6f7a8b9c0d1e2f3"
+            ]
+        ]
+    },
+    {
+        "id": "d6f7a8b9c0d1e2f3",
+        "type": "ui-dropdown",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "group": "a9c1f3d2b4e5a6c7",
+        "name": "Shell auswählen",
+        "label": "Vorhandene Shells",
+        "tooltip": "",
+        "order": 2,
+        "width": "6",
+        "height": "1",
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "shell_id",
+        "topicType": "str",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 690,
+        "y": 1740,
+        "wires": [
+            [
+                "c2e3f4a5b6c7d8e9"
+            ]
+        ]
+    },
+    {
+        "id": "d9f0a1b2c3d4e5f6",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "group": "a9c1f3d2b4e5a6c7",
+        "order": 4,
+        "width": "6",
+        "height": "1",
+        "name": "Tooltip-Publish",
+        "label": "Trage die Shell-ID ein, wie sie in Basyx hinterlegt ist (z. B. localhost/demo/aas/Kugelschreiber_TracePEN) - Base64-Kodierung übernimmt der Flow automatisch.",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 480,
+        "y": 1460,
+        "wires": []
+    },
+    {
+        "id": "b1d2e3f4a5b6c7d8",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "group": "a9c1f3d2b4e5a6c7",
+        "name": "Shell-ID",
+        "label": "Shell-ID (manuell, falls nicht in der Liste)",
+        "order": 3,
+        "width": "6",
+        "height": "1",
+        "topic": "shell_id",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-identifier",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 130,
+        "y": 1460,
+        "wires": [
+            [
+                "c2e3f4a5b6c7d8e9"
+            ]
+        ]
+    },
+    {
+        "id": "c2e3f4a5b6c7d8e9",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "Store publish form field",
+        "func": "const key = (msg.topic ?? \"\").toString().trim();\nif (!key) return null;\n\nlet val = msg.payload;\nif (typeof val === \"string\") val = val.trim();\nif (val === \"\") val = undefined;\n\nconst form = flow.get(\"publishShellForm\") || {};\nform[key] = val;\nflow.set(\"publishShellForm\", form);\n\nreturn null;",
+        "outputs": 0,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 1500,
+        "wires": []
+    },
+    {
+        "id": "d3f4a5b6c7d8e9f0",
+        "type": "ui-button",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "group": "a9c1f3d2b4e5a6c7",
+        "name": "Veröffentlichen",
+        "label": "In Bucket veröffentlichen",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-cloud-upload",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 130,
+        "y": 1540,
+        "wires": [
+            [
+                "e4a5b6c7d8e9f0a1"
+            ]
+        ]
+    },
+    {
+        "id": "e4a5b6c7d8e9f0a1",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "Build publish request",
+        "func": "const form = flow.get(\"publishShellForm\") || {};\nconst shellId = form.shell_id;\n\nif (!shellId) {\n    msg.payload = \"Bitte zuerst eine Shell-ID eingeben.\";\n    return [null, msg];\n}\n\nconst baseUrl = (env.get(\"PUBLISH_BASE_URL\") || env.get(\"SDI_NODERED_URL\")) || \"http://localhost:1880\";\nconst apiKey = (env.get(\"BACKEND_API_KEY\") || env.get(\"SDI_EDC_BACKEND_KEY\"));\nif (!apiKey) {\n    msg.payload = \"BACKEND_API_KEY ist auf diesem Tab nicht gesetzt.\";\n    return [null, msg];\n}\n\nconst encodedId = Buffer.from(shellId).toString(\"base64url\");\nmsg.url = baseUrl.replace(/\\/$/, \"\") + \"/dsp-backend/shells/\" + encodedId + \"/publish\";\nmsg.headers = { \"x-api-key\": apiKey };\n\nconst statusMsg = { payload: \"\\u23F3 Ver\\u00f6ffentliche \\\"\" + shellId + \"\\\" ...\" };\nreturn [msg, statusMsg];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 380,
+        "y": 1540,
+        "wires": [
+            [
+                "f5b6c7d8e9f0a1b2"
+            ],
+            [
+                "b7d8e9f0a1b2c3d4"
+            ]
+        ]
+    },
+    {
+        "id": "f5b6c7d8e9f0a1b2",
+        "type": "http request",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "POST publish",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 660,
+        "y": 1540,
+        "wires": [
+            [
+                "a6c7d8e9f0a1b2c3"
+            ]
+        ]
+    },
+    {
+        "id": "a6c7d8e9f0a1b2c3",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "Handle publish result",
+        "func": "const status = msg.statusCode;\nlet body = msg.payload;\ntry { if (typeof body === \"string\") body = JSON.parse(body); } catch (e) { /* ignore */ }\n\nif (status >= 200 && status < 300 && body && body.status === \"ok\") {\n    const edcNote = body.edcOfferRegistered ? \" (EDC-Offer registriert)\" : \" (EDC-Offer noch nicht registriert - EDC-Env-Vars pr\\u00fcfen)\";\n    msg.payload = \"\\u2705 Erfolgreich ver\\u00f6ffentlicht: \" + body.objectKey + edcNote;\n} else {\n    const errMsg = (body && body.error) ? body.error : (typeof msg.payload === \"string\" ? msg.payload : JSON.stringify(msg.payload));\n    msg.payload = \"\\u274C Fehler (HTTP \" + status + \"): \" + errMsg;\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 1540,
+        "wires": [
+            [
+                "b7d8e9f0a1b2c3d4",
+                "c8e9f0a1b2c3d4e5"
+            ]
+        ]
+    },
+    {
+        "id": "b7d8e9f0a1b2c3d4",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "group": "a9c1f3d2b4e5a6c7",
+        "order": 6,
+        "width": 6,
+        "height": 0,
+        "name": "Publish Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#14387f",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 380,
+        "y": 1580,
+        "wires": []
+    },
+    {
+        "id": "c8e9f0a1b2c3d4e5",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "f1e2d3c4b5a6f7e8",
+        "name": "debug publish",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 1580,
+        "wires": []
+    },
+    {
+        "id": "8c80204d3581d826",
+        "type": "http request",
+        "z": "5dcb186b05559fb8",
+        "g": "5262b23873fcd161",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/assets",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "M6TEwlJH"
+            }
+        ],
+        "x": 450,
+        "y": 340,
+        "wires": [
+            [
+                "37011fe55c369bc9",
+                "4c18b2788be072c2"
+            ]
+        ]
+    },
+    {
+        "id": "d6702136f91d61ef",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "5262b23873fcd161",
+        "name": "function 1",
+        "func": "const form = flow.get(\"assetForm\") || {};\n\nconst assetId = form.asset_id;\nconst description = form.description;\nconst baseUrl = form.url_asset;\nconst dataType = form.data_type || \"HttpData\";\n\nconst missing = [];\nif (!assetId) missing.push(\"Asset-ID\");\nif (!description) missing.push(\"Description\");\nif (!baseUrl) missing.push(\"Asset-URL\");\n\nif (missing.length) {\n  // Status an UI\n  const uiMsg = { payload: `Bitte ausfüllen: ${missing.join(\", \")}` };\n  return [null, uiMsg];\n}\n\n// request body\nmsg.payload = {\n  \"@context\": {},\n  \"@type\": \"Asset\",\n  \"@id\": assetId,\n  \"properties\": { \"description\": description },\n  \"dataAddress\": {\n    \"@type\": \"DataAddress\",\n    \"type\": dataType,\n    \"baseUrl\": baseUrl\n  }\n};\n\n// Werte für später merken (für Summary nach Response)\nmsg._assetSummary = { assetId, description, baseUrl, dataType };\n\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 340,
+        "wires": [
+            [
+                "8c80204d3581d826"
+            ],
+            [
+                "45e3465780e0e2fc"
+            ]
+        ]
+    },
+    {
+        "id": "37011fe55c369bc9",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "5262b23873fcd161",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "9c08b0a2d9e98914",
+        "type": "http request",
+        "z": "5dcb186b05559fb8",
+        "g": "7a45027c49b9c3e8",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/policydefinitions",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "M6TEwlJH"
+            }
+        ],
+        "x": 450,
+        "y": 660,
+        "wires": [
+            [
+                "2c41d033a09f4fd4",
+                "df12874f6110a221"
+            ]
+        ]
+    },
+    {
+        "id": "7b5b491a438ae9e0",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "7a45027c49b9c3e8",
+        "name": "function 2",
+        "func": "const form = flow.get(\"policyForm\") || {};\nconst policyId = form.access_policy; // weil dein Input topic = \"access_policy\"\n\nif (!policyId) {\n  node.error(\"Bitte Access-Policy-ID ausfüllen.\", msg);\n  return null;\n}\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/edc/v0.0.1\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\" }\n  ],\n  \"@type\": \"PolicyDefinition\",\n  \"@id\": policyId,\n  \"policy\": { \"@type\": \"Set\" }\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 660,
+        "wires": [
+            [
+                "9c08b0a2d9e98914"
+            ]
+        ]
+    },
+    {
+        "id": "2c41d033a09f4fd4",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "7a45027c49b9c3e8",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 720,
+        "wires": []
+    },
+    {
+        "id": "9b82117f21b03cac",
+        "type": "http request",
+        "z": "5dcb186b05559fb8",
+        "g": "e7b9f7aed530b7da",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/policydefinitions",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "M6TEwlJH"
+            }
+        ],
+        "x": 450,
+        "y": 1040,
+        "wires": [
+            [
+                "294d55dfe3cb6af7",
+                "2e49c61f24fe420c"
+            ]
+        ]
+    },
+    {
+        "id": "804c337df1787890",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "e7b9f7aed530b7da",
+        "name": "function 3",
+        "func": "const form = flow.get(\"usageForm\") || {};\nconst usageId = form.usage_policy;\nconst bpn = form.bpn_consumer;\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/edc/v0.0.1\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    {\n      \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n    }\n  ],\n  \"@type\": \"PolicyDefinition\",\n  \"@id\": usageId,\n  \"policy\": {\n    \"@type\": \"Set\",\n    \"permission\": [\n      {\n        \"action\": \"use\",\n        \"constraint\": {\n          \"leftOperand\": \"BusinessPartnerNumber\",\n          \"operator\": \"eq\",\n          \"rightOperand\": bpn,\n        }\n      }\n    ]\n  }\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 280,
+        "y": 1040,
+        "wires": [
+            [
+                "9b82117f21b03cac"
+            ]
+        ]
+    },
+    {
+        "id": "294d55dfe3cb6af7",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "e7b9f7aed530b7da",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 1100,
+        "wires": []
+    },
+    {
+        "id": "77e92dfd83e7a86c",
+        "type": "http request",
+        "z": "5dcb186b05559fb8",
+        "g": "6d45da6a38bbb708",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/contractdefinitions",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [
+            {
+                "keyType": "other",
+                "keyValue": "Content-Type",
+                "valueType": "other",
+                "valueValue": "application/json"
+            },
+            {
+                "keyType": "other",
+                "keyValue": "X-Api-Key",
+                "valueType": "other",
+                "valueValue": "M6TEwlJH"
+            }
+        ],
+        "x": 470,
+        "y": 1340,
+        "wires": [
+            [
+                "beb6e737d8f6ea37",
+                "216ebdb44a3b5e17"
+            ]
+        ]
+    },
+    {
+        "id": "15b3748e8adc41d2",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "6d45da6a38bbb708",
+        "name": "function 4",
+        "func": "const form1 = flow.get(\"usageForm\") || {};\nconst usageId = form1.usage_policy;\nconst form2 = flow.get(\"policyForm\") || {};\nconst policyId = form2.access_policy;\nconst form3 = flow.get(\"contractForm\") || {};\nconst contractId = form3.contract_id; \nconst form4 = flow.get(\"assetForm\") || {};\nconst assetId = form4.asset_id;\n\nmsg.payload = {\n  \"@context\": {},\n  \"@id\": contractId,\n  \"@type\": \"ContractDefinition\",\n  \"accessPolicyId\": policyId,\n  \"contractPolicyId\": usageId, //Fehler in Dokumentation, hier soll die Usage-Policy hin\n  \"assetsSelector\": {\n    \"@type\": \"CriterionDto\",\n    \"operandLeft\": \"https://w3id.org/edc/v0.0.1/ns/id\",\n    \"operator\": \"=\",\n    \"operandRight\": assetId\n  }\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 300,
+        "y": 1340,
+        "wires": [
+            [
+                "77e92dfd83e7a86c"
+            ]
+        ]
+    },
+    {
+        "id": "beb6e737d8f6ea37",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "6d45da6a38bbb708",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 1400,
+        "wires": []
+    },
+    {
+        "id": "723588b4bedc98d3",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "name": "Asset-ID",
+        "label": "Asset-ID",
+        "order": 1,
+        "width": "5",
+        "height": "1",
+        "topic": "asset_id",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-identifier",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 120,
+        "y": 60,
+        "wires": [
+            [
+                "0ee7d89a6e14ba82"
+            ]
+        ]
+    },
+    {
+        "id": "59885a8dab99bcaa",
+        "type": "ui-button",
+        "z": "5dcb186b05559fb8",
+        "g": "5262b23873fcd161",
+        "group": "07e4c0df11e0dda9",
+        "name": "Submit",
+        "label": "Erstelle Asset",
+        "order": 10,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-plus-box",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "payload",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 120,
+        "y": 340,
+        "wires": [
+            [
+                "d6702136f91d61ef"
+            ]
+        ]
+    },
+    {
+        "id": "7ba04f5a6e87a7bf",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "name": "",
+        "label": "Asset Description",
+        "order": 3,
+        "width": "5",
+        "height": "1",
+        "topic": "description",
+        "topicType": "str",
+        "mode": "textarea",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-text-box-edit-outline",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "0ee7d89a6e14ba82"
+            ]
+        ]
+    },
+    {
+        "id": "0ee7d89a6e14ba82",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "name": "Store form fields",
+        "func": "const key = (msg.topic ?? \"\").toString().trim();\nif (!key) return null;\n\nlet val = msg.payload;\n\n// trim strings\nif (typeof val === \"string\") val = val.trim();\n\n// optional: leere Strings als \"nicht gesetzt\" behandeln\nif (val === \"\") val = undefined;\n\nconst form = flow.get(\"assetForm\") || {};\nform[key] = val;\n\nflow.set(\"assetForm\", form);\nmsg.form = form; // fürs Debuggen\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 820,
+        "y": 120,
+        "wires": [
+            [
+                "4846b6b6eabb91ba"
+            ]
+        ]
+    },
+    {
+        "id": "4d425ce8d759a705",
+        "type": "ui-dropdown",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "name": "Wähle Data Type",
+        "label": "Select Option:",
+        "tooltip": "",
+        "order": 8,
+        "width": "5",
+        "height": "1",
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "HttpData",
+                "value": "HttpData",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "data_type",
+        "topicType": "str",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onClose",
+        "x": 150,
+        "y": 220,
+        "wires": [
+            [
+                "0ee7d89a6e14ba82"
+            ]
+        ]
+    },
+    {
+        "id": "4f71c57cac035f12",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "name": "URL Endpunkt des Assets",
+        "label": "URL Endpunkt des Assets",
+        "order": 5,
+        "width": "5",
+        "height": "1",
+        "topic": "url_asset",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-api",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 170,
+        "y": 140,
+        "wires": [
+            [
+                "0ee7d89a6e14ba82"
+            ]
+        ]
+    },
+    {
+        "id": "400e93db7023a9f9",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "order": 7,
+        "width": "6",
+        "height": "1",
+        "name": "Test URL",
+        "label": "Für Tests bitte diese Test-Asset-URL nutzen: https://jsonplaceholder.typicode.com/todos/3",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "14",
+        "color": "#717171",
+        "wrapText": false,
+        "className": "",
+        "x": 120,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "4846b6b6eabb91ba",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "name": "debug 5",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "form",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "7349ab3ca8d3ddee",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-Asset-ID",
+        "label": "Setze eine Asset-ID. Das kann z.B. der Name des Assets sein. ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 480,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "6a085324a385b0a3",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "order": 4,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-Asset-Description",
+        "label": "Hier die Beschreibung des Assets eintragen.",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 510,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "1c73409c0619cf14",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "order": 6,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-Asset-URL",
+        "label": "Öffentlich erreichbarer Endpunkt für ein Asset",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 490,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "45e3465780e0e2fc",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "9c5d6320f6a7304c",
+        "group": "fe8aacb6a86a7878",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#14387f",
+        "wrapText": false,
+        "className": "",
+        "x": 1210,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "6f11633c53b323b4",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "9c5d6320f6a7304c",
+        "group": "fe8aacb6a86a7878",
+        "order": 7,
+        "width": "5",
+        "height": "1",
+        "name": "Asset-ID",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 1220,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "4c6c4b09876edd63",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "9c5d6320f6a7304c",
+        "group": "fe8aacb6a86a7878",
+        "order": 5,
+        "width": "5",
+        "height": "1",
+        "name": "Asset-Description",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 1250,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "2e44a0bac0d7df0f",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "9c5d6320f6a7304c",
+        "group": "fe8aacb6a86a7878",
+        "order": 3,
+        "width": "5",
+        "height": "1",
+        "name": "Asset URL",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 1230,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "4c18b2788be072c2",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "5262b23873fcd161",
+        "name": "function 6",
+        "func": "// Node-RED http request liefert typischerweise:\n// msg.statusCode, msg.payload (txt), ggf. msg.responseUrl\n\nconst status = msg.statusCode;\n\n// Versuche Fehlerdetails zu lesen (falls JSON)\nlet body = msg.payload;\ntry {\n  if (typeof body === \"string\") body = JSON.parse(body);\n} catch (e) { /* ignore */ }\n\nif (status >= 200 && status < 300) {\n  // Erfolg\n  const s = msg._assetSummary || {};\n  return [\n    { payload: \"Asset erfolgreich erstellt.\" },                         // Status-Text\n    { payload: s.assetId || \"\" },                                       // ID\n    { payload: s.description || \"\" },                                   // Description\n    { payload: s.baseUrl || \"\" }                                        // URL\n  ];\n}\n\n// Fehler\nconst errText =\n  (body && body.message) ? body.message :\n  (typeof msg.payload === \"string\" ? msg.payload : JSON.stringify(msg.payload));\n\nreturn [\n  { payload: `Fehler beim Erstellen (HTTP ${status}): ${errText}` },    // Status-Text\n  { payload: \"\" }, { payload: \"\" }, { payload: \"\" }                    // Summary leeren\n];",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 340,
+        "wires": [
+            [
+                "45e3465780e0e2fc"
+            ],
+            [
+                "6f11633c53b323b4"
+            ],
+            [
+                "4c6c4b09876edd63"
+            ],
+            [
+                "2e44a0bac0d7df0f"
+            ]
+        ]
+    },
+    {
+        "id": "2f806c34cabbf204",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "9c5d6320f6a7304c",
+        "group": "fe8aacb6a86a7878",
+        "order": 6,
+        "width": "1",
+        "height": "1",
+        "name": "Asset-ID",
+        "label": "Asset-ID: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 1000,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "bcf4385812464e67",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "9c5d6320f6a7304c",
+        "group": "fe8aacb6a86a7878",
+        "order": 4,
+        "width": "1",
+        "height": "1",
+        "name": "Asset-Description",
+        "label": "Asset-Description: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 1030,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "66a8826f86349601",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "9c5d6320f6a7304c",
+        "group": "fe8aacb6a86a7878",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "name": "Asset URL",
+        "label": "Asset URL: ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 1010,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "6e6d11fcdcde68d0",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "0e70ab0784b6576a",
+        "group": "07e4c0df11e0dda9",
+        "order": 9,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-DataType",
+        "label": "Data Type für das Asset",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 490,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "2975d6e928a4a39d",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "da1ce68f86fd6ced",
+        "group": "ce26f4e1f7aa6278",
+        "name": "Access-Policy-ID",
+        "label": "Access-Policy-ID",
+        "order": 1,
+        "width": "5",
+        "height": "1",
+        "topic": "access_policy",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-door-closed-lock",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 150,
+        "y": 560,
+        "wires": [
+            [
+                "8748e15081991d7a"
+            ]
+        ]
+    },
+    {
+        "id": "22877c9dc10deb91",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "da1ce68f86fd6ced",
+        "group": "ce26f4e1f7aa6278",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-Access",
+        "label": "Setze eine Access-Policy-ID. Das kann z.B. der Name der Policy sein. ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 480,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "5cfa77b25f60fea3",
+        "type": "ui-button",
+        "z": "5dcb186b05559fb8",
+        "g": "7a45027c49b9c3e8",
+        "group": "ce26f4e1f7aa6278",
+        "name": "Submit",
+        "label": "Erstelle Access-Policy",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-plus-box",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "payload",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 120,
+        "y": 660,
+        "wires": [
+            [
+                "7b5b491a438ae9e0"
+            ]
+        ]
+    },
+    {
+        "id": "0675b5e233e18673",
+        "type": "ui-button",
+        "z": "5dcb186b05559fb8",
+        "g": "e7b9f7aed530b7da",
+        "group": "96a50e9b98dcf677",
+        "name": "Submit",
+        "label": "Erstelle Usage-Policy",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-plus-box",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "payload",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 120,
+        "y": 1040,
+        "wires": [
+            [
+                "804c337df1787890"
+            ]
+        ]
+    },
+    {
+        "id": "cc363a6850d52567",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "883c4f18f7be5fc7",
+        "group": "96a50e9b98dcf677",
+        "name": "Usage-Policy-ID",
+        "label": "Usage-Policy-ID",
+        "order": 1,
+        "width": "5",
+        "height": "1",
+        "topic": "usage_policy",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-account-lock-open-outline",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 140,
+        "y": 840,
+        "wires": [
+            [
+                "90f9bec99a34390b"
+            ]
+        ]
+    },
+    {
+        "id": "b8a7f4ed350862ee",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "883c4f18f7be5fc7",
+        "group": "96a50e9b98dcf677",
+        "order": 4,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-Usage",
+        "label": "Setze eine Usage-Policy-ID. Das kann z.B. der Name der Policy sein. ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 500,
+        "y": 840,
+        "wires": []
+    },
+    {
+        "id": "ab97225c11956048",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "883c4f18f7be5fc7",
+        "group": "96a50e9b98dcf677",
+        "name": "Business Partner Number",
+        "label": "Business Partner Number",
+        "order": 3,
+        "width": "5",
+        "height": "1",
+        "topic": "bpn_consumer",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-numeric",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 170,
+        "y": 880,
+        "wires": [
+            [
+                "90f9bec99a34390b"
+            ]
+        ]
+    },
+    {
+        "id": "f26147cdef7a72a4",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "883c4f18f7be5fc7",
+        "group": "96a50e9b98dcf677",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-BPN",
+        "label": "Trage die Business Partner Number ein, von dem Partner, der das Asset sehen darf. ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 490,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "d7401af6e606b91c",
+        "type": "ui-button",
+        "z": "5dcb186b05559fb8",
+        "g": "6d45da6a38bbb708",
+        "group": "026cb92e88b58a38",
+        "name": "Submit",
+        "label": "Erstelle Contract Definition",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-plus-box",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "payload",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 120,
+        "y": 1340,
+        "wires": [
+            [
+                "15b3748e8adc41d2"
+            ]
+        ]
+    },
+    {
+        "id": "a93620861130b7f5",
+        "type": "ui-text-input",
+        "z": "5dcb186b05559fb8",
+        "g": "b5d222d4f468427f",
+        "group": "026cb92e88b58a38",
+        "name": "Contract-Definition-ID",
+        "label": "Contract-Definition-ID",
+        "order": 1,
+        "width": "5",
+        "height": "1",
+        "topic": "contract_id",
+        "topicType": "str",
+        "mode": "text",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": true,
+        "sendOnEnter": false,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "mdi-file-sign",
+        "iconPosition": "left",
+        "iconInnerPosition": "outside",
+        "x": 160,
+        "y": 1240,
+        "wires": [
+            [
+                "2b677132e7e7649a"
+            ]
+        ]
+    },
+    {
+        "id": "d6aedfad2d0dd953",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "g": "b5d222d4f468427f",
+        "group": "026cb92e88b58a38",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "name": "Tooltip-Contract",
+        "label": "Setze eine Contract-Definition-ID. Das kann z.B. der Name des Contracts sein. ",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": "12",
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "x": 500,
+        "y": 1240,
+        "wires": []
+    },
+    {
+        "id": "8748e15081991d7a",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "da1ce68f86fd6ced",
+        "name": "function 7",
+        "func": "const key = (msg.topic ?? \"\").toString().trim();\nif (!key) return null;\n\nlet val = msg.payload;\nif (typeof val === \"string\") val = val.trim();\nif (val === \"\") val = undefined;\n\nconst form = flow.get(\"policyForm\") || {};\nform[key] = val;\nflow.set(\"policyForm\", form);\n\nmsg.form = form;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 560,
+        "wires": [
+            [
+                "ed9cabe937a6c11c"
+            ]
+        ]
+    },
+    {
+        "id": "ed9cabe937a6c11c",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "da1ce68f86fd6ced",
+        "name": "debug 6",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 940,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "6c87752953faa0cc",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "group": "73da1253915cc69d",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#14387f",
+        "wrapText": false,
+        "className": "",
+        "x": 870,
+        "y": 660,
+        "wires": []
+    },
+    {
+        "id": "df12874f6110a221",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "7a45027c49b9c3e8",
+        "name": "function 8",
+        "func": "// Minimaler Status für die UI: \"Erfolgreich erstellt\" oder \"Fehlgeschlagen\"\n\nconst code = msg.statusCode;\n\nif (code >= 200 && code < 300) {\n  msg.payload = \"Access-Policy erfolgreich erstellt\";\n} else {\n  msg.payload = \"Fehlgeschlagen\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 660,
+        "wires": [
+            [
+                "6c87752953faa0cc"
+            ]
+        ]
+    },
+    {
+        "id": "90f9bec99a34390b",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "883c4f18f7be5fc7",
+        "name": "function 11",
+        "func": "const key = (msg.topic ?? \"\").toString().trim();\nif (!key) return null;\n\nlet val = msg.payload;\nif (typeof val === \"string\") val = val.trim();\nif (val === \"\") val = undefined;\n\nconst form = flow.get(\"usageForm\") || {};\nform[key] = val;\nflow.set(\"usageForm\", form);\n\nmsg.form = form;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 880,
+        "wires": [
+            [
+                "32cc0953160fe42e"
+            ]
+        ]
+    },
+    {
+        "id": "32cc0953160fe42e",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "883c4f18f7be5fc7",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 900,
+        "y": 880,
+        "wires": []
+    },
+    {
+        "id": "2e49c61f24fe420c",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "e7b9f7aed530b7da",
+        "name": "function 12",
+        "func": "// Minimaler Status für die UI: \"Erfolgreich erstellt\" oder \"Fehlgeschlagen\"\n\nconst code = msg.statusCode;\n\nif (code >= 200 && code < 300) {\n  msg.payload = \"Usage-Policy erfolgreich erstellt\";\n} else {\n  msg.payload = \"Fehlgeschlagen\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 1040,
+        "wires": [
+            [
+                "888e11b5cb78a0a3"
+            ]
+        ]
+    },
+    {
+        "id": "888e11b5cb78a0a3",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "group": "2f79cc0b5f61281a",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#14387f",
+        "wrapText": false,
+        "className": "",
+        "x": 850,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "2b677132e7e7649a",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "b5d222d4f468427f",
+        "name": "function 13",
+        "func": "const key = (msg.topic ?? \"\").toString().trim();\nif (!key) return null;\n\nlet val = msg.payload;\nif (typeof val === \"string\") val = val.trim();\nif (val === \"\") val = undefined;\n\nconst form = flow.get(\"contractForm\") || {};\nform[key] = val;\nflow.set(\"contractForm\", form);\n\nmsg.form = form;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 1240,
+        "wires": [
+            [
+                "5789aec4bc911c5c"
+            ]
+        ]
+    },
+    {
+        "id": "5789aec4bc911c5c",
+        "type": "debug",
+        "z": "5dcb186b05559fb8",
+        "g": "b5d222d4f468427f",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 1240,
+        "wires": []
+    },
+    {
+        "id": "b9b2962f2c23de48",
+        "type": "ui-text",
+        "z": "5dcb186b05559fb8",
+        "group": "a76b098a6433b272",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#14387f",
+        "wrapText": false,
+        "className": "",
+        "x": 850,
+        "y": 1340,
+        "wires": []
+    },
+    {
+        "id": "216ebdb44a3b5e17",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "g": "6d45da6a38bbb708",
+        "name": "function 14",
+        "func": "// Minimaler Status für die UI: \"Erfolgreich erstellt\" oder \"Fehlgeschlagen\"\n\nconst code = msg.statusCode;\n\nif (code >= 200 && code < 300) {\n  msg.payload = \"Contract Definition erfolgreich erstellt\";\n} else {\n  msg.payload = \"Fehlgeschlagen\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 1340,
+        "wires": [
+            [
+                "b9b2962f2c23de48"
+            ]
+        ]
+    },
+    {
+        "id": "1a0621ae906386b2",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "name": "Adressbuch",
+        "func": "// Adressbuch \nconst book = {\n  \"HNI-01\":  { name:\"HNI-01\", bpn:\"BPNL000000003HN1\", dsp:\"https://hni-01-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"HNI-02\": { name:\"HNI-02\", bpn:\"BPNL000000003HN2\", dsp:\"https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Sonova\": { name:\"Sonova\", bpn:\"BPNL000000003PS2\", dsp:\"https://prostep-sonova-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"BOS\": { name:\"BOS\", bpn:\"BPNL000000003LJ2\", dsp:\"https://prostep-bos-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"Hadi-Plast\": { name:\"Hadi-Plast\", bpn:\"BPNL000000003PH1\", dsp:\"https://prostep-hadiplast-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n};\n\n// Dropdown-Optionen erzeugen (label = sichtbarer Name, value = ID)\nmsg.ui_update = msg.ui_update || {};\nmsg.ui_update.options = Object.entries(book).map(([id, e]) => ({\n  label: e.name,\n  value: id\n}));\n\n// Buch speichern für spätere Lookup-Nodes\nglobal.set(\"addressbook\", book);\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 960,
+        "wires": [
+            [
+                "f13978fc51b050c7"
+            ]
+        ]
+    },
+    {
+        "id": "901fe1e61123b58a",
+        "type": "function",
+        "z": "5dcb186b05559fb8",
+        "name": "Format für Store form fields",
+        "func": "const id = (msg.payload ?? \"\").toString();\nconst book = global.get(\"addressbook\") || {};\nconst e = book[id];\nif (!e) return [null, null, null];\n\nconst msgBpn = { topic: \"provider_bnp\", payload: e.bpn };\nconst msgDsp = { topic: \"dsp_url\",      payload: e.dsp };\n\n// Output 1: beide Messages nacheinander an Store form fields\n// Output 2: nur BPN an BPN-input\n// Output 3: nur DSP an DSP-input\nreturn [\n  [msgBpn, msgDsp],\n  msgBpn,\n  msgDsp\n];",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 960,
+        "wires": [
+            [
+                "90f9bec99a34390b"
+            ],
+            [
+                "ab97225c11956048"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "a2d5c04ac10bf3db",
+        "type": "inject",
+        "z": "5dcb186b05559fb8",
+        "name": "",
+        "props": [],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 150,
+        "y": 960,
+        "wires": [
+            [
+                "1a0621ae906386b2"
+            ]
+        ]
+    },
+    {
+        "id": "f13978fc51b050c7",
+        "type": "ui-dropdown",
+        "z": "5dcb186b05559fb8",
+        "g": "883c4f18f7be5fc7",
+        "group": "96a50e9b98dcf677",
+        "name": "Adressbuch",
+        "label": "Adressbuch",
+        "tooltip": "",
+        "order": 5,
+        "width": "5",
+        "height": "1",
+        "passthru": false,
+        "multiple": false,
+        "chips": false,
+        "clearable": false,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "str"
+            }
+        ],
+        "payload": "",
+        "topic": "topic",
+        "topicType": "msg",
+        "className": "",
+        "typeIsComboBox": true,
+        "msgTrigger": "onChange",
+        "x": 510,
+        "y": 960,
+        "wires": [
+            [
+                "901fe1e61123b58a"
+            ]
+        ]
+    },
+    {
+        "id": "951e3c2dc40cecf7",
+        "type": "ui-group",
+        "name": "Catalog Request",
+        "page": "b1b3b13496284eb2",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "f4e2d8d3839e948b",
+        "type": "ui-group",
+        "name": "Asset wählen",
+        "page": "b1b3b13496284eb2",
+        "width": 6,
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "3774a9d58fb37a1f",
+        "type": "ui-group",
+        "name": "Katalog",
+        "page": "b1b3b13496284eb2",
+        "width": 6,
+        "height": 1,
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "95446da12b5801ed",
+        "type": "ui-group",
+        "name": "Datei herunterladen",
+        "page": "b1b3b13496284eb2",
+        "width": 6,
+        "height": 1,
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "c7b0d6442df7e363",
+        "type": "ui-group",
+        "name": "Spacer Asset anfordern",
+        "page": "b1b3b13496284eb2",
+        "width": 6,
+        "height": 1,
+        "order": 4,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "07e4c0df11e0dda9",
+        "type": "ui-group",
+        "name": "Create Asset",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "fe8aacb6a86a7878",
+        "type": "ui-group",
+        "name": "Asset",
+        "page": "272143d231966802",
+        "width": "6",
+        "height": 1,
+        "order": 2,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "ce26f4e1f7aa6278",
+        "type": "ui-group",
+        "name": "Access-Policy",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "96a50e9b98dcf677",
+        "type": "ui-group",
+        "name": "Usage Policy",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 5,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "026cb92e88b58a38",
+        "type": "ui-group",
+        "name": "Contract Definition",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 7,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "a9c1f3d2b4e5a6c7",
+        "type": "ui-group",
+        "name": "AAS Shell veröffentlichen",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 9,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "73da1253915cc69d",
+        "type": "ui-group",
+        "name": "Spacer Access",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 4,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "2f79cc0b5f61281a",
+        "type": "ui-group",
+        "name": "Spacer Usage",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 6,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "a76b098a6433b272",
+        "type": "ui-group",
+        "name": "Spacer Contract",
+        "page": "272143d231966802",
+        "width": 6,
+        "height": 1,
+        "order": 8,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "b1b3b13496284eb2",
+        "type": "ui-page",
+        "name": "HNI-01 Consumer",
+        "ui": "5ccf679c7b70e876",
+        "path": "/consumer",
+        "icon": "mdi-account-arrow-left",
+        "layout": "grid",
+        "theme": "c21e78a54b3d1021",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 6,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "272143d231966802",
+        "type": "ui-page",
+        "name": "HNI-01 Provider",
+        "ui": "5ccf679c7b70e876",
+        "path": "/provider",
+        "icon": "mdi-account-arrow-right",
+        "layout": "grid",
+        "theme": "c21e78a54b3d1021",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 3,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "c21e78a54b3d1021",
+        "type": "ui-theme",
+        "name": "HNI Connector 1",
+        "colors": {
+            "surface": "#1a82ff",
+            "primary": "#14387f",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    },
+    {
+        "id": "b2c3d4e5f6a7b8c9",
+        "type": "tab",
+        "label": "EDC Consumer HNI-02",
+        "disabled": false,
+        "info": "HNI-01 fragt bei HNI-02 nach dem Zuliefererdaten-Offer, verhandelt, holt die EDR ab und schreibt das empfangene Submodel zurueck in HNI-01s lokalen Basyx an der Original-Shell (Runde: 01 -> 02 -> 02 aendert -> zurueck an 01).",
+        "env": [
+            {
+                "name": "EDC_MANAGEMENT_URL",
+                "type": "str",
+                "value": "https://hni-01.c-27d7c36.kyma.ondemand.com/management"
+            },
+            {
+                "name": "EDC_API_KEY",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "PROVIDER_DSP_URL",
+                "type": "str",
+                "value": "https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp"
+            },
+            {
+                "name": "PROVIDER_BPN",
+                "type": "str",
+                "value": "BPNL000000003HN2"
+            },
+            {
+                "name": "BASYX_BASE_URL",
+                "type": "str",
+                "value": "http://localhost:8081"
+            }
+        ]
+    },
+    {
+        "id": "c3d4e5f6a7b8c9d0",
+        "type": "ui-group",
+        "name": "Zuliefererdaten empfangen (von HNI-02)",
+        "page": "b1b3b13496284eb2",
+        "width": 6,
+        "height": 1,
+        "order": 6,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "e0f1a2b3c4d5e601",
+        "type": "ui-button",
+        "z": "b2c3d4e5f6a7b8c9",
+        "group": "c3d4e5f6a7b8c9d0",
+        "name": "1. Anfragen",
+        "label": "1. Zuliefererdaten anfragen",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-source-branch",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 100,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e602"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e602",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Build catalog request",
+        "func": "const managementUrl = (env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\"));\nconst apiKey = (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\"));\nif (!managementUrl || !apiKey) {\n    return [null, { payload: \"\\u274C EDC_MANAGEMENT_URL / EDC_API_KEY sind auf diesem Tab nicht gesetzt (Tab-Reiter doppelklicken -> Environment Variables)\" }];\n}\n\nmsg.payload = {\n    \"@context\": { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\" },\n    \"protocol\": \"dataspace-protocol-http\",\n    \"counterPartyAddress\": (env.get(\"PROVIDER_DSP_URL\") || env.get(\"SDI_EDC_PARTNER_DSP_URL\")),\n    \"counterPartyId\": (env.get(\"PROVIDER_BPN\") || env.get(\"SDI_EDC_PARTNER_BPN\")),\n    \"querySpec\": { \"offset\": 0, \"limit\": 50 }\n};\nmsg.url = managementUrl + \"/v3/catalog/request\";\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": apiKey };\nreturn [msg, { payload: \"\\u23F3 Frage Katalog bei HNI-02 ab...\" }];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 100,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e603"
+            ],
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e603",
+        "type": "http request",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "POST catalog request",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 650,
+        "y": 100,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e604"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e604",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Find + negotiate Zuliefererdaten offer",
+        "func": "let catalog = msg.payload || {};\n// Manche Connectors liefern die Katalog-Antwort doppelt JSON-kodiert (ein String, der\n// wiederum escaped JSON enthaelt) statt eines direkten Objekts - zur Sicherheit nochmal parsen.\nif (typeof catalog === \"string\") {\n    try { catalog = JSON.parse(catalog); } catch (e) { catalog = {}; }\n}\nconst datasets = catalog[\"dcat:dataset\"] || [];\nconst list = Array.isArray(datasets) ? datasets : [datasets];\n\nfunction getEndpoint(ds) {\n    const dists = ds[\"dcat:distribution\"] || [];\n    for (const d of dists) {\n        const svc = d?.[\"dcat:accessService\"];\n        const url = svc?.[\"dcat:endpointUrl\"] || svc?.[\"dcat:endpointURL\"];\n        if (url) return url;\n    }\n    return \"\";\n}\n\n// Gezielt das Angebot fuer die zuletzt auf \"HNI-01 Consumer\" ausgewaehlte Shell suchen\n// (global-Kontext, weil dieser Tab einen eigenen flow-Kontext hat) - sonst wuerde einfach\n// irgendein zuliefererdaten-* Angebot genommen, was bei mehreren offenen Angeboten falsch waere.\nconst selectedAssetId = global.get(\"selectedAssetId\") || \"\";\nconst expectedZdAssetId = selectedAssetId ? \"zuliefererdaten-\" + selectedAssetId.replace(/^aas-shell-/, \"\") : null;\n\nlet match = null;\nif (expectedZdAssetId) {\n    match = list.find(ds => (ds[\"@id\"] || ds[\"id\"] || \"\") === expectedZdAssetId);\n}\nif (!match) {\n    match = list.find(ds => {\n        const id = ds[\"@id\"] || ds[\"id\"] || \"\";\n        return id.indexOf(\"zuliefererdaten-\") === 0;\n    });\n}\n\nif (!match) {\n    const hint = expectedZdAssetId ? (\" (gesucht: \" + expectedZdAssetId + \")\") : \"\";\n    return [null, { payload: \"\\u274C Kein Zuliefererdaten-Angebot im Katalog von HNI-02 gefunden\" + hint }];\n}\n\nconst assetId = match[\"@id\"] || match[\"id\"];\nconst offerId = match[\"odrl:hasPolicy\"]?.[\"@id\"] || \"\";\nconst providerEndpoint = getEndpoint(match);\n\nflow.set(\"zdAssetId\", assetId);\n\nmsg.payload = {\n    \"@context\": [\n        \"https://w3id.org/tractusx/policy/v1.0.0\",\n        \"http://www.w3.org/ns/odrl.jsonld\",\n        { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\", \"tx\": \"https://w3id.org/tractusx/v0.0.1/ns/\" }\n    ],\n    \"@type\": \"ContractRequest\",\n    \"counterPartyAddress\": providerEndpoint,\n    \"protocol\": \"dataspace-protocol-http\",\n    \"policy\": {\n        \"@id\": offerId,\n        \"@type\": \"Offer\",\n        \"assigner\": (env.get(\"PROVIDER_BPN\") || env.get(\"SDI_EDC_PARTNER_BPN\")),\n        \"permission\": [{\n            \"action\": \"use\",\n            \"constraint\": {\n                \"leftOperand\": \"tx:BusinessPartnerNumber\",\n                \"operator\": \"eq\",\n                \"rightOperand\": \"BPNL000000003HN1\"\n            }\n        }],\n        \"prohibition\": [],\n        \"obligation\": [],\n        \"target\": assetId\n    },\n    \"callbackAddresses\": []\n};\nmsg.url = (env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\")) + \"/v3/edrs\";\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\")) };\nreturn [msg, { payload: \"\\u23F3 Gefunden: \" + assetId + \" - verhandle...\" }];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 140,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e605"
+            ],
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e605",
+        "type": "http request",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "POST negotiate (edrs)",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 950,
+        "y": 140,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e606",
+                "e0f1a2b3c4d5e615"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e606",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Handle negotiate response",
+        "func": "const status = msg.statusCode;\nif (status >= 200 && status < 300) {\n    msg.payload = \"\\u2705 Angefragt (Negotiation \" + (msg.payload && msg.payload[\"@id\"]) + \") - kurz warten, dann Schritt 2 klicken\";\n} else {\n    msg.payload = \"\\u274C Verhandlung fehlgeschlagen (HTTP \" + status + \")\";\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1200,
+        "y": 140,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e607",
+        "type": "ui-button",
+        "z": "b2c3d4e5f6a7b8c9",
+        "group": "c3d4e5f6a7b8c9d0",
+        "name": "2. Abrufen",
+        "label": "2. Abrufen & in Basyx speichern",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "mdi-content-save",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 150,
+        "y": 260,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e608"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e608",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Build EDR query",
+        "func": "const assetId = flow.get(\"zdAssetId\");\nif (!assetId) {\n    return [null, { payload: \"\\u274C Zuerst Schritt 1 (Anfragen) ausfuehren\" }];\n}\nmsg.payload = {\n    \"@context\": { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\" },\n    \"@type\": \"QuerySpec\",\n    \"filterExpression\": [{ \"operandLeft\": \"assetId\", \"operator\": \"=\", \"operandRight\": assetId }]\n};\nmsg.url = (env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\")) + \"/v3/edrs/request\";\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\")) };\nreturn [msg, { payload: \"\\u23F3 Suche EDR...\" }];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 260,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e609"
+            ],
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e609",
+        "type": "http request",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "POST edrs/request",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 650,
+        "y": 260,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e60a"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e60a",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Extract transferProcessId",
+        "func": "let list = msg.payload;\nif (typeof list === \"string\") {\n    try { list = JSON.parse(list); } catch (e) { list = []; }\n}\nif (!Array.isArray(list) || list.length === 0) {\n    return [null, { payload: \"\\u23F3 Noch keine EDR bereit - kurz warten und Schritt 2 erneut klicken\" }];\n}\nmsg.transferProcessId = list[0].transferProcessId;\nmsg.url = (env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\")) + \"/v3/edrs/\" + msg.transferProcessId + \"/dataaddress\";\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\")) };\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 260,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e60b"
+            ],
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e60b",
+        "type": "http request",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "GET dataaddress",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1150,
+        "y": 260,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e60c"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e60c",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Extract endpoint+auth",
+        "func": "let da = msg.payload;\nif (typeof da === \"string\") { try { da = JSON.parse(da); } catch (e) {} }\nmsg.url = da.endpoint;\nmsg.headers = { \"Authorization\": da.authorization };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 150,
+        "y": 340,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e60d"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e60d",
+        "type": "http request",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "GET actual data",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 400,
+        "y": 340,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e60e"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e60e",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Map submodels for write-back",
+        "func": "let data = msg.payload;\nif (typeof data === \"string\") { try { data = JSON.parse(data); } catch (e) {} }\nconst submodels = (data && data.submodels) || [];\n\nif (submodels.length === 0) {\n    return [null, { payload: \"\\u274C Keine Submodels in der empfangenen Antwort\" }];\n}\n\nconst out = submodels.map(sm => ({\n    payload: sm,\n    targetShellId: String(sm.id || \"\").replace(/\\/Zuliefererdaten$/, \"\")\n}));\n\nreturn [out, { payload: \"\\u23F3 \" + out.length + \" Submodel(s) erhalten, schreibe in Basyx...\" }];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 340,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e60f"
+            ],
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e60f",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Build submodel POST",
+        "func": "const baseUrl = env.get(\"BASYX_BASE_URL\") || env.get(\"SDI_AAS_URL\") || \"http://localhost:8081\";\nmsg.url = baseUrl.replace(/\\/$/, \"\") + \"/submodels\";\nmsg.headers = { \"Content-Type\": \"application/json\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 340,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e610"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e610",
+        "type": "http request",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "POST submodel to Basyx",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1150,
+        "y": 340,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e611"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e611",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Build ref POST",
+        "func": "const status = msg.statusCode;\nif (status && (status < 200 || status >= 300) && status !== 409) {\n    return [null, { payload: \"\\u274C Submodel-POST fehlgeschlagen (HTTP \" + status + \")\" }];\n}\n\nconst baseUrl = env.get(\"BASYX_BASE_URL\") || env.get(\"SDI_AAS_URL\") || \"http://localhost:8081\";\nconst shellId = msg.targetShellId;\nconst encodedShellId = Buffer.from(shellId).toString(\"base64url\");\n\nmsg.url = baseUrl.replace(/\\/$/, \"\") + \"/shells/\" + encodedShellId + \"/submodel-refs\";\nmsg.headers = { \"Content-Type\": \"application/json\" };\nconst submodelId = msg.payload && msg.payload.id ? msg.payload.id : (shellId + \"/Zuliefererdaten\");\nmsg.payload = {\n    type: \"ModelReference\",\n    keys: [{ type: \"Submodel\", value: submodelId }]\n};\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 150,
+        "y": 420,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e612"
+            ],
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e612",
+        "type": "http request",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "POST submodel-ref to Basyx",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 400,
+        "y": 420,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e613"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e613",
+        "type": "function",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "Final status: written",
+        "func": "const status = msg.statusCode;\nif (status && (status < 200 || status >= 300) && status !== 409) {\n    msg.payload = \"\\u274C Submodel-Ref-POST fehlgeschlagen (HTTP \" + status + \")\";\n} else {\n    msg.payload = \"\\u2705 Zuliefererdaten in Basyx gespeichert (Shell: \" + msg.targetShellId + \")\";\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 420,
+        "wires": [
+            [
+                "e0f1a2b3c4d5e614"
+            ]
+        ]
+    },
+    {
+        "id": "e0f1a2b3c4d5e614",
+        "type": "ui-text",
+        "z": "b2c3d4e5f6a7b8c9",
+        "group": "c3d4e5f6a7b8c9d0",
+        "order": 3,
+        "width": 6,
+        "height": 0,
+        "name": "Status",
+        "label": "",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": true,
+        "font": "",
+        "fontSize": 16,
+        "color": "#14387f",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 900,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "e0f1a2b3c4d5e615",
+        "type": "debug",
+        "z": "b2c3d4e5f6a7b8c9",
+        "name": "debug negotiate zuliefererdaten",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1200,
+        "y": 200,
+        "wires": []
+    }
+]

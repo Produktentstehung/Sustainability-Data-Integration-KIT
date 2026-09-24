@@ -283,6 +283,22 @@ removes what the other flows have written into `DataSources` and `ILCD`. Either
 import before the other sources run, or save those two submodels and write them
 back afterwards.
 
+## Publishing into the dataspace
+
+Handing a shell to another company runs over an EDC connector: the shell is
+written into a bucket, registered as an asset with a contract, and fetched by
+the partner after a contract negotiation. The partner can answer with a
+`Zuliefererdaten` submodel that lands on the original shell.
+
+It is optional and off by default. Leave `SDI_EDC_MANAGEMENT_URL` empty and the
+setup does not load those flows at all.
+
+Two things are worth knowing before you start: the connectors cannot be created
+locally, they are operated centrally and you have to ask for access; and the
+bucket of this reference setup is public-read, so the contract protects the
+catalogue entry rather than the data. [EDC.md](EDC.md) covers both, the setup
+and the round trip.
+
 ## First run
 
 Two things have to be in place before the first step, and the setup cannot

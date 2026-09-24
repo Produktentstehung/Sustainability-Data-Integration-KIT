@@ -75,7 +75,7 @@ def lade(pfad):
         return json.load(fh)
 
 
-def pruefe_datei(pfad, node_da):
+def pruefe_datei(pfad, node_da, auch_bekannt=frozenset()):
     """Returns a list of findings for one flow file."""
     funde = []
     try:
@@ -85,7 +85,10 @@ def pruefe_datei(pfad, node_da):
     if not isinstance(knoten, list):
         return ['not a flow export: the top level is not a list']
 
+    # Was in einer anderen Datei desselben Satzes steht, ist kein offener
+    # Verweis: Node-RED bekommt am Ende eine einzige flows.json.
     eigene = {n.get('id') for n in knoten if isinstance(n, dict)}
+    bekannt = eigene | set(auch_bekannt)
 
     doppelt = [k for k, z in collections.Counter(
         n.get('id') for n in knoten if isinstance(n, dict)).items() if z > 1]
@@ -99,13 +102,13 @@ def pruefe_datei(pfad, node_da):
         name = n.get('name') or n.get('label') or n.get('id')
         for leitung in (n.get('wires') or []):
             for ziel in leitung:
-                if ziel not in eigene:
-                    funde.append('%s points at %s, which is not in this file'
+                if ziel not in bekannt:
+                    funde.append('%s points at %s, which is nowhere in this set'
                                  % (name, ziel))
         for feld in VERWEISE:
             wert = n.get(feld)
-            if isinstance(wert, str) and wert and wert not in eigene:
-                funde.append('%s refers to %s=%s, which is not in this file'
+            if isinstance(wert, str) and wert and wert not in bekannt:
+                funde.append('%s refers to %s=%s, which is nowhere in this set'
                              % (name, feld, wert))
 
     # Nodes no message can ever reach.
@@ -133,6 +136,11 @@ def pruefe_datei(pfad, node_da):
             continue
         # A link-call target is addressed by name rather than by a wire.
         if typ in ('link out', 'link call'):
+            continue
+        # A ui-text shows its label with or without a message, so an unwired
+        # one is a caption, not a dead end. Without a label there is nothing
+        # to show until a message arrives, and then the finding stands.
+        if typ in ('ui-text', 'ui_text') and str(n.get('label') or '').strip():
             continue
         if n.get('id') in erreichbar:
             continue
@@ -186,8 +194,18 @@ def main():
     ueberall = collections.defaultdict(list)
     gesamt = 0
 
+    # Erst alle Kennungen des Satzes einsammeln, dann pruefen.
+    alle_kennungen = set()
     for pfad in dateien:
-        funde = pruefe_datei(pfad, node_da)
+        try:
+            for n in lade(pfad):
+                if isinstance(n, dict) and n.get('id'):
+                    alle_kennungen.add(n['id'])
+        except Exception:
+            pass
+
+    for pfad in dateien:
+        funde = pruefe_datei(pfad, node_da, alle_kennungen)
         gesamt += len(funde)
         print('%-32s %s' % (os.path.basename(pfad),
                             'in order' if not funde else '%d findings' % len(funde)))

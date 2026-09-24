@@ -352,15 +352,19 @@ which is which before drawing conclusions from a diagram.
 | 1 PLM baseline | Shells are built from PLM master data; weight, material and bill of material reach the `PLM` data source. Verified against CONTACT Elements. | The PLM writes the product weight, not a bill of material broken down by part; per-part masses arrive with the ERP. |
 | 2 Simulation enrichment | The simulation export is read and stored as `Simulation`; the assembly energy enters the calculation as its own parameter. | The interface is a file upload, not an online API, so enrichment is triggered manually. |
 | 3 Production data | ERP quantities and orders, machine measurements per run with threshold, piece count and serial number, and the assembly booking that ties a run to a piece. Runs end to end. | Threshold and part assignment are configured per machine; the KIT states their origin rather than deriving them. |
-| 4 Provision through the dataspace | nothing yet | The connector integration is not published yet. The AAS content it would offer exists and is exchangeable. |
-| 5 Ingestion of supplier data | nothing yet | Same connector integration; the target structures in `DataSources` already carry source attribution per value. |
+| 4 Provision through the dataspace | The shell is written into an S3 bucket and registered on an EDC connector as an asset with a contract; a partner connector negotiates for it and fetches it. Flows, the policy bootstrap and the configuration ship with the KIT (`src/EDC_Bridge.json`, `src/EDC_Dashboard.json`, `getting-started/EDC.md`). | The bucket of the reference setup is public-read, so the contract protects the catalogue entry rather than the payload. Only the shell as JSON travels, not an AASX package with its attachments. The flows come from a working installation; this repository has no connector pair to verify them against. |
+| 5 Ingestion of supplier data | The receiving side writes the values back over the same route in reverse, as a `Zuliefererdaten` submodel on the original shell. | The values pass through unchanged in the demonstration. Merging them into the existing structures, with source attribution per value as `DataSources` already provides it, is not implemented. |
 
 Use cases 4 and 5 are the reason the EDC connector appears throughout this
-document even though its integration flow is still outstanding: they exist only
-through it. The architecture, the standards chapter and the sequence view are
-written for the complete scope, so that the outstanding piece slots into a
-described place rather than changing the design around it. The detailed
-integration status is in [Implementation Status](#implementation-status).
+document: they exist only through it. Its integration is published with the
+KIT and described in [EDC.md](getting-started/EDC.md), and it is the youngest
+part of the reference implementation. One restriction of the current setup is
+worth repeating wherever it is shown: the bucket the shell travels through is
+public-read, so what the contract negotiation protects is the catalogue entry,
+not the data behind it. A private bucket with a pre-signed address closes that,
+and until it is closed this demonstrates the mechanics of sovereign exchange
+rather than sovereign exchange itself. The detailed integration status is in
+[Implementation Status](#implementation-status).
 
 ### Regulatory Relevance
 
@@ -1554,7 +1558,7 @@ Which use case runs today is answered in the Adoption View under [What of this r
 | OPC UA → AAS | Use case 3 | Available (`src/OPCUA_Manufacturing.json`). The flow reads the submodel written by the OPC UA connection; the connection to the machines themselves is plant-specific and not part of the published sources. Each run is stored with its own identifier, time window, piece count and the serial number of the piece it produced. |
 | Serial numbers and assembly booking | Use case 3 | Available (`src/Assembly_Booking.json`, `src/Assembly_Backfill.json`). Odoo issues the numbers from a configured pattern; the booking ties the components of an assembly to the piece and is written into `DataSources → ERP → AssemblyRecords`. |
 | Operating interface | Use cases 1–3 | Available (`src/Dashboard.json`). One page for the run, the chosen piece, the state of every data source and the result split by part. |
-| **EDC → AAS** | **Use cases 4 and 5** | **Planned, not yet implemented.** Dataspace exchange is delegated to the connector; the DMT-side integration flow is not published yet. |
+| EDC ↔ AAS | Use cases 4 and 5 | Available (`src/EDC_Bridge.json`, `src/EDC_Dashboard.json`). The shell goes into an S3 bucket and is offered on the connector as an asset with a contract; the partner negotiates, fetches it and can answer with a `Zuliefererdaten` submodel. Loaded only once `SDI_EDC_MANAGEMENT_URL` is configured. The bucket is public-read in this setup, see [EDC.md](getting-started/EDC.md). |
 
 Two things in the sequence view are worth reading against this table. It shows
 `update PLM` at the end of use case 1, but the published flow reads from the PLM

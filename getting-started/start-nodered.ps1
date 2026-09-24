@@ -68,6 +68,26 @@ if ($env:SDI_PLM_USER -and -not $env:SDI_PLM_PASSWORD) {
     [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
 }
 
+# The dataspace keys, only once a connector is entered. Same rule as for Odoo
+# and the PLM: a key never goes into .env, it is asked for and lives in this
+# process only.
+if ($env:SDI_EDC_MANAGEMENT_URL) {
+    foreach ($paar in @(
+        @("SDI_EDC_API_KEY",          "EDC API key of your own connector"),
+        @("SDI_EDC_PARTNER_API_KEY",  "EDC API key of the partner connector"),
+        @("SDI_S3_SECRET_ACCESS_KEY", "Secret access key of the bucket"),
+        @("SDI_EDC_BACKEND_KEY",      "Shared key of the dashboard endpoints")
+    )) {
+        $name = $paar[0]
+        if (-not (Get-Item "env:$name" -ErrorAction SilentlyContinue)) {
+            $secure = Read-Host -AsSecureString "$($paar[1]) (input is not shown)"
+            $bstr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+            Set-Item -Path "env:$name" -Value ([Runtime.InteropServices.Marshal]::PtrToStringBSTR($bstr))
+            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+        }
+    }
+}
+
 Write-Host ""
 Write-Host "Configuration:" -ForegroundColor Cyan
 Write-Host "  AAS server     : $env:SDI_AAS_URL"
@@ -75,6 +95,7 @@ Write-Host "  openLCA        : $env:SDI_OPENLCA_URL"
 Write-Host "  Product system : $(if ($env:SDI_OPENLCA_PRODUCT_SYSTEM) { $env:SDI_OPENLCA_PRODUCT_SYSTEM } else { 'not set' })"
 Write-Host "  Odoo           : $(if ($env:SDI_ODOO_DB) { $env:SDI_ODOO_DB } else { 'not configured' })"
 Write-Host "  PLM            : $(if ($env:SDI_PLM_URL) { $env:SDI_PLM_URL } else { 'not configured' })"
+Write-Host "  Dataspace      : $(if ($env:SDI_EDC_MANAGEMENT_URL) { $env:SDI_EDC_MANAGEMENT_URL } else { 'not configured' })"
 Write-Host ""
 Write-Host "Node-RED is starting on http://localhost:1880 ..." -ForegroundColor Cyan
 

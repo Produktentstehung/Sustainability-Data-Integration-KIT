@@ -1,0 +1,372 @@
+[
+    {
+        "id": "aas-s3-bridge-tab",
+        "type": "tab",
+        "label": "AAS to S3 Bridge",
+        "disabled": false,
+        "info": "Publishes an AAS shell (+ submodels) from the local Basyx server to an S3-compatible bucket (Cloudflare R2) and registers the corresponding Asset/ContractDefinition offer with the EDC Management API as a plain HttpData asset (same shape as the existing 'Create Asset' dashboard), pointing at the object's public R2 URL.\n\nSet the following environment variables on this tab (Edit Flow -> Environment Variables) or as process env vars on the Node-RED host:\n- BASYX_BASE_URL (default http://localhost:8081)\n- BACKEND_API_KEY\n- S3_BUCKET\n- S3_REGION (R2: leave as 'auto')\n- S3_ENDPOINT (R2 only, e.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com) - used for the upload (S3 API)\n- S3_PUBLIC_BASE_URL (R2 \"Public Development URL\", e.g. https://pub-xxxxxxxx.r2.dev) - used for the EDC asset's baseUrl\n- AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (R2 API token with Object Read & Write, scoped to the bucket)\n- EDC_MANAGEMENT_URL (e.g. https://hni-01.c-27d7c36.kyma.ondemand.com/management)\n- EDC_API_KEY\n- EDC_ACCESS_POLICY_ID / EDC_CONTRACT_POLICY_ID (created once via the bootstrap script or the existing Provider dashboard, then reused for every asset)\n\nRequires the @aws-sdk/client-s3 npm package installed in the Node-RED user directory, and a Node-RED runtime on Node.js >= 18 (for global fetch).",
+        "env": [
+            {
+                "name": "BASYX_BASE_URL",
+                "type": "str",
+                "value": "http://localhost:8081"
+            },
+            {
+                "name": "BACKEND_API_KEY",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "S3_BUCKET",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "S3_REGION",
+                "type": "str",
+                "value": "auto"
+            },
+            {
+                "name": "S3_ENDPOINT",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "S3_PUBLIC_BASE_URL",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "AWS_ACCESS_KEY_ID",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "AWS_SECRET_ACCESS_KEY",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_MANAGEMENT_URL",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_API_KEY",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_ACCESS_POLICY_ID",
+                "type": "str",
+                "value": ""
+            },
+            {
+                "name": "EDC_CONTRACT_POLICY_ID",
+                "type": "str",
+                "value": ""
+            }
+        ]
+    },
+    {
+        "id": "n1-http-in",
+        "type": "http in",
+        "z": "aas-s3-bridge-tab",
+        "name": "POST publish shell",
+        "url": "/dsp-backend/shells/:shellId/publish",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 200,
+        "y": 120,
+        "wires": [
+            [
+                "n2-check-key"
+            ]
+        ]
+    },
+    {
+        "id": "n2-check-key",
+        "type": "function",
+        "z": "aas-s3-bridge-tab",
+        "name": "Check API Key",
+        "func": "const expected = (env.get('BACKEND_API_KEY') || env.get('SDI_EDC_BACKEND_KEY'));\nconst provided = msg.req.headers['x-api-key'];\n\nif (!expected) {\n    node.error('BACKEND_API_KEY is not set - refusing all requests');\n    msg.statusCode = 500;\n    msg.payload = { error: 'Backend not configured' };\n    return [null, msg];\n}\n\nif (provided !== expected) {\n    msg.statusCode = 401;\n    msg.payload = { error: 'Unauthorized' };\n    return [null, msg];\n}\n\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 120,
+        "wires": [
+            [
+                "n4-shell-url"
+            ],
+            [
+                "n3-unauthorized"
+            ]
+        ]
+    },
+    {
+        "id": "n3-unauthorized",
+        "type": "http response",
+        "z": "aas-s3-bridge-tab",
+        "name": "Respond (error)",
+        "statusCode": "",
+        "headers": {},
+        "x": 660,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "n4-shell-url",
+        "type": "function",
+        "z": "aas-s3-bridge-tab",
+        "name": "Build Basyx Shell URL",
+        "func": "// shellId is expected to already be base64url-encoded by the caller,\n// same convention used by the existing dsp-backend endpoints.\nconst shellId = msg.req.params.shellId;\nconst basyxBaseUrl = env.get('BASYX_BASE_URL') || env.get('SDI_AAS_URL') || 'http://localhost:8081';\nmsg.url = basyxBaseUrl + '/shells/' + shellId;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 120,
+        "wires": [
+            [
+                "n5-get-shell"
+            ]
+        ]
+    },
+    {
+        "id": "n5-get-shell",
+        "type": "http request",
+        "z": "aas-s3-bridge-tab",
+        "name": "GET Shell from Basyx",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 900,
+        "y": 120,
+        "wires": [
+            [
+                "n5b-validate-shell"
+            ]
+        ]
+    },
+    {
+        "id": "n5b-validate-shell",
+        "type": "function",
+        "z": "aas-s3-bridge-tab",
+        "name": "Validate shell response",
+        "func": "const status = msg.statusCode;\nconst body = msg.payload;\n\nif (status && (status < 200 || status >= 300)) {\n    const detail = (body && body.messages) ? JSON.stringify(body.messages) : JSON.stringify(body);\n    msg.statusCode = 404;\n    msg.payload = { error: 'Shell nicht gefunden in Basyx (HTTP ' + status + '): ' + detail };\n    return [null, msg];\n}\n\nif (!body || typeof body.id !== 'string' || !body.id) {\n    msg.statusCode = 502;\n    msg.payload = { error: 'Unerwartete Antwort von Basyx - keine gueltige Shell-id im Response enthalten.' };\n    return [null, msg];\n}\n\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 160,
+        "wires": [
+            [
+                "n6-check-submodels"
+            ],
+            [
+                "n14-response"
+            ]
+        ]
+    },
+    {
+        "id": "n6-check-submodels",
+        "type": "function",
+        "z": "aas-s3-bridge-tab",
+        "name": "Stash shell, check for submodels",
+        "func": "msg.shellData = msg.payload; // keep the full shell object for later\nconst submodels = msg.payload.submodels || [];\n\nif (submodels.length === 0) {\n    // Nothing to fan out to - skip split/join entirely so the flow\n    // doesn't hang waiting for zero child messages.\n    msg.payload = [];\n    return [null, msg];\n}\n\n// Replace payload with just the refs array so the split node (on the plain\n// \"payload\" property) hands each item straight to msg.payload downstream -\n// splitting on a nested path like \"payload.submodels\" instead writes each\n// item back into msg.payload.submodels, leaving msg.payload as the shell object.\nmsg.payload = submodels;\nreturn [msg, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 220,
+        "wires": [
+            [
+                "n7-split"
+            ],
+            [
+                "n12-combine"
+            ]
+        ]
+    },
+    {
+        "id": "n7-split",
+        "type": "split",
+        "z": "aas-s3-bridge-tab",
+        "name": "Split submodel refs",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
+        "x": 900,
+        "y": 200,
+        "wires": [
+            [
+                "n8-submodel-url"
+            ]
+        ]
+    },
+    {
+        "id": "n8-submodel-url",
+        "type": "function",
+        "z": "aas-s3-bridge-tab",
+        "name": "Build Basyx Submodel URL",
+        "func": "// The shape of a submodel reference can vary between Basyx setups - handle the\n// common ones instead of assuming the AAS v3 {keys:[{value}]} form.\nfunction extractSubmodelId(ref) {\n    if (typeof ref === 'string') return ref;\n    if (ref && Array.isArray(ref.keys) && ref.keys.length > 0 && ref.keys[0].value) return ref.keys[0].value;\n    if (ref && typeof ref.value === 'string') return ref.value;\n    if (ref && typeof ref.id === 'string') return ref.id;\n    return null;\n}\n\nconst smId = extractSubmodelId(msg.payload);\nif (!smId) {\n    node.error('Could not determine submodel id from reference: ' + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nconst basyxBaseUrl = env.get('BASYX_BASE_URL') || env.get('SDI_AAS_URL') || 'http://localhost:8081';\nmsg.url = basyxBaseUrl + '/submodels/' + Buffer.from(smId).toString('base64url');\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1140,
+        "y": 200,
+        "wires": [
+            [
+                "n9-get-submodel"
+            ]
+        ]
+    },
+    {
+        "id": "n9-get-submodel",
+        "type": "http request",
+        "z": "aas-s3-bridge-tab",
+        "name": "GET Submodel from Basyx",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1380,
+        "y": 200,
+        "wires": [
+            [
+                "n10-join"
+            ]
+        ]
+    },
+    {
+        "id": "n10-join",
+        "type": "join",
+        "z": "aas-s3-bridge-tab",
+        "name": "Join submodels",
+        "mode": "auto",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 900,
+        "y": 280,
+        "wires": [
+            [
+                "n12-combine"
+            ]
+        ]
+    },
+    {
+        "id": "n12-combine",
+        "type": "function",
+        "z": "aas-s3-bridge-tab",
+        "name": "Combine shell + submodels",
+        "func": "const shell = msg.shellData;\nconst submodels = msg.payload; // [] from the no-submodels path, or the joined array\n\nmsg.aasId = shell.id; // raw (decoded) AAS identifier - used to derive the S3 key / asset id\n\n// Standard AAS v3 \"Environment\" shape (IDTA Part 2 JSON schema), so the file is a valid\n// AASX-Package-Explorer-importable / AAS-tool-consumable document, not a custom envelope.\nmsg.payload = {\n    assetAdministrationShells: [shell],\n    submodels: submodels,\n    conceptDescriptions: []\n};\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 340,
+        "wires": [
+            [
+                "n13-publish"
+            ]
+        ]
+    },
+    {
+        "id": "n13-publish",
+        "type": "function",
+        "z": "aas-s3-bridge-tab",
+        "name": "Upload to S3 + Register EDC Offer",
+        "func": "(async function () {\n    const { S3Client, PutObjectCommand } = awsS3Sdk;\n\n    // Node-RED's function sandbox has no global fetch (regardless of Node.js version) - use the\n    // built-in http/https modules (imported via Setup/libs below, since even core-module require()\n    // is blocked inside the function body) instead of an extra npm dependency.\n    function postJson(urlStr, headers, bodyObj) {\n        return new Promise((resolve, reject) => {\n            const u = new urlModule.URL(urlStr);\n            const lib = u.protocol === 'http:' ? httpModule : httpsModule;\n            const bodyStr = JSON.stringify(bodyObj);\n            const req = lib.request(u, {\n                method: 'POST',\n                headers: Object.assign({ 'Content-Length': Buffer.byteLength(bodyStr) }, headers)\n            }, (res) => {\n                let data = '';\n                res.on('data', (chunk) => { data += chunk; });\n                res.on('end', () => {\n                    resolve({ status: res.statusCode, ok: res.statusCode >= 200 && res.statusCode < 300, body: data });\n                });\n            });\n            req.on('error', reject);\n            req.write(bodyStr);\n            req.end();\n        });\n    }\n\n    function getJson(urlStr, headers) {\n        return new Promise((resolve, reject) => {\n            const u = new urlModule.URL(urlStr);\n            const lib = u.protocol === 'http:' ? httpModule : httpsModule;\n            const req = lib.request(u, { method: 'GET', headers }, (res) => {\n                let data = '';\n                res.on('data', (chunk) => { data += chunk; });\n                res.on('end', () => {\n                    resolve({ status: res.statusCode, ok: res.statusCode >= 200 && res.statusCode < 300, body: data });\n                });\n            });\n            req.on('error', reject);\n            req.end();\n        });\n    }\n\n    const bucket = (env.get('S3_BUCKET') || env.get('SDI_S3_BUCKET'));\n    const region = (env.get('S3_REGION') || env.get('SDI_S3_REGION')) || 'auto';\n    const endpoint = (env.get('S3_ENDPOINT') || env.get('SDI_S3_ENDPOINT')); // e.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com - leave empty for real AWS S3\n    const publicBaseUrl = (env.get('S3_PUBLIC_BASE_URL') || env.get('SDI_S3_PUBLIC_URL')); // e.g. https://pub-xxxxxxxx.r2.dev (R2 \"Public Development URL\")\n    const edcManagementUrl = (env.get('EDC_MANAGEMENT_URL') || env.get('SDI_EDC_MANAGEMENT_URL')); // e.g. https://hni-01.c-27d7c36.kyma.ondemand.com/management\n    const edcApiKey = (env.get('EDC_API_KEY') || env.get('SDI_EDC_API_KEY'));\n    const accessPolicyId = (env.get('EDC_ACCESS_POLICY_ID') || env.get('SDI_EDC_ACCESS_POLICY_ID'));\n    const contractPolicyId = (env.get('EDC_CONTRACT_POLICY_ID') || env.get('SDI_EDC_CONTRACT_POLICY_ID'));\n\n    if (!bucket) {\n        throw new Error('Missing S3_BUCKET');\n    }\n\n    // EDC registration is optional for now - if the connector details aren't known yet,\n    // skip step 2/3 and only do the S3 upload, so the Basyx->S3 path can be tested in isolation.\n    const edcConfigured = !!(edcManagementUrl && edcApiKey && publicBaseUrl && accessPolicyId && contractPolicyId);\n    if (!edcConfigured) {\n        node.warn('EDC Management API not configured (EDC_MANAGEMENT_URL/EDC_API_KEY/S3_PUBLIC_BASE_URL/EDC_ACCESS_POLICY_ID/EDC_CONTRACT_POLICY_ID) - uploading to S3 only, skipping offer registration');\n    }\n\n    const aasId = msg.aasId;\n    // Human-readable shell name (last path segment of the AAS id, e.g. \"Kugelschreiber_TracePEN\"\n    // from \"localhost/demo/aas/Kugelschreiber_TracePEN\") instead of an opaque base64 blob, so\n    // consumers can tell what a file/asset is without decoding anything.\n    // Note: not guaranteed globally unique - two shells from different namespaces could share\n    // the same trailing segment and overwrite each other in the bucket.\n    const shellName = String(aasId).split('/').filter(Boolean).pop().replace(/[^A-Za-z0-9._-]/g, '_');\n    const objectKey = 'aas/' + shellName + '.json';\n    const assetId = 'aas-shell-' + shellName;\n    const contractDefId = 'aas-contractdef-' + shellName;\n\n    // 1. Upload the combined shell+submodels document to S3 (R2 needs endpoint + forcePathStyle).\n    // Credentials are passed explicitly because env.get() values (Node-RED tab env vars) never\n    // reach the real process.env that the AWS SDK's default credential chain reads from.\n    const accessKeyId = (env.get('AWS_ACCESS_KEY_ID') || env.get('SDI_S3_ACCESS_KEY_ID'));\n    const secretAccessKey = (env.get('AWS_SECRET_ACCESS_KEY') || env.get('SDI_S3_SECRET_ACCESS_KEY'));\n    if (!accessKeyId || !secretAccessKey) {\n        throw new Error('Missing AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY');\n    }\n    const s3ClientConfig = { region, credentials: { accessKeyId, secretAccessKey } };\n    if (endpoint) {\n        s3ClientConfig.endpoint = endpoint;\n        s3ClientConfig.forcePathStyle = true;\n    }\n    const s3 = new S3Client(s3ClientConfig);\n    await s3.send(new PutObjectCommand({\n        Bucket: bucket,\n        Key: objectKey,\n        Body: JSON.stringify(msg.payload),\n        ContentType: 'application/json'\n    }));\n\n    if (!edcConfigured) {\n        msg.statusCode = 200;\n        msg.payload = { status: 'ok', assetId, objectKey, edcOfferRegistered: false };\n        node.send(msg);\n        node.done();\n        return;\n    }\n\n    const edcHeaders = { 'Content-Type': 'application/json', 'X-Api-Key': edcApiKey };\n\n    // 2. Create the Asset - same HttpData/baseUrl shape as the existing \"Create Asset\" dashboard,\n    // pointing at the object's public R2 URL. Check-then-create instead of relying on a 409: this\n    // connector returns a 500 (not a clean 409) when re-POSTing an @id that already exists and is\n    // already referenced by a ContractDefinition, so we must avoid ever re-POSTing an existing one.\n    const existingAsset = await getJson(edcManagementUrl + '/v3/assets/' + encodeURIComponent(assetId), edcHeaders);\n    if (!existingAsset.ok) {\n        const assetBody = {\n            '@context': {},\n            '@type': 'Asset',\n            '@id': assetId,\n            properties: {\n                name: 'AAS Shell ' + aasId,\n                description: 'AAS Shell ' + aasId\n            },\n            dataAddress: {\n                '@type': 'DataAddress',\n                type: 'HttpData',\n                baseUrl: publicBaseUrl.replace(/\\/$/, '') + '/' + objectKey\n            }\n        };\n        const assetRes = await postJson(edcManagementUrl + '/v3/assets', edcHeaders, assetBody);\n        if (!assetRes.ok && assetRes.status !== 409) {\n            throw new Error('Asset creation failed: ' + assetRes.status + ' ' + assetRes.body);\n        }\n    }\n\n    // 3. Create the Contract Definition (the actual \"offer\") referencing the pre-existing shared\n    // policies - same check-then-create reasoning as the Asset above.\n    const existingCd = await getJson(edcManagementUrl + '/v3/contractdefinitions/' + encodeURIComponent(contractDefId), edcHeaders);\n    if (!existingCd.ok) {\n        const contractDefBody = {\n            '@context': {},\n            '@type': 'ContractDefinition',\n            '@id': contractDefId,\n            accessPolicyId: accessPolicyId,\n            contractPolicyId: contractPolicyId,\n            assetsSelector: {\n                '@type': 'CriterionDto',\n                operandLeft: 'https://w3id.org/edc/v0.0.1/ns/id',\n                operator: '=',\n                operandRight: assetId\n            }\n        };\n        const cdRes = await postJson(edcManagementUrl + '/v3/contractdefinitions', edcHeaders, contractDefBody);\n        if (!cdRes.ok && cdRes.status !== 409) {\n            throw new Error('ContractDefinition creation failed: ' + cdRes.status + ' ' + cdRes.body);\n        }\n    }\n\n    msg.statusCode = 200;\n    msg.payload = { status: 'ok', assetId, objectKey, contractDefinitionId: contractDefId, edcOfferRegistered: true };\n    node.send(msg);\n    node.done();\n})().catch(err => {\n    node.error(err, msg);\n    msg.statusCode = 500;\n    msg.payload = { error: err.message };\n    node.send(msg);\n    node.done();\n});\nreturn null;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "module": "@aws-sdk/client-s3",
+                "var": "awsS3Sdk"
+            },
+            {
+                "module": "https",
+                "var": "httpsModule"
+            },
+            {
+                "module": "http",
+                "var": "httpModule"
+            },
+            {
+                "module": "url",
+                "var": "urlModule"
+            }
+        ],
+        "x": 900,
+        "y": 340,
+        "wires": [
+            [
+                "n14-response"
+            ]
+        ]
+    },
+    {
+        "id": "n14-response",
+        "type": "http response",
+        "z": "aas-s3-bridge-tab",
+        "name": "Respond",
+        "statusCode": "",
+        "headers": {},
+        "x": 1140,
+        "y": 340,
+        "wires": []
+    }
+]

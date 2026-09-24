@@ -111,6 +111,13 @@ FLOWS = ["Odoo_ERP.json", "EMA.json", "OPCUA_Manufacturing.json",
 if os.environ.get("SDI_PLM_URL"):
     FLOWS.append("PLM.json")
 
+# The dataspace bridge, for the same reason: it needs two EDC connectors and a
+# bucket, none of which can be provisioned locally. Loading its tabs without
+# them would put three dashboard pages in front of the reader that answer every
+# click with a connection error.
+if os.environ.get("SDI_EDC_MANAGEMENT_URL"):
+    FLOWS += ["EDC_Bridge.json", "EDC_Dashboard.json"]
+
 OK, WARN, MISS = "  [ok]   ", "  [!]    ", "  [MISSING]"
 
 
@@ -199,6 +206,8 @@ def report_env(check=False):
     optional = [
         ("SDI_ODOO_DB", "ERP", "quantities, order and the booked assembly"),
         ("SDI_PLM_URL", "PLM", "weight and material straight from the PLM"),
+        ("SDI_EDC_MANAGEMENT_URL", "EDC",
+         "publishing into the dataspace, see EDC.md"),
     ]
     fehlt = [(kurz, was) for name, kurz, was in optional
              if not os.environ.get(name)]
@@ -212,6 +221,8 @@ def report_env(check=False):
         print("           Without ERP and PLM the chain still runs on the data")
         print("           in the shells: simulation and machine data go through,")
         print("           and the calculation uses the bill of material already")
+        print("           stored. The dataspace is separate - without it the KIT")
+        print("           works, it just publishes nothing to a partner.")
         print("           Credentials are never written into .env; the start")
         print("           script asks for them once the matching address or")
         print("           database is filled in.")
@@ -699,7 +710,8 @@ def main():
     # What is still unconfigured belongs into the last line as well. It was
     # said once at the top, and several screens later "Setup complete." reads
     # like everything is in place.
-    offen = [k for name, k in (("SDI_ODOO_DB", "ERP"), ("SDI_PLM_URL", "PLM"))
+    offen = [k for name, k in (("SDI_ODOO_DB", "ERP"), ("SDI_PLM_URL", "PLM"),
+                               ("SDI_EDC_MANAGEMENT_URL", "EDC"))
              if not os.environ.get(name)]
     if all(result.get(n) for n in order):
         if offen:
