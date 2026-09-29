@@ -95,6 +95,8 @@ What the Python packages are for: `openpyxl` reads the simulation export,
 reference library the package check uses - the same one the AASX Package
 Explorer builds on.
 
+**Note:** It is assumed that most users already have a running LCA system with a background database. If you do not have a database as of yet, you can download the Idemat 2023 database here: <https://www.openlca.org/idemat-2023-available-for-openlca/>. It is free for academic purposes but please consider that the application for the academic licence may take some time. This process should be prepared and finished before the installation of this KIT. 
+
 **Check:** `node-red --version` prints a version number, and the Docker Desktop window shows the engine as running.
 
 ---
@@ -105,6 +107,7 @@ Explorer builds on.
 git clone https://github.com/Produktentstehung/Sustainability-Data-Integration-KIT.git
 cd Sustainability-Data-Integration-KIT
 ```
+In case you do not have Git installed on your PC, the `git` command does not work. You can download it here: <https://git-scm.com/install/> 
 
 **Check:** the folder contains `README.md`, `src/` and `getting-started/`.
 
@@ -114,7 +117,7 @@ cd Sustainability-Data-Integration-KIT
 
 This is the only step the setup script cannot do for you. openLCA databases contain licensed background data and are several gigabytes in size, so they are not part of the repository.
 
-**3a — Download the background database.** *idemat 2023* is free: <https://www.openlca.org/idemat-2023-available-for-openlca/>
+**3a — Prepare the background database.** Make sure you have a background database prepared for the installation process, as noted in Step 1. If not, you can obtain the *idemat 2023* here: <https://www.openlca.org/idemat-2023-available-for-openlca/>. Please be aware that the application process for a free academic licence may take some time. 
 
 **3b — Import it.** Start openLCA, then `File → Import → Data package`, select the downloaded file. This takes a few minutes. Afterwards open the database by double-clicking it; the open database is shown in bold.
 
