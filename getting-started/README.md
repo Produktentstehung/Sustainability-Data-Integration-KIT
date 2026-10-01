@@ -28,11 +28,38 @@ into `getting-started/nodered`, so there is normally nothing to do by hand:
 | `@flowfuse/node-red-dashboard` | the dashboard the calculation is operated from |
 | `node-red-node-base64` | encodes the submodel identifiers for the AAS API |
 
-One Python package is needed to read the simulation exports:
+Three Python packages:
 
 ```bash
-python -m pip install openpyxl
+python -m pip install openpyxl asyncua aas-core3.0
 ```
+
+`openpyxl` reads the simulation export and is needed for the first run.
+`asyncua` talks to the OPC UA server of the machines and `aas-core3.0` is the
+reference library the package check verifies against; both are only needed for
+the optional tools in `src/`.
+
+### What else you need for the full scope
+
+The five above are enough for the first run, which calculates the sample
+product from the sample data. Each further source system is optional, and the
+KIT works without it — a missing source is marked in the dashboard and the
+chain carries on. Connect them when you have them:
+
+| System | What it adds | Reference implementation |
+| --- | --- | --- |
+| PLM system with an API | the shells themselves: parts, weights, materials, bill of material | CONTACT Elements |
+| ERP system with an API | bill of material and order quantities, serial numbers per piece | Odoo |
+| Simulation tool | the planned process before anything is manufactured | ema Plant Designer |
+| OPC UA server | what the machines actually consumed | any server on the shop floor |
+| Dataspace access | handing a shell to another company | a registered participant with two EDC connectors |
+| AASX Package Explorer | opening an exported package to look inside | <https://github.com/eclipse-aaspe/package-explorer> |
+
+The three mandatory components of the deployment baseline — a data management
+tool, an AAS server and a calculation tool — are reference implementations
+here, not requirements. The table in
+[Deployment Baseline](../README.md#deployment-baseline) says which role each
+one fills, so that another product can take its place.
 
 ## Setup in one go
 

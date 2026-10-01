@@ -34,11 +34,16 @@ It is repeatable: steps already completed are recognised and skipped.
 | Node.js 18+ and Node-RED | executes the integration flows |
 | openLCA 2.x | calculates the environmental impacts |
 
-One Python package is needed to read the simulation exports:
+Three Python packages:
 
 ```bash
-python -m pip install openpyxl
+python -m pip install openpyxl asyncua aas-core3.0
 ```
+
+`openpyxl` reads the simulation export and is needed for the first run.
+`asyncua` talks to the OPC UA server of the machines and `aas-core3.0` is what
+the package check verifies against; both are only needed for the optional tools
+in `src/`.
 
 ## The LCA database
 

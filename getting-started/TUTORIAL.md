@@ -78,10 +78,10 @@ Four programs are needed. The setup script checks them later and tells you what 
 
 | Software | Download | Note |
 | --- | --- | --- |
-| Docker Desktop | <https://www.docker.com/products/docker-desktop/> | must be **running**, not just installed |
+| Docker Desktop | <https://www.docker.com/products/docker-desktop/> | installing it needs **administrator rights**; afterwards it must be **running**, not just installed |
 | Python 3.10+ | <https://www.python.org/> | tick "Add python.exe to PATH" during installation |
-| Node.js 18+ | <https://nodejs.org/> | the LTS version is fine |
-| openLCA 2.x | <https://www.openlca.org/> | |
+| Node.js 18+ | <https://nodejs.org/> | the LTS version is fine. **Leave "Tools for Native Modules" unticked** — nothing here needs it, and it installs Chocolatey in a second window |
+| openLCA 2.x | <https://www.openlca.org/> | Windows warns that the installer "can damage your device". That is the reputation check on a rarely downloaded file, not a finding; keep it |
 
 Then two commands in a terminal:
 
@@ -98,6 +98,12 @@ Explorer builds on.
 **Note:** It is assumed that most users already have a running LCA system with a background database. If you do not have a database as of yet, you can download the Idemat 2023 database here: <https://www.openlca.org/idemat-2023-available-for-openlca/>. It is free for academic purposes but please consider that the application for the academic licence may take some time. This process should be prepared and finished before the installation of this KIT. 
 
 **Check:** `node-red --version` prints a version number, and the Docker Desktop window shows the engine as running.
+
+> [!NOTE]
+> The KIT was built and is run here on Node-RED 4.x with Node.js 20. A test
+> deployment on Node-RED 5.0.7 with Node.js 24 loaded every flow without an
+> unknown node and brought up the dashboard, so a current installation works
+> too — it is simply not what the reference installation runs.
 
 ---
 
@@ -182,7 +188,11 @@ shells: the ballpoint pen and its six parts.
 
 ## Step 5: Configure
 
-Copy the template and open it in an editor:
+Step 4 already created `getting-started/.env` from the template and said so
+under *Configuration*. **Do not copy the template over it again** — that would
+throw away anything you have entered. Just open the file in an editor.
+
+If it is missing for some reason, this creates it:
 
 ```bash
 copy .env.example .env        # Windows
@@ -266,6 +276,15 @@ missing measurement is noted and the run continues.
 > cannot see it finish — it sits under *Run a single step*. And the **assembly
 > booking** creates a manufacturing order in Odoo; running it on every
 > calculation would produce a new pen each time.
+
+The other controls on the page:
+
+| Control | What it does |
+| --- | --- |
+| **Recalculate** | the same run again, for instance after choosing another impact method. The earlier result is kept — every run adds an iteration rather than replacing one |
+| **View shell** | opens the selected shell in the AAS web interface, to click through the submodels before exporting anything |
+| **Export AASX** | writes the shells as packages into `getting-started/export`, the same thing step 9 does from the command line |
+| **Refresh view** | re-reads the shells without calculating. Use it when something was written by a flow started outside the page |
 
 The Node-RED log shows:
 
@@ -406,6 +425,34 @@ In the sample setup the machine data more than doubles the footprint — from 0.
 
 ---
 
+## Optional: publish into the dataspace
+
+This is the step that hands a shell to another company instead of to a file.
+It is what use cases 4 and 5 of this KIT are about, and it is the only part
+you cannot try out on your own machine: it needs **two EDC connectors** and a
+bucket on an S3-compatible service. Connectors are operated centrally — ask
+whoever runs your Tractus-X infrastructure.
+
+Once you have them, fill in the *Dataspace* section of `.env` and run
+`python setup.py` again. It notices the connector and adds three tabs and two
+further dashboard pages, `/provider` and `/consumer`. Leave
+`SDI_EDC_MANAGEMENT_URL` empty and none of it is loaded — everything above
+works unchanged.
+
+The round trip is: publish a shell into the bucket and offer it on your
+connector, let the partner negotiate and fetch it, let the partner answer with
+a `Zuliefererdaten` submodel, fetch that answer back onto the original shell.
+
+> **The bucket of the reference setup is public-read.** What the contract
+> negotiation protects is the catalogue entry, not the data behind it. Say so
+> in any demonstration, and change it before anything confidential travels
+> this way.
+
+The whole thing — bucket, policies, configuration, the four steps and what to
+do when a connector answers with a 500 — is in [EDC.md](EDC.md).
+
+---
+
 ## Step 9: Export the result and open it
 
 The filled shells live on the AAS server. To hand them on — to a colleague, an
@@ -534,6 +581,35 @@ paths into absolute ones.
 
 **The AAS server is empty after a restart.** The containers were started without the `docker-compose.yml` of the KIT, so there is no database behind the AAS server. Stop them and run `python setup.py --step 2` again.
 
+**Out of local ports.** On Windows, a step stops with
+`[WinError 10048]`, or a flow reports `EADDRINUSE` and the dashboard says the
+service does not answer, while the service is demonstrably running.
+
+This is **not** a conflict on the service port. Windows hands out a limited
+range of source ports for outgoing connections, and a closed connection keeps
+its port for another four minutes. The setup makes a few hundred connections in
+a row, so on a machine where something else has already reserved most of the
+range the supply runs out in the middle of a run — and then everything that
+wants to reach a local service fails, Node-RED included.
+
+Wait four minutes and run `python setup.py` again; it skips what is done. If it
+comes back, look at how much of the range is left:
+
+```
+netsh int ipv4 show dynamicport tcp
+netsh int ipv4 show excludedportrange protocol=tcp
+```
+
+A healthy machine has 16384 dynamic ports from 49152 and a handful of
+exclusions. Hyper-V and Docker Desktop reserve blocks there, and after a few
+suspend cycles those blocks can take nearly all of it. Restarting the machine
+releases them.
+
+Two things in the KIT reduce the pressure, and both are why `.env` uses
+`127.0.0.1` rather than `localhost`: a literal address needs one connection per
+request where `localhost` needs two, because it resolves to both `::1` and
+`127.0.0.1`. Keep it that way unless you have a reason not to.
+
 ---
 
 ## What next
@@ -554,6 +630,11 @@ The command line tools in `src/`, each with `--help`:
 | `repair_aasx.py` | repairs packages an AAS server refuses to import |
 | `setup_odoo_testdata.py` | creates the sample master data in Odoo |
 | `ema_export_to_json.py` | converts a simulation export into the flow's input |
+| `check_flows.py` | checks the flow files before they are imported |
+| `check_docs.py` | checks the links and images of the documentation |
+
+[`src/README.md`](../src/README.md) says for every file in `src/` what it does
+and which chapter of the main README explains it.
 
 > [!TIP]
 > Each data source can be added on its own. You do not need a complete system

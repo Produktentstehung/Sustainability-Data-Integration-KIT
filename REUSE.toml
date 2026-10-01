@@ -120,13 +120,7 @@ precedence = "closest"
 SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
 SPDX-License-Identifier = "Apache-2.0"
 
-# ---------------------------------------------------------------------------
-# Deployment guide (CC-BY-4.0)
-# Plain text without a comment syntax that would carry an SPDX header.
-# ---------------------------------------------------------------------------
-
-[[annotations]]
-path = ["Deployment_Guide", "docs/deployment_guide.txt"]
-precedence = "closest"
-SPDX-FileCopyrightText = ["2025 Heinz Nixdorf Institute", "2025 Paderborn University", "2025 Contributors to the Eclipse Foundation"]
-SPDX-License-Identifier = "CC-BY-4.0"
+# The two deployment guides both went into the documentation they duplicated:
+# getting-started/Deployment_Guide was superseded by TUTORIAL.md, and
+# docs/deployment_guide.txt by the prerequisites of getting-started/README.md.
+# Neither path exists any more, so the annotation that covered them is gone.

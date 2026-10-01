@@ -132,11 +132,19 @@ src/  PLM.json                  PLM        -> AASX packages per part
       Assembly_Booking.json     ERP        -> serial numbers and the assembly record
       Assembly_Backfill.json    ERP        -> restores assembly records into the shell
       Dashboard.json            the web page the chain is operated from
+      EDC_Bridge.json           shell      -> S3 bucket and connector offer
+      EDC_Dashboard.json        the two dataspace pages
+      *.py                      what the flows call, and the checks
 ```
 
-Each file can be imported on its own; none of them refers to a node in
-another. The dashboard brings its own user interface base, so the order of
-import does not matter.
+The flows are not imported by hand: `python setup.py` assembles them into one
+`flows.json`. The order matters in one place — `Dashboard.json` carries the
+user interface base that the two dataspace pages attach to, so it has to be
+there before them. The last two files are only included once
+`SDI_EDC_MANAGEMENT_URL` is configured.
+
+[`src/README.md`](src/README.md) says for every one of these files what it does
+and which chapter here explains it.
 
 # Adoption View
 
@@ -498,13 +506,18 @@ machine-to-part assignment, and the script that builds the shells from PLM data.
 
 ### The workflows one by one
 
-The nine tabs of the reference implementation, each described in the order in
-which its steps run, followed by a diagram of the tab as it appears in the
-editor. The diagrams are exported from the flow files under `src/`, so they
-show the shipped state rather than a screenshot that ages: whoever changes a
-flow regenerates the diagram from it. Three of them are laid out as long
-horizontal chains and are illegible at page width; open the image itself to
-read the node names.
+The nine tabs that make up the chain, each described in the order in which its
+steps run, followed by a diagram of the tab as it appears in the editor. The
+four dataspace tabs are not among them; they are only loaded once a connector
+is configured and are described in
+[Connection with the data space, the S3 bridge to the EDC](#connection-with-the-data-space-the-s3-bridge-to-the-edc)
+and in [EDC.md](getting-started/EDC.md).
+
+The diagrams are exported from the flow files under `src/`, so they show the
+shipped state rather than a screenshot that ages: whoever changes a flow
+regenerates the diagram from it. Three of them are laid out as long horizontal
+chains and are illegible at page width; open the image itself to read the node
+names.
 
 The flow `PLM.json` provides the functionality to retrieve part and document
 data from the PLM system and use this data to generate an Asset Administration
@@ -1225,6 +1238,8 @@ The calculation tool is called per impact assessment method; the results of all 
 
 Because every run creates a new iteration collection named after its data source, results from PLM-based, simulation-based and production-data-based assessments coexist in the same submodel and remain individually traceable.
 
+Every `xs:dateTime` the KIT writes - `TimeOfRetrieval`, `TimeOfSimulation`, `TimeOfLCA`, `TimeOfBooking` - is local time with its UTC offset, for example `2026-09-25T15:05:32+02:00`, not UTC with a `Z`. The people reading these stamps sit in the same timezone as the machines, and a stamp two hours in the past reads as a fault before it reads as UTC. The offset travels with the value, so it stays unambiguous, and it comes from the clock of the machine, so daylight saving is not assumed anywhere.
+
 ### Rebuilding the Mapping with Other Technologies
 
 The mapping above is independent of Node-RED. An implementation with a different integration technology has to provide four capabilities:
@@ -1543,6 +1558,15 @@ Sample files are provided to assist with the use of the knowledge graph. The exe
 The Operations View addresses operators and service providers who deploy and run the SDI-KIT in their own environment. Following TRG 10.02, it covers non-functional requirements, security requirements, operational recommendations and restrictions.
 
 The SDI-KIT is a **composition KIT**: it does not ship a single deployable product but orchestrates components that the adopter selects and operates (AAS server, LCA tool, EDC connector, source systems). The guidance below therefore distinguishes between the *data management tool (DMT)* delivered by this KIT and the *third-party components* around it.
+
+**Installation instructions and deployment scripts.** Setting the KIT up is
+described step by step in [TUTORIAL.md](getting-started/TUTORIAL.md), in short
+form in [INSTALL.md](INSTALL.md), and as a reference in
+[getting-started/README.md](getting-started/README.md). The deployment scripts
+are `getting-started/setup.py`, which checks the prerequisites, starts the
+containers, imports the sample data and assembles the flows, and
+`getting-started/docker-compose.yml`, which defines the AAS server, the two
+registries, the web interface and their database.
 
 ### Deployment Baseline
 
