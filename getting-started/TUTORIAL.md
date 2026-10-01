@@ -510,6 +510,22 @@ simply to see all steps at once:
 python ../src/run_chain.py
 ```
 
+> [!WARNING]
+> **Step 1 empties the AAS server before it imports.** It deletes every shell,
+> and every submodel in the namespace, then loads the packages again. That is
+> what makes a test run repeatable and comparable — and it also means any
+> measurement taken since the packages were written is gone, machine data
+> included. Nothing asks first.
+>
+> On a server holding real data, leave that step out:
+>
+> ```bash
+> python ../src/run_chain.py --skip import
+> ```
+>
+> `--skip fix` is worth adding too: step 2 rewrites shells to remove
+> specification violations, which is a repair, not a read.
+
 Every step checks its own result before the next one starts:
 
 ```

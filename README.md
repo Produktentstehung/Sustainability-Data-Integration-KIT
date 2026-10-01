@@ -1656,7 +1656,8 @@ The reference implementation was built as a laboratory demonstrator at the Smart
 - The AAS server is addressed without authentication.
 - The DMT user interface has no authentication layer.
 - No Digital Twin Registry is deployed, so no dataspace-side access control on twin discovery applies.
-- Credentials for PLM and ERP are held as environment variables of the Node-RED process. They are not stored in the flows, so an exported flow carries none. But any operator of that process can read them. A secret store is the productive answer.
+- Credentials for PLM and ERP are held as environment variables of the Node-RED **process**, set by `start-nodered.ps1` from `.env`. They are not stored in the flows, so an exported flow carries none. But any operator of that process can read them. A secret store is the productive answer.
+- Node-RED also offers environment variables **per tab**, and those are a different matter: their values are written into the flow file and travel with every export, invisibly — the editor shows the field empty again afterwards, and nothing warns. A real API key reached a public repository this way. Keep secrets out of tab variables; `src/check_flows.py` fails the build when a variable whose name says key, secret, token, password or credential carries a value in a committed flow file.
 - The script that builds the administration shell from PLM data is specific to the object model of the PLM system and is therefore not part of this repository.
 
 These are properties of the demonstrator, not of the KIT concept. The architecture places no constraint on adding TLS, authentication and a registry.

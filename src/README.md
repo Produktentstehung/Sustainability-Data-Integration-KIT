@@ -228,6 +228,12 @@ Runs the whole chain from the command line and verifies after every step that
 the data actually arrived in the shells. The flows can be started in the editor;
 this is for a repeatable run, in a test or on a schedule.
 
+**Its first step empties the AAS server**: every shell and every submodel in
+the namespace is deleted before the packages are imported again. That is what
+makes two runs comparable, and it is also how measurements taken since the
+packages were written disappear. On a server holding real data, use
+`--skip import --skip fix`.
+
 > [Running everything from the command line](../getting-started/TUTORIAL.md)
 
 #### `setup_odoo_testdata.py`

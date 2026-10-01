@@ -38,6 +38,7 @@ import collections
 import glob
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -170,6 +171,43 @@ def pruefe_datei(pfad, node_da, auch_bekannt=frozenset()):
                 funde.append('function "%s" does not compile: %s'
                              % (n.get('name') or n.get('id'),
                                 zeile[0].strip() if zeile else 'see node --check'))
+
+    funde += geheimnisse(knoten)
+    return funde
+
+
+# A tab keeps its environment variables inside the flow file, values and all.
+# Type a key into the tab editor, export the flows, and the key is in the file
+# - it is not visible in the editor afterwards and nothing warns about it.
+# That is how a working BACKEND_API_KEY once reached a public repository.
+#
+# So the names are checked, not the values: a variable whose name says secret
+# must be empty in a file that is committed. Where the value belongs is .env,
+# which start-nodered.ps1 reads and which is not in version control.
+GEHEIM = re.compile(r'KEY|SECRET|TOKEN|PASSWORD|PASSWD|CREDENTIAL', re.I)
+# Names that merely contain one of those words without holding a secret.
+HARMLOS = re.compile(r'KEYWORD|KEY_FIELD|KEYS_?OF|PUBLIC_KEY_URL', re.I)
+
+
+def geheimnisse(knoten):
+    """Finds filled-in secrets in tab and node environment variables."""
+    funde = []
+    for n in knoten:
+        if not isinstance(n, dict):
+            continue
+        for e in (n.get('env') or []):
+            if not isinstance(e, dict):
+                continue
+            name = str(e.get('name') or '')
+            wert = e.get('value')
+            if not GEHEIM.search(name) or HARMLOS.search(name):
+                continue
+            if isinstance(wert, str) and wert.strip():
+                funde.append(
+                    '%s "%s" carries a value for %s - secrets belong in .env, '
+                    'not in a flow file'
+                    % (n.get('type', 'node'),
+                       n.get('label') or n.get('name') or n.get('id'), name))
     return funde
 
 

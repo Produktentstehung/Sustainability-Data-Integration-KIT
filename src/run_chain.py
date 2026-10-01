@@ -7,7 +7,7 @@ every step that the data actually arrived in the shells.
 
 Steps, in the order in which they depend on each other:
 
-  1. import      read AASX packages into the AAS server
+  1. import      EMPTIES the AAS server, then reads the AASX packages into it
   2. fix         remove the specification violations of the imported shells
   3. erp         bill of material and manufacturing order
   4. simulation  assembly energy per operation
@@ -17,6 +17,17 @@ Steps, in the order in which they depend on each other:
 
 Each step verifies its own result before the next one begins. A step that
 fails ends the run with a message naming what was missing.
+
+Step 1 deletes every shell and every submodel of the namespace before it
+imports. That is what makes two runs comparable: the chain starts from the
+same state every time. It also means that everything written since the
+packages were produced is gone - measured machine data included - and nothing
+asks first. Against a server that holds data worth keeping:
+
+    python run_chain.py --skip import --skip fix
+
+--skip fix belongs with it, because step 2 rewrites shells to remove
+specification violations rather than only reading them.
 
 Usage:
     python run_chain.py                     all steps
@@ -374,7 +385,12 @@ def step_export(target):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Run the whole processing chain and check every step.')
+        description='Run the whole processing chain and check every step.',
+        epilog='Careful: the import step EMPTIES the AAS server before it '
+               'loads the packages, so anything measured since they were '
+               'written is lost. Against a server holding real data use '
+               '--skip import --skip fix.',
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--from', dest='start', type=int, default=1,
                         help='start at this step (1-7)')
     parser.add_argument('--skip', action='append', default=[],
