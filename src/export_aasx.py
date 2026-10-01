@@ -37,6 +37,13 @@ import urllib.parse
 import urllib.request
 import zipfile
 
+# Settings come from getting-started/.env. Without this the script would use
+# its built-in defaults whenever it is started outside start-nodered.ps1, and
+# address a different server than the flows do.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from sdi_env import load_env
+load_env()
+
 AAS_URL = os.environ.get('SDI_AAS_URL', 'http://localhost:8081')
 NAMESPACE = 'https://admin-shell.io/aas/3/1'
 NS = '{%s}' % NAMESPACE

@@ -43,8 +43,16 @@ import base64
 import collections
 import json
 import os
+import sys
 import re
 import urllib.request
+
+# Settings come from getting-started/.env. Without this the script would use
+# its built-in defaults whenever it is started outside start-nodered.ps1, and
+# address a different server than the flows do.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from sdi_env import load_env
+load_env()
 
 AAS_URL = os.environ.get('SDI_AAS_URL', 'http://localhost:8081')
 

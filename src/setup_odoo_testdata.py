@@ -37,6 +37,13 @@ import os
 import sys
 import urllib.request
 
+# Settings come from getting-started/.env. Without this the script would use
+# its built-in defaults whenever it is started outside start-nodered.ps1, and
+# address a different server than the flows do.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from sdi_env import load_env
+load_env()
+
 URL = os.environ.get("SDI_ODOO_URL", "").rstrip("/")
 DB = os.environ.get("SDI_ODOO_DB", "")
 USER = os.environ.get("SDI_ODOO_USER", "")
