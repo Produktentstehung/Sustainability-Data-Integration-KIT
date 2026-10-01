@@ -37,7 +37,7 @@
         "type": "function",
         "z": "sdinach00tab0001",
         "name": "Log in",
-        "func": "// Log in.\nconst cfg = {\n    url: env.get('SDI_ODOO_URL') || '',\n    db: env.get('SDI_ODOO_DB') || '',\n    user: env.get('SDI_ODOO_USER') || '',\n    key: env.get('SDI_ODOO_APIKEY') || '',\n    aas: env.get('SDI_AAS_URL') || 'http://localhost:8081',\n    basis: env.get('SDI_AAS_BASE') || 'localhost/demo/aas'\n};\nif (!cfg.key) { node.error('No Odoo API key in the environment.'); return null; }\nflow.set('cfg', cfg);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'common', method: 'login', args: [cfg.db, cfg.user, cfg.key] } };\nreturn msg;\n",
+        "func": "// Log in.\nconst cfg = {\n    url: env.get('SDI_ODOO_URL') || '',\n    db: env.get('SDI_ODOO_DB') || '',\n    user: env.get('SDI_ODOO_USER') || '',\n    key: env.get('SDI_ODOO_APIKEY') || '',\n    aas: env.get('SDI_AAS_URL') || 'http://127.0.0.1:8081',\n    basis: env.get('SDI_AAS_BASE') || 'localhost/demo/aas'\n};\nif (!cfg.key) { node.error('No Odoo API key in the environment.'); return null; }\nflow.set('cfg', cfg);\nmsg.url = cfg.url + '/jsonrpc';\nmsg.method = 'POST';\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = { jsonrpc: '2.0', method: 'call', params: {\n    service: 'common', method: 'login', args: [cfg.db, cfg.user, cfg.key] } };\nreturn msg;\n",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",

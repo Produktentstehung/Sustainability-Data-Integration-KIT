@@ -83,12 +83,18 @@ AASX_DIR = os.path.join(REPO, "docs", "sample_data", "AASX")
 FLOW_DIR = os.path.join(REPO, "src")
 NODERED_DIR = os.path.join(HERE, "nodered")
 
-AAS_URL = os.environ.get("SDI_AAS_URL", "http://localhost:8081")
-OPENLCA_URL = os.environ.get("SDI_OPENLCA_URL", "http://localhost:8080")
+# The addresses services are called on are literal IPv4, not "localhost".
+# "localhost" resolves to ::1 and to 127.0.0.1, and both Node.js and this
+# script then open a connection per family - twice the source ports on a
+# machine that may not have many left, and a whole class of dual-stack
+# failures on Windows. Addresses printed for a person to open in a browser
+# stay "localhost", which is friendlier and has no such problem.
+AAS_URL = os.environ.get("SDI_AAS_URL", "http://127.0.0.1:8081")
+OPENLCA_URL = os.environ.get("SDI_OPENLCA_URL", "http://127.0.0.1:8080")
 # The registries run on their own ports. docker-compose.yml takes the same two
 # variables, so a port moved there is moved here as well.
-AAS_REGISTRY_URL = "http://localhost:" + os.environ.get("AAS_REGISTRY_PORT", "8082")
-SM_REGISTRY_URL = "http://localhost:" + os.environ.get("SM_REGISTRY_PORT", "8083")
+AAS_REGISTRY_URL = "http://127.0.0.1:" + os.environ.get("AAS_REGISTRY_PORT", "8082")
+SM_REGISTRY_URL = "http://127.0.0.1:" + os.environ.get("SM_REGISTRY_PORT", "8083")
 
 # The flows that together form the processing chain.
 # PLM.json is not included: it is a reference implementation for a CONTACT
@@ -142,14 +148,50 @@ def program_version(name, args=("--version",)):
         return "available"
 
 
-def http_json(url, data=None, method=None, timeout=30):
+# Windows hands out a limited range of source ports for outgoing connections,
+# and a closed connection holds on to its port for another four minutes. This
+# script opens one connection per request and makes a few hundred of them in a
+# row, so on a machine where something else has already reserved a large part
+# of the range - Hyper-V and Docker Desktop do exactly that - the range runs
+# empty in the middle of a run. Every following connection then fails with
+# WSAEADDRINUSE, which reads as "address already in use" although nothing is
+# wrong with the address: what ran out is the local port.
+#
+# Waiting is the only cure, so that is what happens here. The message at the
+# end says what it was, because the raw error sends people looking for a port
+# conflict that does not exist.
+PORTMANGEL = (10048, 10055, 98)
+
+
+def ist_portmangel(fehler):
+    """Recognise the exhausted-port error through whatever it is wrapped in."""
+    while fehler is not None:
+        nr = getattr(fehler, "winerror", None) or getattr(fehler, "errno", None)
+        if nr in PORTMANGEL:
+            return True
+        fehler = getattr(fehler, "reason", None) or getattr(fehler, "__cause__", None)
+    return False
+
+
+def http_json(url, data=None, method=None, timeout=30, versuche=4):
     body = json.dumps(data).encode() if data is not None else None
     req = urllib.request.Request(url, data=body,
                                  method=method or ("POST" if body else "GET"),
                                  headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        text = r.read().decode("utf-8", "replace")
-    return json.loads(text) if text else {}
+    for versuch in range(versuche):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                text = r.read().decode("utf-8", "replace")
+            return json.loads(text) if text else {}
+        except OSError as e:
+            if not ist_portmangel(e) or versuch == versuche - 1:
+                raise
+            # Doubling, so the last wait is long enough for the oldest
+            # connections to have left TIME_WAIT.
+            pause = 2 ** versuch
+            print(f"  ... out of local ports, waiting {pause}s "
+                  f"({versuch + 1}/{versuche - 1})")
+            time.sleep(pause)
 
 
 def reachable(url, timeout=5):
@@ -315,13 +357,18 @@ def step_3(check=False):
         print(f"{OK}Already imported: {', '.join(sorted(n for n in names if n))}")
 
     # Only the AASX packages of the product and its parts are imported.
-    # The files named Submodel_*.aasx are empty submodel templates; importing
-    # them would create shells without a name.
+    #
+    # Everything named *_Template.aasx is a blank structure to build from, not
+    # a twin of anything: Submodel_*.aasx would create shells without a name,
+    # and BaseShell_Template.aasx would put an empty SDI_BaseShell next to the
+    # real products - selectable in the dashboard, calculable, and answering
+    # with nothing. They are meant to be opened as files, from
+    # docs/sample_data/AASX, and nothing reads them off the server.
     packages = []
     for root, _, files in os.walk(AASX_DIR):
         packages += [os.path.join(root, f) for f in files
                      if f.lower().endswith(".aasx")
-                     and not f.startswith("Submodel_")]
+                     and not f.lower().endswith("_template.aasx")]
     if not packages:
         print(f"{MISS} No AASX packages found under {AASX_DIR}")
         return False
@@ -452,8 +499,20 @@ def register_shells(check=False):
     return True
 
 
-def upload_aasx(path):
-    """Upload an AASX package as multipart/form-data."""
+def upload_aasx(path, versuche=6):
+    """Upload an AASX package as multipart/form-data.
+
+    A 404 here does not mean the address is wrong. For about the first minute
+    after the container starts, the AAS server already answers GET /shells and
+    already reports itself healthy, but POST /upload is not mounted yet and
+    replies 404. On a fresh machine step 2 starts the containers and step 3
+    uploads seconds later, which lands exactly in that window and leaves the
+    sample data unimported.
+
+    So a 404 is treated as "not ready yet" and retried. A genuinely wrong
+    address keeps answering 404, runs out of attempts and is reported - the
+    waiting costs time in that case, but it does not hide the error.
+    """
     boundary = "----SDIKitBoundary"
     with open(path, "rb") as fh:
         content = fh.read()
@@ -462,16 +521,27 @@ def upload_aasx(path):
             f'Content-Disposition: form-data; name="file"; filename="{name}"\r\n'
             f"Content-Type: application/octet-stream\r\n\r\n").encode() \
         + content + f"\r\n--{boundary}--\r\n".encode()
-    req = urllib.request.Request(
-        AAS_URL + "/upload", data=body, method="POST",
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
-    try:
-        with urllib.request.urlopen(req, timeout=300) as r:
-            return r.status
-    except urllib.error.HTTPError as e:
-        return e.code
-    except Exception:
-        return 0
+    for versuch in range(versuche):
+        req = urllib.request.Request(
+            AAS_URL + "/upload", data=body, method="POST",
+            headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
+        try:
+            with urllib.request.urlopen(req, timeout=300) as r:
+                return r.status
+        except urllib.error.HTTPError as e:
+            if e.code != 404 or versuch == versuche - 1:
+                return e.code
+            # Said once per run, not once per package: the endpoint comes up
+            # once, and a line per file reads as if it kept falling over.
+            if not upload_aasx.gemeldet:
+                print("  ... the upload endpoint is not up yet, waiting")
+                upload_aasx.gemeldet = True
+            time.sleep(15)
+        except Exception:
+            return 0
+
+
+upload_aasx.gemeldet = False
 
 
 # ---------------------------------------------------------------------------
@@ -696,6 +766,25 @@ def main():
             result[nr] = steps[nr](args.check)
         except Exception as e:
             print(f"{MISS} Step {nr} aborted: {e}")
+            if ist_portmangel(e):
+                # The raw message says "address already in use" and sends
+                # people hunting for a port conflict. It is the wrong trail:
+                # the service is fine, the machine ran out of source ports.
+                print("""
+         This is not a conflict on the service port. Windows ran out of
+         source ports for outgoing connections, and a closed connection
+         holds its port for another four minutes.
+
+         Wait four minutes and run the script again - it skips what is
+         already done. If it keeps happening, look at how much of the
+         range is reserved:
+
+             netsh int ipv4 show dynamicport tcp
+             netsh int ipv4 show excludedportrange protocol=tcp
+
+         Hyper-V and Docker Desktop reserve blocks there, and after a few
+         suspend cycles they can take nearly all of it. A restart of the
+         machine releases them.""")
             result[nr] = False
         if not result[nr] and nr in (1, 2):
             print("\nThe remaining steps depend on this one - stopping here.")

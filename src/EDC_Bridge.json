@@ -4,12 +4,12 @@
         "type": "tab",
         "label": "AAS to S3 Bridge",
         "disabled": false,
-        "info": "Publishes an AAS shell (+ submodels) from the local Basyx server to an S3-compatible bucket (Cloudflare R2) and registers the corresponding Asset/ContractDefinition offer with the EDC Management API as a plain HttpData asset (same shape as the existing 'Create Asset' dashboard), pointing at the object's public R2 URL.\n\nSet the following environment variables on this tab (Edit Flow -> Environment Variables) or as process env vars on the Node-RED host:\n- BASYX_BASE_URL (default http://localhost:8081)\n- BACKEND_API_KEY\n- S3_BUCKET\n- S3_REGION (R2: leave as 'auto')\n- S3_ENDPOINT (R2 only, e.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com) - used for the upload (S3 API)\n- S3_PUBLIC_BASE_URL (R2 \"Public Development URL\", e.g. https://pub-xxxxxxxx.r2.dev) - used for the EDC asset's baseUrl\n- AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (R2 API token with Object Read & Write, scoped to the bucket)\n- EDC_MANAGEMENT_URL (e.g. https://hni-01.c-27d7c36.kyma.ondemand.com/management)\n- EDC_API_KEY\n- EDC_ACCESS_POLICY_ID / EDC_CONTRACT_POLICY_ID (created once via the bootstrap script or the existing Provider dashboard, then reused for every asset)\n\nRequires the @aws-sdk/client-s3 npm package installed in the Node-RED user directory, and a Node-RED runtime on Node.js >= 18 (for global fetch).",
+        "info": "Publishes an AAS shell (+ submodels) from the local Basyx server to an S3-compatible bucket (Cloudflare R2) and registers the corresponding Asset/ContractDefinition offer with the EDC Management API as a plain HttpData asset (same shape as the existing 'Create Asset' dashboard), pointing at the object's public R2 URL.\n\nSet the following environment variables on this tab (Edit Flow -> Environment Variables) or as process env vars on the Node-RED host:\n- BASYX_BASE_URL (default http://127.0.0.1:8081)\n- BACKEND_API_KEY\n- S3_BUCKET\n- S3_REGION (R2: leave as 'auto')\n- S3_ENDPOINT (R2 only, e.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com) - used for the upload (S3 API)\n- S3_PUBLIC_BASE_URL (R2 \"Public Development URL\", e.g. https://pub-xxxxxxxx.r2.dev) - used for the EDC asset's baseUrl\n- AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (R2 API token with Object Read & Write, scoped to the bucket)\n- EDC_MANAGEMENT_URL (e.g. https://hni-01.c-27d7c36.kyma.ondemand.com/management)\n- EDC_API_KEY\n- EDC_ACCESS_POLICY_ID / EDC_CONTRACT_POLICY_ID (created once via the bootstrap script or the existing Provider dashboard, then reused for every asset)\n\nRequires the @aws-sdk/client-s3 npm package installed in the Node-RED user directory, and a Node-RED runtime on Node.js >= 18 (for global fetch).",
         "env": [
             {
                 "name": "BASYX_BASE_URL",
                 "type": "str",
-                "value": "http://localhost:8081"
+                "value": "http://127.0.0.1:8081"
             },
             {
                 "name": "BACKEND_API_KEY",
@@ -124,7 +124,7 @@
         "type": "function",
         "z": "aas-s3-bridge-tab",
         "name": "Build Basyx Shell URL",
-        "func": "// shellId is expected to already be base64url-encoded by the caller,\n// same convention used by the existing dsp-backend endpoints.\nconst shellId = msg.req.params.shellId;\nconst basyxBaseUrl = env.get('BASYX_BASE_URL') || env.get('SDI_AAS_URL') || 'http://localhost:8081';\nmsg.url = basyxBaseUrl + '/shells/' + shellId;\nreturn msg;",
+        "func": "// shellId is expected to already be base64url-encoded by the caller,\n// same convention used by the existing dsp-backend endpoints.\nconst shellId = msg.req.params.shellId;\nconst basyxBaseUrl = env.get('BASYX_BASE_URL') || env.get('SDI_AAS_URL') || 'http://127.0.0.1:8081';\nmsg.url = basyxBaseUrl + '/shells/' + shellId;\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -234,7 +234,7 @@
         "type": "function",
         "z": "aas-s3-bridge-tab",
         "name": "Build Basyx Submodel URL",
-        "func": "// The shape of a submodel reference can vary between Basyx setups - handle the\n// common ones instead of assuming the AAS v3 {keys:[{value}]} form.\nfunction extractSubmodelId(ref) {\n    if (typeof ref === 'string') return ref;\n    if (ref && Array.isArray(ref.keys) && ref.keys.length > 0 && ref.keys[0].value) return ref.keys[0].value;\n    if (ref && typeof ref.value === 'string') return ref.value;\n    if (ref && typeof ref.id === 'string') return ref.id;\n    return null;\n}\n\nconst smId = extractSubmodelId(msg.payload);\nif (!smId) {\n    node.error('Could not determine submodel id from reference: ' + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nconst basyxBaseUrl = env.get('BASYX_BASE_URL') || env.get('SDI_AAS_URL') || 'http://localhost:8081';\nmsg.url = basyxBaseUrl + '/submodels/' + Buffer.from(smId).toString('base64url');\nreturn msg;",
+        "func": "// The shape of a submodel reference can vary between Basyx setups - handle the\n// common ones instead of assuming the AAS v3 {keys:[{value}]} form.\nfunction extractSubmodelId(ref) {\n    if (typeof ref === 'string') return ref;\n    if (ref && Array.isArray(ref.keys) && ref.keys.length > 0 && ref.keys[0].value) return ref.keys[0].value;\n    if (ref && typeof ref.value === 'string') return ref.value;\n    if (ref && typeof ref.id === 'string') return ref.id;\n    return null;\n}\n\nconst smId = extractSubmodelId(msg.payload);\nif (!smId) {\n    node.error('Could not determine submodel id from reference: ' + JSON.stringify(msg.payload), msg);\n    return null;\n}\n\nconst basyxBaseUrl = env.get('BASYX_BASE_URL') || env.get('SDI_AAS_URL') || 'http://127.0.0.1:8081';\nmsg.url = basyxBaseUrl + '/submodels/' + Buffer.from(smId).toString('base64url');\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
