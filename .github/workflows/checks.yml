@@ -113,7 +113,10 @@ jobs:
       # with a hundred violations reached the repository unnoticed.
       - name: Sample packages need no repair
         run: |
-          python src/repair_aasx.py docs/sample_data/AASX/TRACEpen_Kugelschreiber --check
+          # The whole folder, template included: the base shell is what the
+          # PLM flow builds every new shell from, so a fault in it reaches all
+          # of them. --check exits with 1 when a package needs repair.
+          python src/repair_aasx.py docs/sample_data/AASX --check
           if [ -n "$(git status --porcelain docs/sample_data)" ]; then
             echo "the check modified the sample packages"
             exit 1

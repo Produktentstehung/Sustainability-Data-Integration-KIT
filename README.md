@@ -926,7 +926,14 @@ Where several entries point at the same openLCA parameter, for instance all five
 
 ### Storage in the AAS
 
-Each data source is a SubmodelElementCollection under `DataSources → DataSources`:
+Each data source is a SubmodelElementCollection under `DataSources → DataSources`,
+found by its `idShort`. The inner `DataSources` is itself a collection, not a
+list. A list may not give its members a name (AASd-120), and the template the
+shells are built from used one: its entries carried only a display name, no
+flow could find them, and each flow added its own entry beside the template's
+- a fresh installation showed two `Simulation` entries. `repair_aasx.py`
+writes the packages as a named collection, and `fix_aas_violations.py --apply`
+brings a server that already holds the list form into the same state.
 
 ```
 ERP                          Simulation
@@ -1039,8 +1046,10 @@ integrating sustainability data; the interface a source has to meet is the
 submodel, not a particular product.
 
 To connect a system of your own, write a `SubmodelElementCollection` into the
-`DataSources` list of the product AAS, or of a part AAS for data that belongs
-to a single part. Two shapes are understood:
+`DataSources` collection of the product AAS, or of a part AAS for data that
+belongs to a single part. Give it an `idShort` - that is how every flow finds
+it - and replace an entry of that name rather than adding a second. Two shapes
+are understood:
 
 **Quantities**: a `BillOfMaterial` list, one collection per component:
 
@@ -1412,7 +1421,7 @@ The data is written as its own data source `ERP` into the `DataSources` submodel
 
 ```
 DataSources                          [Submodel]
-└── DataSources                      [SubmodelElementList]
+└── DataSources                      [SubmodelElementCollection]
     ├── MachineData                [SMC]
     ├── Simulation                   [SMC]
     ├── PLM       [SMC]

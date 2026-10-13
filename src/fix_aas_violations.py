@@ -53,6 +53,8 @@ import urllib.request
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sdi_env import load_env
 load_env()
+# One table of data source names, shared with the repair of the packages.
+from repair_aasx import DATENQUELLEN
 
 AAS_URL = os.environ.get('SDI_AAS_URL', 'http://localhost:8081')
 
@@ -82,6 +84,8 @@ XSD_NUMERIC = ('xs:double', 'xs:float', 'xs:decimal', 'xs:integer', 'xs:int',
                'xs:unsignedLong')
 
 counter = collections.Counter()
+# Data sources that stand twice with values in both. Reported, not resolved.
+doppelt = []
 
 
 def b64(text):
@@ -175,6 +179,81 @@ def clean_qualifiers(element):
     element['qualifiers'] = cleaned
 
 
+def _carries_value(element):
+    """Whether anything below holds an actual value rather than a field."""
+    if not isinstance(element, dict):
+        return False
+    art = element.get('modelType')
+    wert = element.get('value')
+    if art in ('Property', 'File', 'Blob') and str(wert or '').strip():
+        return True
+    if art == 'Range' and (str(element.get('min') or '').strip()
+                           or str(element.get('max') or '').strip()):
+        return True
+    if art == 'MultiLanguageProperty' and any(
+            str(t.get('text') or '').strip() for t in (wert or [])
+            if isinstance(t, dict)):
+        return True
+    if isinstance(wert, list):
+        return any(_carries_value(k) for k in wert)
+    return False
+
+
+def name_data_sources(element):
+    """Names the members of DataSources so the flows can find them.
+
+    The shipped packages held DataSources as a list whose members, as the
+    specification demands of list members, had no name - only a display name.
+    The conversion above turned the list into a collection but left the
+    members nameless, and every flow looks its source up by name. The
+    simulation flow found no "Simulation", added one, and the shell showed two.
+
+    Each nameless member is named after its display name, through the table
+    repair_aasx.py uses for the packages. Afterwards a source may stand there
+    twice: the one from the template and the one a flow wrote. Then the one
+    that carries values stays. One that carries none is the template's empty
+    field and goes. If both carry values, both stay and the case is reported,
+    because deciding which data is right is not this script's business.
+    """
+    kinder = element.get('value')
+    if not isinstance(kinder, list):
+        return
+    for kind in kinder:
+        if not isinstance(kind, dict) or kind.get('idShort'):
+            continue
+        for anzeige in kind.get('displayName') or []:
+            ziel = DATENQUELLEN.get(str(anzeige.get('text') or '').strip())
+            if ziel:
+                kind['idShort'] = ziel
+                counter['data source named after its display name'] += 1
+                break
+
+    behalten = []
+    for kind in kinder:
+        name = kind.get('idShort') if isinstance(kind, dict) else None
+        vorher = next((k for k in behalten
+                       if isinstance(k, dict) and name
+                       and k.get('idShort') == name), None)
+        if vorher is None:
+            # The template's simulation entry carries nothing, and the
+            # product gets its real one from the flow; a part has none.
+            if name == 'Simulation' and not _carries_value(kind):
+                counter['empty template entry removed'] += 1
+                continue
+            behalten.append(kind)
+            continue
+        if not _carries_value(kind):
+            counter['empty duplicate data source removed'] += 1
+            continue
+        if not _carries_value(vorher):
+            behalten[behalten.index(vorher)] = kind
+            counter['empty duplicate data source removed'] += 1
+            continue
+        behalten.append(kind)
+        doppelt.append(name)
+    element['value'] = behalten
+
+
 def clean_element(element, inside_list=False):
     """Walks an element and its children and removes the violations."""
     if not isinstance(element, dict):
@@ -248,6 +327,10 @@ def clean_element(element, inside_list=False):
                       'semanticIdListElement', 'valueTypeListElement'):
             element.pop(field, None)
         counter['list converted to collection'] += 1
+
+    if (element.get('modelType') == 'SubmodelElementCollection'
+            and element.get('idShort') == 'DataSources'):
+        name_data_sources(element)
 
     # A file reference without a target is invalid: the value must be an
     # address. Without one the field is removed; the reference itself remains
@@ -352,6 +435,9 @@ def main():
         except Exception as error:
             failures += 1
             print('   submodel %s: %s' % (submodel.get('idShort'), str(error)[:90]))
+    for name in doppelt:
+        print('  DataSources holds "%s" twice, both with values - check by hand'
+              % name)
     print('Done, %d write errors.' % failures)
 
 

@@ -211,6 +211,129 @@ def strip_list_child_idshorts(text):
     return kopf + ET.tostring(baum, encoding='unicode'), count
 
 
+# The data sources of a shell, by the name every flow looks them up under.
+# The template knows them only by their display name, some of them in an
+# older spelling; the left side is what it says, the right side what the
+# flows read. fix_aas_violations.py uses the same table for servers.
+DATENQUELLEN = {
+    'PLM': 'PLM',
+    'Engineering Data / PLM': 'PLM',
+    'Entwicklungsdaten / PLM': 'PLM',
+    'EngineeringData_PLM': 'PLM',
+    'ERP': 'ERP',
+    'ERPData': 'ERP',
+    'Simulation': 'Simulation',
+    'Manufacturing': 'MachineData',
+    'Fertigung': 'MachineData',
+    'MachineData': 'MachineData',
+}
+
+# Submodel element list fields that a collection does not have.
+NUR_LISTE = ('orderRelevant', 'semanticIdListElement', 'typeValueListElement',
+             'valueTypeListElement')
+
+
+def _traegt_wert(element):
+    """Whether anything below holds an actual value, rather than a field.
+
+    Only the value of a property, range, file or blob counts. The keys of a
+    semantic identifier sit in <value> elements too, and every field of the
+    template has one - asking for any <value> with text found one each time.
+    """
+    A = '{%s}' % AAS_NAMESPACE
+    for art in ('property', 'file', 'blob'):
+        for el in element.iter(A + art):
+            if (el.findtext(A + 'value') or '').strip():
+                return True
+    for el in element.iter(A + 'range'):
+        if (el.findtext(A + 'min') or '').strip() \
+                or (el.findtext(A + 'max') or '').strip():
+            return True
+    for el in element.iter(A + 'multiLanguageProperty'):
+        if any((t.text or '').strip()
+               for v in el.findall(A + 'value') for t in v.iter(A + 'text')):
+            return True
+    return False
+
+
+def name_data_sources(text):
+    """Makes the data sources findable: a collection of named entries.
+
+    The template holds DataSources as a submodel element list. Its members may
+    carry no name (AASd-120), so they had none, and the next step here strips
+    any that turn up. But every flow finds its data source by name - the
+    simulation flow looks for "Simulation", finds nothing among three nameless
+    entries, and adds a second one next to the one from the template. A fresh
+    installation showed two "Simulation" entries side by side.
+
+    So the list becomes a collection, the construct for entries that carry a
+    meaning of their own, and each member gets the name its display name
+    stands for. That is what fix_aas_violations.py already did on the server -
+    it only never named the members, so the flows still could not find them.
+
+    One entry goes entirely: a Simulation that holds no value at all. The
+    template carried one with an empty RobotLoading from the gripper
+    demonstrator it was built for. The simulation flow writes the real one
+    into the product; a part has none.
+    """
+    import xml.etree.ElementTree as ET
+    ET.register_namespace('', AAS_NAMESPACE)
+    try:
+        baum = ET.fromstring(text)
+    except ET.ParseError:
+        return text, 0
+    A = '{%s}' % AAS_NAMESPACE
+    count = 0
+    for eltern in baum.iter():
+        for liste in list(eltern):
+            if liste.tag not in (A + 'submodelElementList',
+                                 A + 'submodelElementCollection') \
+                    or liste.findtext(A + 'idShort') != 'DataSources':
+                continue
+            if liste.tag == A + 'submodelElementList':
+                liste.tag = A + 'submodelElementCollection'
+                for feld in NUR_LISTE:
+                    for weg in liste.findall(A + feld):
+                        liste.remove(weg)
+                count += 1
+            wert = liste.find(A + 'value')
+            if wert is None:
+                continue
+            vergeben = set()
+            for kind in list(wert):
+                name = kind.findtext(A + 'idShort')
+                if not name:
+                    anzeige = [t.text for t in kind.iter(A + 'text') if t.text]
+                    gefunden = [DATENQUELLEN[a.strip()] for a in anzeige
+                                if a.strip() in DATENQUELLEN]
+                    if not gefunden:
+                        continue
+                    name = gefunden[0]
+                    feld = ET.Element(A + 'idShort')
+                    feld.text = name
+                    # The name stands after extensions and category, before
+                    # everything else - the schema fixes the order.
+                    stelle = sum(1 for k in kind
+                                 if k.tag in (A + 'extensions', A + 'category'))
+                    kind.insert(stelle, feld)
+                    count += 1
+                if name == 'Simulation' and not _traegt_wert(kind):
+                    wert.remove(kind)
+                    count += 1
+                    continue
+                if name in vergeben:
+                    # Two entries for one source: the second would never be
+                    # read. Not removed blindly - it may hold data - but no
+                    # longer silently there either.
+                    print('     DataSources holds "%s" twice; check by hand'
+                          % name)
+                vergeben.add(name)
+    if not count:
+        return text, 0
+    kopf = '<?xml version="1.0" encoding="UTF-8"?>' + chr(10)
+    return kopf + ET.tostring(baum, encoding='unicode'), count
+
+
 def clean_content(text):
     """Removes the violations above from an .aas.xml. Returns text and count.
 
@@ -350,8 +473,12 @@ def _clean_once(text):
     cleaned, hits = normalise_idshorts(cleaned)
     count += hits
 
-    # Last, because it reserialises the document: every step above works on
-    # the text and would have to be repeated on the new formatting.
+    # Last, because these reserialise the document: every step above works on
+    # the text and would have to be repeated on the new formatting. The data
+    # sources come first - once they are a collection, the next step leaves
+    # their names alone.
+    cleaned, hits = name_data_sources(cleaned)
+    count += hits
     cleaned, hits = strip_list_child_idshorts(cleaned)
     count += hits
     return cleaned, count
@@ -440,6 +567,12 @@ def main():
     print(("Checking" if check else "Repairing") + f" {len(files)} AASX packages:")
     affected = sum(1 for path in sorted(files) if repair(path, check))
     print(f"\n{affected} of {len(files)} packages affected.")
+    # A check that cannot fail is not a check. The CI step "Sample packages
+    # need no repair" ran this with --check and then looked for modified
+    # files - but --check modifies nothing, and the script always ended with
+    # exit code 0, so the step passed whatever the packages held.
+    if check and affected:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
