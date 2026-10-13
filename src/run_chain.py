@@ -154,6 +154,36 @@ def trigger(name):
                ', '.join(sorted(n for n in nodes if n)) or 'none'))
 
 
+def now():
+    """The moment a step is triggered, to the second.
+
+    The flows write their stamps to the second. Keeping the fractions here
+    would make a write within the same second look older than the trigger.
+    """
+    import datetime
+    return datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
+
+
+def is_fresh(stamp, since):
+    """Whether a timestamp written by a flow lies at or after `since`.
+
+    Compared as points in time, not as text: older entries are in UTC with a
+    "Z", newer ones in local time with an offset, and as strings
+    "2026-10-14T00:04:14+02:00" sorts after "2026-10-13T22:30:00Z" although
+    it is earlier.
+    """
+    import datetime
+    if not stamp:
+        return False
+    try:
+        zeit = datetime.datetime.fromisoformat(str(stamp).replace('Z', '+00:00'))
+    except ValueError:
+        return False
+    if zeit.tzinfo is None:
+        zeit = zeit.astimezone()
+    return zeit >= since
+
+
 def wait_for(check, seconds, description):
     """Waits until the check becomes true. Returns whether it did."""
     deadline = time.time() + seconds
@@ -246,11 +276,16 @@ def step_fix():
 
 def step_erp():
     heading(3, 'ERP: bill of material and order')
+    since = now()
     print('  Flow started: HTTP %s' % trigger('erp'))
+    # Present is not enough: without the import step the shell still holds
+    # the previous run, and the wait would end before the flow wrote anything.
     ok = wait_for(
         lambda: len((child(data_source(PRODUCT, 'ERP'), 'BillOfMaterial')
-                     or {}).get('value') or []) > 0,
-        180, 'the bill of material')
+                     or {}).get('value') or []) > 0
+        and is_fresh(value_of(data_source(PRODUCT, 'ERP'), 'TimeOfRetrieval'),
+                     since),
+        180, 'a fresh bill of material')
     if not ok:
         give_up('The bill of material did not arrive in the shell. '
                 'Check the ERP credentials in .env.')
@@ -266,11 +301,14 @@ def step_erp():
 
 def step_simulation():
     heading(4, 'Simulation: assembly energy')
+    since = now()
     print('  Flow started: HTTP %s' % trigger('simulation'))
     ok = wait_for(
         lambda: len((child(data_source(PRODUCT, 'Simulation'), 'SimulationProcesses')
-                     or {}).get('value') or []) > 0,
-        180, 'the simulation operations')
+                     or {}).get('value') or []) > 0
+        and is_fresh(value_of(data_source(PRODUCT, 'Simulation'),
+                              'TimeOfSimulation'), since),
+        180, 'fresh simulation operations')
     if not ok:
         give_up('No operations arrived. Check SDI_EMA_EXPORT in .env.')
     operations = (child(data_source(PRODUCT, 'Simulation'), 'SimulationProcesses')
@@ -299,6 +337,7 @@ def step_machines(parts):
 
 def step_calculate(parts):
     heading(6, 'Calculation in openLCA')
+    since = now()
     print('  Chain started: HTTP %s' % trigger('calculate'))
 
     def result_of(shell):
@@ -314,7 +353,14 @@ def step_calculate(parts):
         calculated = []
         for iteration in container.get('value') or []:
             methods = child(iteration, 'LCIAMethods')
-            if any((m.get('value') or []) for m in (methods or {}).get('value') or []):
+            if not any((m.get('value') or [])
+                       for m in (methods or {}).get('value') or []):
+                continue
+            # Only what this run wrote. Every method carries its own stamp, so
+            # the one just calculated is fresh and the others are not.
+            stamps = [value_of(iteration, 'TimeOfLCA')] + [
+                value_of(m, 'TimeOfLCA') for m in (methods or {}).get('value') or []]
+            if any(is_fresh(s, since) for s in stamps):
                 calculated.append(iteration)
         return calculated
 
