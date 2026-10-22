@@ -34,6 +34,7 @@ https://www.apache.org/licenses/LICENSE-2.0.
 SPDX-License-Identifier: Apache-2.0
 """
 import argparse
+import collections
 import os
 import re
 import sys
@@ -127,6 +128,46 @@ def check_package(path):
     return (archive.read(data_file) if data_file else None), findings
 
 
+def _lesbarer_pfad(segments):
+    """The path of a finding by idShort instead of list positions.
+
+    aas-core names the way to a violation by index - ".submodels/[1]/
+    .submodel_elements/[0]/.value/[0]" - which says nothing to a reader. The
+    segments carry the sequences themselves, so the idShort of every element
+    on the way can be read off.
+    """
+    teile, submodel = [], None
+    for s in segments:
+        if hasattr(s, 'sequence'):
+            try:
+                element = s.sequence[s.index]
+            except Exception:
+                element = None
+            name = getattr(element, 'id_short', None) or getattr(element, 'id', None)
+            name = name or '#%d' % s.index
+            if submodel is None and teile and teile[-1] == 'submodels':
+                submodel = name
+            teile.append(str(name))
+        elif s.name in ('submodels', 'asset_administration_shells',
+                        'concept_descriptions'):
+            teile.append(s.name)
+        elif s.name not in ('submodel_elements', 'value'):
+            teile.append('.' + s.name)
+    pfad = '/'.join(teile).replace('/.', '.')
+    gruppe = submodel or (teile[0] if teile else '(environment)')
+    return pfad or '(root)', gruppe
+
+
+def _regel(cause):
+    """The constraint a cause names, or a short name for the plain ones."""
+    treffer = re.search(r'Constraint (AAS[a-z]-[0-9a-z-]+)', cause)
+    if treffer:
+        return treffer.group(1)
+    if 'must not be empty' in cause:
+        return 'empty value'
+    return cause.split(':')[0][:40]
+
+
 def check_content(raw):
     """Reads the XML with the reference library and verifies the rules."""
     findings = []
@@ -147,12 +188,44 @@ def check_content(raw):
         return None, ['XML cannot be read: %s' % str(error)[:300]], version
 
     for violation in verification.verify(environment):
-        path = '/'.join(str(segment) for segment in violation.path.segments)
-        findings.append('%s: %s' % (path or '(root)', violation.cause))
+        path, gruppe = _lesbarer_pfad(violation.path.segments)
+        findings.append(Befund(path, gruppe, _regel(violation.cause),
+                               violation.cause))
         if len(findings) >= 2000:
-            findings.append('... further violations omitted')
             break
     return environment, findings, version
+
+
+class Befund(str):
+    """A finding: reads as text, and keeps where it is and which rule it breaks."""
+
+    def __new__(cls, pfad, gruppe, regel, ursache):
+        objekt = super().__new__(cls, '%s: %s' % (pfad, ursache))
+        objekt.gruppe, objekt.regel = gruppe, regel
+        return objekt
+
+
+def summary_file(path):
+    """One line per package, then the findings grouped by submodel and rule."""
+    raw, package_findings = check_package(path)
+    if raw is None:
+        print('%-40s is rejected      data file missing' % os.path.basename(path))
+        return False
+    environment, findings, _ = check_content(raw)
+    readable = environment is not None and not package_findings
+    print('%-40s %-15s %d defects' % (
+        os.path.basename(path), 'can be opened' if readable else 'is rejected',
+        len(findings) + len(package_findings)))
+    gruppen = collections.OrderedDict()
+    for f in findings:
+        if isinstance(f, Befund):
+            gruppen.setdefault(f.gruppe, collections.Counter())[f.regel] += 1
+    for gruppe, regeln in sorted(gruppen.items()):
+        print('    %-28s %s' % (gruppe, '   '.join(
+            '%s x%d' % (r, n) for r, n in sorted(regeln.items()))))
+    for f in package_findings:
+        print('    %-28s %s' % ('package', f))
+    return readable
 
 
 def check_file(path):
@@ -200,6 +273,9 @@ def main():
         description='Check AASX packages for readability and conformity.')
     parser.add_argument('files', nargs='*', help='packages to check')
     parser.add_argument('--directory', help='check every .aasx in this directory')
+    parser.add_argument('--summary', action='store_true',
+                        help='one line per package, findings grouped by '
+                             'submodel and rule')
     args = parser.parse_args()
 
     # Ein Ordner als einfaches Argument ist gemeint wie --directory. Ohne das
@@ -223,7 +299,7 @@ def main():
 
     all_readable = True
     for path in files:
-        all_readable &= check_file(path)
+        all_readable &= (summary_file if args.summary else check_file)(path)
     return 0 if all_readable else 1
 
 

@@ -148,7 +148,9 @@ def tidy_file_references(element):
         if value is None or not (value.text or '').strip():
             continue
         address = value.text.strip()
-        if address.startswith(('http://', 'https://', '/aasx/')):
+        if address.startswith(('http://', 'https://')):
+            continue
+        if address.startswith('/aasx/') and ']' not in address:
             continue
         name = file_name(address)
         value.text = '/aasx/files/' + name if name else '/aasx/files/unnamed'
@@ -207,11 +209,32 @@ def file_name(value):
     if not address:
         return ''
     if address.startswith(('/aasx/', 'http://', 'https://')):
-        return address.rsplit('/', 1)[-1]
+        return ohne_elementpfad(address.rsplit('/', 1)[-1])
     parts = address.split('-')
     if len(parts) > 2:
-        return '-'.join(parts[2:])
-    return parts[-1].rsplit('/', 1)[-1]
+        return ohne_elementpfad('-'.join(parts[2:]))
+    return ohne_elementpfad(parts[-1].rsplit('/', 1)[-1])
+
+
+def ohne_elementpfad(name):
+    """Drops the element path a fresh AAS server puts in front of a file name.
+
+    On upload the server renames an attachment after the element that holds
+    it - "Documents[0].DocumentVersions[1].DigitalFiles[0]-BOM_000114.csv".
+    The brackets are not allowed in a URI, so every such reference was a
+    finding in the exported package, six per shell. A server that went through
+    fix_aas_violations.py does not have them; a fresh installation does.
+
+    Only names with brackets are touched: without them an element path
+    ("CompanyLogo-UPB_HNI.png") cannot be told from a file name with a hyphen
+    ("000053-1.SLDPRT"), and both are valid as they are.
+    """
+    if ']' not in name:
+        return name
+    rest = name[name.rindex(']') + 1:]
+    if '-' not in rest:
+        return name
+    return rest.split('-', 1)[1] or name
 
 
 def element_paths(elements, prefix=''):
@@ -292,8 +315,9 @@ def clean_before_writing(xml):
     The shells on the server were built from a template that violates the
     specification in a handful of places, and reading them back out reproduces
     every one of them. Without this the export was worse than the sample data
-    shipped with the KIT: 114 violations per package against none - and it was
-    the export, not the sample data, that a user looks at first.
+    shipped with the KIT - and it was the export, not the sample data, that a
+    user looks at first. With it, an exported package and the sample data
+    both check without a single finding.
 
     The same cleaning the PLM generator applies, so a package exported here and
     a package built there come out alike. If the module is missing the export
@@ -312,7 +336,8 @@ def clean_before_writing(xml):
     text = xml.decode('utf-8') if war_bytes else xml
     cleaned, count = clean_content(text)
     if count:
-        print('  %d violations of the specification removed' % count)
+        print('  %d violation%s of the specification removed'
+              % (count, '' if count == 1 else 's'))
     return cleaned.encode('utf-8') if war_bytes else cleaned
 
 
@@ -360,6 +385,21 @@ def write_package(target, xml, attachments=None):
         'Target="environment.aas.xml" Id="r1"/></Relationships>')
 
     xml = clean_before_writing(xml)
+    # Only with attachments: without them (--no-attachments) every reference
+    # would go, and the reader would not even see what the package left out.
+    if attachments:
+        try:
+            from repair_aasx import drop_dangling_files
+            war_bytes = isinstance(xml, bytes)
+            text = xml.decode('utf-8') if war_bytes else xml
+            text, weg = drop_dangling_files(
+                text, ['aasx/files/' + n for n in attachments])
+            if weg:
+                print('  %d reference%s to a file that is not there removed'
+                      % (weg, '' if weg == 1 else 's'))
+            xml = text.encode('utf-8') if war_bytes else text
+        except ImportError:
+            pass
 
     with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
         archive.writestr('[Content_Types].xml', content_types)

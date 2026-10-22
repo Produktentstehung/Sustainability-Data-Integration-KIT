@@ -334,6 +334,132 @@ def name_data_sources(text):
     return kopf + ET.tostring(baum, encoding='unicode'), count
 
 
+def clean_structure(text):
+    """Removes what the submodel templates left in every instance.
+
+    The standard submodels of the template shell - Nameplate, TechnicalData,
+    HandoverDocumentation - were filled from IDTA templates, and kept their
+    template apparatus: cardinality and example-value qualifiers, empty
+    fields, supplemental semantic IDs without a main one. Each is one of the
+    findings an exported package showed, nineteen to twenty-six per package,
+    all from the template and none from the data of the KIT:
+
+      AASd-129  a template qualifier inside an instance submodel
+      AASd-021  four SMT/ExampleValue qualifiers on one element
+      AASd-118  supplemental semantic IDs and no semantic ID
+      AASd-109  a list of properties without the type of its values
+      empty     a collection, list, file or concept field present but empty
+
+    Everything is removed rather than invented, with one exception: the value
+    type of a list of properties, which its members show.
+    """
+    import xml.etree.ElementTree as ET
+    ET.register_namespace('', AAS_NAMESPACE)
+    try:
+        baum = ET.fromstring(text)
+    except ET.ParseError:
+        return text, 0
+    A = '{%s}' % AAS_NAMESPACE
+    count = 0
+
+    def eltern_von():
+        return {kind: el for el in baum.iter() for kind in el}
+
+    # Template qualifiers (SMT/Cardinality, SMT/ExampleValue, ...) describe a
+    # template and are not allowed in an instance. Only instance submodels.
+    for sm in baum.iter(A + 'submodel'):
+        if (sm.findtext(A + 'kind') or 'Instance') != 'Instance':
+            continue
+        for qs in list(sm.iter(A + 'qualifiers')):
+            for q in list(qs):
+                if (q.findtext(A + 'type') or '').startswith('SMT/') \
+                        or q.findtext(A + 'kind') == 'TemplateQualifier':
+                    qs.remove(q)
+                    count += 1
+    eltern = eltern_von()
+    for qs in list(baum.iter(A + 'qualifiers')):
+        if len(qs) == 0 and qs in eltern:
+            eltern[qs].remove(qs)
+
+    # Supplemental semantic IDs need a main one.
+    for el in list(baum.iter()):
+        sup = el.find(A + 'supplementalSemanticIds')
+        if sup is not None and el.find(A + 'semanticId') is None:
+            el.remove(sup)
+            count += 1
+
+    # A list of properties states the type of its values.
+    for liste in baum.iter(A + 'submodelElementList'):
+        art = liste.find(A + 'typeValueListElement')
+        if art is None or art.text not in ('Property', 'Range') \
+                or liste.find(A + 'valueTypeListElement') is not None:
+            continue
+        typen = {k.findtext(A + 'valueType') for k in liste.iter(A + 'property')
+                 if k.findtext(A + 'valueType')}
+        feld = ET.Element(A + 'valueTypeListElement')
+        feld.text = typen.pop() if len(typen) == 1 else 'xs:string'
+        liste.insert(list(liste).index(art) + 1, feld)
+        count += 1
+
+    # Present but empty: a collection or list without members, a file without
+    # an address, a concept field without text. Absent is allowed, empty not.
+    eltern = eltern_von()
+    for tag in ('submodelElementCollection', 'submodelElementList'):
+        for el in baum.iter(A + tag):
+            wert = el.find(A + 'value')
+            if wert is not None and len(wert) == 0 and not (wert.text or '').strip():
+                el.remove(wert)
+                count += 1
+    for el in baum.iter(A + 'multiLanguageProperty'):
+        wert = el.find(A + 'value')
+        if wert is not None and len(wert) == 0:
+            el.remove(wert)
+            count += 1
+    for tag in ('file', 'blob'):
+        for el in baum.iter(A + tag):
+            wert = el.find(A + 'value')
+            if wert is not None and not (wert.text or '').strip():
+                el.remove(wert)
+                count += 1
+    for inhalt in baum.iter(A + 'dataSpecificationIec61360'):
+        for feld in ('unit', 'value', 'symbol', 'valueFormat', 'sourceOfDefinition'):
+            el = inhalt.find(A + feld)
+            if el is not None and len(el) == 0 and not (el.text or '').strip():
+                inhalt.remove(el)
+                count += 1
+        vl = inhalt.find(A + 'valueList')
+        if vl is not None:
+            paare = vl.find(A + 'valueReferencePairs')
+            # A pair needs its valueId, so a pair whose key is empty goes as a
+            # whole - removing only the id made the package unreadable.
+            for paar in list(paare if paare is not None else []):
+                vid = paar.find(A + 'valueId')
+                if vid is None or any(not (k.findtext(A + 'value') or '').strip()
+                                      for k in vid.iter(A + 'key')):
+                    paare.remove(paar)
+                    count += 1
+            if paare is None or len(paare) == 0:
+                inhalt.remove(vl)
+                count += 1
+        # One short name per language.
+        for name in ('shortName', 'preferredName'):
+            block = inhalt.find(A + name)
+            if block is None:
+                continue
+            gesehen = set()
+            for eintrag in list(block):
+                sprache = eintrag.findtext(A + 'language')
+                if sprache in gesehen:
+                    block.remove(eintrag)
+                    count += 1
+                gesehen.add(sprache)
+
+    if not count:
+        return text, 0
+    kopf = '<?xml version="1.0" encoding="UTF-8"?>' + chr(10)
+    return kopf + ET.tostring(baum, encoding='unicode'), count
+
+
 # The result structures of the KIT, and what their template entry is called.
 # The flows recognise those names as placeholders and drop them.
 ERGEBNISLISTEN = {
@@ -417,6 +543,40 @@ def name_result_lists(text):
             stelle = sum(1 for k in kind
                          if k.tag in (A + 'extensions', A + 'category'))
             kind.insert(stelle, feld)
+            count += 1
+    if not count:
+        return text, 0
+    kopf = '<?xml version="1.0" encoding="UTF-8"?>' + chr(10)
+    return kopf + ET.tostring(baum, encoding='unicode'), count
+
+
+def drop_dangling_files(text, im_paket):
+    """Removes file references that lead to nothing inside the package.
+
+    The template carries example documents of the IDTA submodel -
+    datasheet_en.pdf, datasheet_en_de_fr.pdf - that were never part of any
+    package, and a purchased part without a CAD model still pointed at a
+    default model.sldasm. No checker counts that as a violation, but every
+    viewer shows a link that opens nothing, in every package. The field stays;
+    only the address that leads nowhere goes. Addresses outside the package
+    (http, https) are left alone.
+
+    im_paket: the names of the files in the package, as the archive lists them.
+    """
+    import xml.etree.ElementTree as ET
+    ET.register_namespace('', AAS_NAMESPACE)
+    try:
+        baum = ET.fromstring(text)
+    except ET.ParseError:
+        return text, 0
+    A = '{%s}' % AAS_NAMESPACE
+    vorhanden = {n.lstrip('/') for n in im_paket}
+    count = 0
+    for el in baum.iter(A + 'file'):
+        wert = el.find(A + 'value')
+        adresse = (wert.text or '').strip() if wert is not None else ''
+        if adresse.startswith('/aasx/') and adresse.lstrip('/') not in vorhanden:
+            el.remove(wert)
             count += 1
     if not count:
         return text, 0
@@ -571,6 +731,8 @@ def _clean_once(text):
     count += hits
     cleaned, hits = name_result_lists(cleaned)
     count += hits
+    cleaned, hits = clean_structure(cleaned)
+    count += hits
     cleaned, hits = strip_list_child_idshorts(cleaned)
     count += hits
     return cleaned, count
@@ -583,7 +745,8 @@ def count_content_violations(path):
         for item in archive.namelist():
             if item.endswith('.aas.xml'):
                 text = archive.read(item).decode('utf-8', 'replace')
-                gesamt += clean_content(text)[1]
+                text, n = clean_content(text)
+                gesamt += n + drop_dangling_files(text, archive.namelist())[1]
     return gesamt
 
 
@@ -629,6 +792,8 @@ def repair(path, check=False):
             elif item.filename.endswith('.aas.xml'):
                 text = source.read(item.filename).decode('utf-8', 'replace')
                 text, removed = clean_content(text)
+                text, tot = drop_dangling_files(text, source.namelist())
+                removed += tot
                 cleaned_total += removed
                 target.writestr(item, text.encode('utf-8'))
             else:
