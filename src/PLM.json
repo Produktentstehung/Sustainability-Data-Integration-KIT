@@ -226,7 +226,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1390,
+        "x": 1410,
         "y": 360,
         "wires": [
             [
@@ -246,7 +246,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1600,
+        "x": 1640,
         "y": 360,
         "wires": [
             [
@@ -273,7 +273,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1820,
+        "x": 1880,
         "y": 360,
         "wires": [
             [
@@ -292,7 +292,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2040,
+        "x": 2120,
         "y": 360,
         "wires": [
             [
@@ -316,7 +316,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 2260,
+        "x": 2340,
         "y": 360,
         "wires": [
             [
@@ -335,7 +335,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2470,
+        "x": 2550,
         "y": 360,
         "wires": [
             [
@@ -362,7 +362,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 2700,
+        "x": 2780,
         "y": 360,
         "wires": [
             [
@@ -381,7 +381,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2920,
+        "x": 3040,
         "y": 360,
         "wires": [
             [
@@ -405,7 +405,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 3140,
+        "x": 3300,
         "y": 360,
         "wires": [
             [
@@ -418,13 +418,13 @@
         "type": "function",
         "z": "ae88e0c42828bbd4",
         "name": "Complete the document branch",
-        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview Download unvollst\u00e4ndig: ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview download incomplete: HTTP ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 3360,
+        "x": 3580,
         "y": 360,
         "wires": [
             [
@@ -466,14 +466,14 @@
         "type": "function",
         "z": "ae88e0c42828bbd4",
         "name": "Write the data as JSON",
-        "func": "const results  = msg.payload;\nconst bom      = results['bom']||[];\nconst docRes   = results['doc']||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = env.get('SDI_PLM_BASE_SHELL') || '';\nconst OUTPUT_PATH = env.get('SDI_PLM_OUTPUT') || '';\nconst PYTHON_SCRIPT = env.get('SDI_PLM_SCRIPT') || '';\n// Working directory with a fallback that actually works.\n//\n// This read 'env.get(...) || WORK_DIR' - the variable referred to itself.\n// With the environment variable unset the node aborts before it starts,\n// complaining about a variable that plainly stands there in the source. In\n// the lab this never shows, because there the variable is set.\nconst WORK_DIR    = env.get('SDI_PLM_WORK_DIR')\n                 || ((env.get('SDI_PLM_JOBDIR') || 'jobs') + '/product');\nconst DATA_JSON   = WORK_DIR + '/cim_aas_data.json';\nconst FILE_BIN    = WORK_DIR + '/cim_cad_file.bin';\nconst PREVIEW_BIN = WORK_DIR + '/cim_preview_file.bin';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\ntry { if(!fs.existsSync(WORK_DIR)) fs.mkdirSync(WORK_DIR,{recursive:true}); } catch(e){}\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD binary written: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the CAD file failed: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview binary written: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the preview failed: ' + e.message); }\n}\n\nlet maxBomCsv = '';\ntry {\n    const csvPath = BASE_PATH.replace(/\\//g,'\\\\') + '\\\\aasx\\\\files\\\\Produktstruktur_MaxBOM_TRACEpen_Kugelschreiber.CSV';\n    if (fs.existsSync(csvPath)) {\n        maxBomCsv = fs.readFileSync(csvPath, 'latin1');\n        node.warn('MaxBOM CSV loaded: ' + csvPath.replace(/.*[\\\\/]/, ''));\n    }\n} catch(e) { node.warn('MaxBOM CSV not loaded: ' + e.message); }\n\nconst partNameSafe = (part && part.name) ? part.name : '';\nconst templateXmlPath = partNameSafe\n    ? OUTPUT_PATH + '/' + partNameSafe + '/aasx/' + partNameSafe + '/' + partNameSafe + '.aas.xml'\n    : '';\nnode.warn('Template: ' + templateXmlPath.replace(/.*[\\\\/]/, ''));\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n  maxBomCsv: maxBomCsv,\n  templateXmlPath: templateXmlPath,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON written: '+DATA_JSON);\n}catch(e){\n  node.error('Writing the JSON failed: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\n// Report the program name and the job only - the full path does not belong\n// in the log, it is held in the configuration.\nnode.warn('Starting ' + String(msg.payload).replace(/.*[\\\\/]/, '')\n        .replace(/\".*/, '') + ' for job ' + (msg.jobId || '?'));\nreturn msg;",
+        "func": "const results  = msg.payload;\nconst bom      = results['bom']||[];\nconst docRes   = results['doc']||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = env.get('SDI_PLM_BASE_SHELL') || '';\nconst OUTPUT_PATH = env.get('SDI_PLM_OUTPUT') || '';\nconst PYTHON_SCRIPT = env.get('SDI_PLM_SCRIPT') || '';\n// Working directory with a fallback that actually works.\n//\n// This read 'env.get(...) || WORK_DIR' - the variable referred to itself.\n// With the environment variable unset the node aborts before it starts,\n// complaining about a variable that plainly stands there in the source. In\n// the lab this never shows, because there the variable is set.\nconst WORK_DIR    = env.get('SDI_PLM_WORK_DIR')\n                 || ((env.get('SDI_PLM_JOBDIR') || 'jobs') + '/product');\nconst DATA_JSON   = WORK_DIR + '/cim_aas_data.json';\nconst FILE_BIN    = WORK_DIR + '/cim_cad_file.bin';\nconst PREVIEW_BIN = WORK_DIR + '/cim_preview_file.bin';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\ntry { if(!fs.existsSync(WORK_DIR)) fs.mkdirSync(WORK_DIR,{recursive:true}); } catch(e){}\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD binary written: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the CAD file failed: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview binary written: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the preview failed: ' + e.message); }\n}\n\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON written: '+DATA_JSON);\n}catch(e){\n  node.error('Writing the JSON failed: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\n// Report the program name and the job only - the full path does not belong\n// in the log, it is held in the configuration.\nnode.warn('Starting ' + String(msg.payload).replace(/.*[\\\\/]/, '')\n        .replace(/\".*/, '') + ' for job ' + (msg.jobId || '?'));\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 3830,
+        "x": 3850,
         "y": 280,
         "wires": [
             [
@@ -493,7 +493,7 @@
         "timer": "60",
         "winHide": false,
         "name": "Python: create the AAS",
-        "x": 4060,
+        "x": 4100,
         "y": 280,
         "wires": [
             [
@@ -512,14 +512,14 @@
         "type": "function",
         "z": "ae88e0c42828bbd4",
         "name": "Report status",
-        "func": "const out = typeof msg.payload==='string' ? msg.payload : JSON.stringify(msg.payload);\nif(out && out.trim()) node.warn('Python output: '+out.substring(0,2000));\nmsg.payload = {\n  status: msg.rc===0||out.includes('FERTIG') ? 'OK' : 'CHECK',\n  pythonOutput: out,\n  outputPath: msg.outputPath||'?',\n};\nreturn msg;",
+        "func": "// One report per run, on the return code.\n//\n// The exec node sends stdout, stderr and the return code as three separate\n// messages, and all three arrive here. Each used to be reported on its own:\n// the package was built, and the debug panel showed it as \"CHECK\" twice -\n// for the stderr message and for the return code, which carries no output\n// text. Now the text is collected and the verdict comes with the return\n// code, which is the only message that knows how the run ended.\nconst puffer = context.get('ausgabe') || {};\nconst id = msg._msgid;\n\nif (msg.payload && typeof msg.payload === 'object' && 'code' in msg.payload) {\n    const text = (puffer[id] || []).join('\\n');\n    delete puffer[id];\n    context.set('ausgabe', puffer);\n    const ok = msg.payload.code === 0;\n    msg.payload = {\n        status: ok ? 'OK' : 'CHECK',\n        returnCode: msg.payload.code,\n        pythonOutput: text,\n        outputPath: msg.outputPath || '?',\n    };\n    (ok ? node.log : node.warn).call(node, 'Python ' + (ok ? 'finished' : 'ended with code '\n        + msg.payload.returnCode) + ': ' + text.substring(0, 2000));\n    node.status({ fill: ok ? 'green' : 'red', shape: 'dot', text: msg.payload.status });\n    return msg;\n}\n\nconst out = typeof msg.payload === 'string' ? msg.payload : JSON.stringify(msg.payload);\nif (out && out.trim()) {\n    (puffer[id] = puffer[id] || []).push(out.trim());\n    context.set('ausgabe', puffer);\n}\nreturn null;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 4280,
+        "x": 4320,
         "y": 280,
         "wires": [
             [
@@ -537,7 +537,7 @@
         "console": false,
         "complete": "payload",
         "targetType": "msg",
-        "x": 4490,
+        "x": 4530,
         "y": 280,
         "wires": []
     },
@@ -805,7 +805,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 730,
+        "x": 750,
         "y": 260,
         "wires": [
             [
@@ -829,7 +829,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 930,
+        "x": 970,
         "y": 260,
         "wires": [
             [
@@ -849,7 +849,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1140,
+        "x": 1200,
         "y": 260,
         "wires": [
             [
@@ -876,7 +876,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1360,
+        "x": 1440,
         "y": 260,
         "wires": [
             [
@@ -896,7 +896,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1580,
+        "x": 1680,
         "y": 260,
         "wires": [
             [
@@ -920,7 +920,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1800,
+        "x": 1900,
         "y": 260,
         "wires": [
             [
@@ -939,7 +939,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2010,
+        "x": 2110,
         "y": 260,
         "wires": [
             [
@@ -967,7 +967,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 2240,
+        "x": 2340,
         "y": 260,
         "wires": [
             [
@@ -986,7 +986,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2460,
+        "x": 2600,
         "y": 260,
         "wires": [
             [
@@ -1010,7 +1010,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 2680,
+        "x": 2860,
         "y": 260,
         "wires": [
             [
@@ -1023,14 +1023,14 @@
         "type": "function",
         "z": "0bf346aa1e637d09",
         "name": "Complete the document branch",
-        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview Download unvollst\u00e4ndig: ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
+        "func": "if (msg.statusCode === 200 && msg.payload) {\n    msg.previewBuffer = msg.payload;\n} else {\n    node.warn('Preview download incomplete: HTTP ' + msg.statusCode);\n    msg.previewBuffer = null;\n}\n\nmsg.topic = 'doc';\nmsg.payload = {\n    docData: msg.docMetadata,\n    cadBuffer: msg.cadBuffer,\n    fileName: msg.cadName,\n    previewBuffer: msg.previewBuffer,\n    previewName: msg.previewName\n};\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2950,
+        "x": 3130,
         "y": 260,
         "wires": [
             [
@@ -1043,14 +1043,14 @@
         "type": "function",
         "z": "0bf346aa1e637d09",
         "name": "Write the data as JSON",
-        "func": "const bom      = [];\nconst docRes   = msg.payload||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = env.get('SDI_PLM_BASE_SHELL') || '';\nconst OUTPUT_PATH = env.get('SDI_PLM_OUTPUT') || '';\nconst PYTHON_SCRIPT = env.get('SDI_PLM_SCRIPT') || '';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\n// Working directory from the environment, with a fallback next to the\n// working directory of Node-RED. A fixed Windows path stood here before:\n// on Linux and macOS the flow failed, and on Windows the intermediate\n// files ended up outside the project.\nconst JOB = (env.get('SDI_PLM_JOBDIR') || 'jobs') + '/' + msg.jobId;\nfs.mkdirSync(JOB, { recursive: true });\nconst DATA_JSON = JOB + \"/data.json\";\nconst FILE_BIN = JOB + \"/cad.bin\";\nconst PREVIEW_BIN = JOB + \"/preview.jpg\";\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD binary written: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the CAD file failed: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview binary written: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the preview failed: ' + e.message); }\n}\n\nlet maxBomCsv = '';\ntry {\n    const csvPath = BASE_PATH.replace(/\\//g,'\\\\') + '\\\\aasx\\\\files\\\\Produktstruktur_MaxBOM_TRACEpen_Kugelschreiber.CSV';\n    if (fs.existsSync(csvPath)) {\n        maxBomCsv = fs.readFileSync(csvPath, 'latin1');\n        node.warn('MaxBOM CSV loaded: ' + csvPath.replace(/.*[\\\\/]/, ''));\n    }\n} catch(e) { node.warn('MaxBOM CSV not loaded: ' + e.message); }\n\nconst partNameSafe = (part && part.name) ? part.name : '';\nconst templateXmlPath = partNameSafe\n    ? OUTPUT_PATH + '/' + partNameSafe + '/aasx/' + partNameSafe + '/' + partNameSafe + '.aas.xml'\n    : '';\nnode.warn('Template: ' + templateXmlPath.replace(/.*[\\\\/]/, ''));\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n  maxBomCsv: maxBomCsv,\n  templateXmlPath: templateXmlPath,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON written: '+DATA_JSON);\n}catch(e){\n  node.error('Writing the JSON failed: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\n// Report the program name and the job only - the full path does not belong\n// in the log, it is held in the configuration.\nnode.warn('Starting ' + String(msg.payload).replace(/.*[\\\\/]/, '')\n        .replace(/\".*/, '') + ' for job ' + (msg.jobId || '?'));\nreturn msg;",
+        "func": "const bom      = [];\nconst docRes   = msg.payload||{};\nconst part     = msg.partData;\n\nconst BASE_PATH   = env.get('SDI_PLM_BASE_SHELL') || '';\nconst OUTPUT_PATH = env.get('SDI_PLM_OUTPUT') || '';\nconst PYTHON_SCRIPT = env.get('SDI_PLM_SCRIPT') || '';\n\nconst fs   = global.get('fs');\nconst path = global.get('path');\n\n// Working directory from the environment, with a fallback next to the\n// working directory of Node-RED. A fixed Windows path stood here before:\n// on Linux and macOS the flow failed, and on Windows the intermediate\n// files ended up outside the project.\nconst JOB = (env.get('SDI_PLM_JOBDIR') || 'jobs') + '/' + msg.jobId;\nfs.mkdirSync(JOB, { recursive: true });\nconst DATA_JSON = JOB + \"/data.json\";\nconst FILE_BIN = JOB + \"/cad.bin\";\nconst PREVIEW_BIN = JOB + \"/preview.jpg\";\n\nconst cadBuf = docRes.cadBuffer;\nif(cadBuf && cadBuf.length > 0){\n  try { fs.writeFileSync(FILE_BIN, cadBuf); node.warn('CAD binary written: ' + cadBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the CAD file failed: ' + e.message); }\n}\n\nconst prevBuf = docRes.previewBuffer;\nif(prevBuf && prevBuf.length > 0){\n  try { fs.writeFileSync(PREVIEW_BIN, prevBuf); node.warn('Preview binary written: ' + prevBuf.length + ' bytes'); }\n  catch(e) { node.warn('Writing the preview failed: ' + e.message); }\n}\n\n\nconst data = {\n  part: part,\n  bomItems: bom,\n  docData: docRes.docData||null,\n  fileName: docRes.fileName||\"model.sldasm\",\n  previewName: docRes.previewName||\"preview.jpg\",\n  basePath: BASE_PATH,\n  outputPath: OUTPUT_PATH,\n  cadBinPath: (cadBuf&&cadBuf.length>0) ? FILE_BIN : null,\n  previewBinPath: (prevBuf&&prevBuf.length>0) ? PREVIEW_BIN : null,\n};\ntry{\n  fs.writeFileSync(DATA_JSON, JSON.stringify(data,null,2),'utf8');\n  node.warn('JSON written: '+DATA_JSON);\n}catch(e){\n  node.error('Writing the JSON failed: '+e.message);\n  return null;\n}\n\nmsg.pythonScript = PYTHON_SCRIPT;\nmsg.dataJson     = DATA_JSON;\nmsg.outputPath   = OUTPUT_PATH;\nmsg.payload      = 'python \"' + PYTHON_SCRIPT + '\" \"' + DATA_JSON + '\"';\n// Report the program name and the job only - the full path does not belong\n// in the log, it is held in the configuration.\nnode.warn('Starting ' + String(msg.payload).replace(/.*[\\\\/]/, '')\n        .replace(/\".*/, '') + ' for job ' + (msg.jobId || '?'));\nreturn msg;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 3240,
+        "x": 3420,
         "y": 260,
         "wires": [
             [
@@ -1069,7 +1069,7 @@
         "timer": "60",
         "winHide": false,
         "name": "Python: create the AAS",
-        "x": 3510,
+        "x": 3690,
         "y": 260,
         "wires": [
             [
@@ -1088,14 +1088,14 @@
         "type": "function",
         "z": "0bf346aa1e637d09",
         "name": "Report status",
-        "func": "const out = typeof msg.payload==='string' ? msg.payload : JSON.stringify(msg.payload);\nif(out && out.trim()) node.warn('Python output: '+out.substring(0,2000));\nmsg.payload = {\n  status: msg.rc===0||out.includes('FERTIG') ? 'OK' : 'CHECK',\n  pythonOutput: out,\n  outputPath: msg.outputPath||'?',\n};\nreturn msg;",
+        "func": "// One report per run, on the return code.\n//\n// The exec node sends stdout, stderr and the return code as three separate\n// messages, and all three arrive here. Each used to be reported on its own:\n// the package was built, and the debug panel showed it as \"CHECK\" twice -\n// for the stderr message and for the return code, which carries no output\n// text. Now the text is collected and the verdict comes with the return\n// code, which is the only message that knows how the run ended.\nconst puffer = context.get('ausgabe') || {};\nconst id = msg._msgid;\n\nif (msg.payload && typeof msg.payload === 'object' && 'code' in msg.payload) {\n    const text = (puffer[id] || []).join('\\n');\n    delete puffer[id];\n    context.set('ausgabe', puffer);\n    const ok = msg.payload.code === 0;\n    msg.payload = {\n        status: ok ? 'OK' : 'CHECK',\n        returnCode: msg.payload.code,\n        pythonOutput: text,\n        outputPath: msg.outputPath || '?',\n    };\n    (ok ? node.log : node.warn).call(node, 'Python ' + (ok ? 'finished' : 'ended with code '\n        + msg.payload.returnCode) + ': ' + text.substring(0, 2000));\n    node.status({ fill: ok ? 'green' : 'red', shape: 'dot', text: msg.payload.status });\n    return msg;\n}\n\nconst out = typeof msg.payload === 'string' ? msg.payload : JSON.stringify(msg.payload);\nif (out && out.trim()) {\n    (puffer[id] = puffer[id] || []).push(out.trim());\n    context.set('ausgabe', puffer);\n}\nreturn null;",
         "outputs": 1,
         "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 3730,
+        "x": 3910,
         "y": 260,
         "wires": [
             [
@@ -1113,7 +1113,7 @@
         "console": false,
         "complete": "payload",
         "targetType": "msg",
-        "x": 3940,
+        "x": 4120,
         "y": 260,
         "wires": []
     },
@@ -1159,7 +1159,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 460,
+        "x": 480,
         "y": 260,
         "wires": [
             [

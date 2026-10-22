@@ -44,7 +44,22 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sdi_env import load_env
 load_env()
 
-URL = os.environ.get("SDI_ODOO_URL", "").rstrip("/")
+def _nur_host(adresse):
+    """Protocol and host of an Odoo address, whatever else was copied along.
+
+    The browser shows https://name.odoo.com/odoo/action-123 and since Odoo 17
+    always something after the host. Taken as it stands, "/jsonrpc" was
+    appended to that and the request went nowhere. The flow already reduced
+    the address; this script only cut a trailing slash.
+    """
+    from urllib.parse import urlsplit
+    teile = urlsplit(str(adresse or '').strip())
+    if not teile.scheme or not teile.netloc:
+        return str(adresse or '').strip().rstrip('/')
+    return '%s://%s' % (teile.scheme, teile.netloc)
+
+
+URL = _nur_host(os.environ.get("SDI_ODOO_URL", ""))
 DB = os.environ.get("SDI_ODOO_DB", "")
 USER = os.environ.get("SDI_ODOO_USER", "")
 APIKEY = os.environ.get("SDI_ODOO_APIKEY", "")
@@ -91,44 +106,12 @@ MATERIAL_GROUP = {
 # once, so the material of a part can be changed without touching the
 # model. The material that does not apply is set to 0.
 # Therefore all quantity parameters must always be passed.
-LCA_MAPPING = {
-    "000115": {  # Mine, Polypropylene (PP)
-        "flow": "a85a89b7-91f1-4134-8a16-a27c2734e243",
-        "process": "98446bf7-e23a-454a-9e33-67cf55533b8c",
-        "parameter": "Menge_Polypropylene_Mine",
-        "zero": ["Menge_Stahl_Mine"],
-    },
-    "000116": {  # Bolzen Aluminium, AlMg1SiCu
-        "flow": "9acbc449-b38e-461d-8168-c27856495fc5",
-        "process": "90291baa-d449-4afc-9d2a-01e8e650afd8",
-        "parameter": "Menge_Aluminium_Bolzen",
-        "zero": ["Menge_Stahl_Bolzen"],
-    },
-    "000117": {  # Huelse Aluminium, AlMg1SiCu
-        "flow": "8fbcdc22-28b4-4519-8c04-e6501e3656ce",
-        "process": "57c37380-e320-4712-b605-48dca9472829",
-        "parameter": "Menge_Aluminium_Huelse",
-        "zero": ["Menge_Stahl_Huelse"],
-    },
-    "000118": {  # Schraube M4, Edelstahl
-        "flow": "7f610c56-046c-4607-99f0-4f8fca7c60c8",
-        "process": "0b5fd7c7-29c7-446b-8ed9-8ed75b5a07ee",
-        "parameter": "Menge_Stahl_Schraube",
-        "zero": [],
-    },
-    "000119": {  # Druckfeder, Federstahl
-        "flow": "607bebae-306e-448b-8f05-2d406ae30166",
-        "process": "b3ba806e-e296-4943-8bc7-01858c5ab333",
-        "parameter": "Menge_Stahl_Druckfeder",
-        "zero": [],
-    },
-    "000120": {  # Stiftspitze Helix PLA, PLA
-        "flow": "87e61321-53bc-4ff1-9860-000182f50d78",
-        "process": "5043f2ab-9463-470d-888e-1855c805b042",
-        "parameter": "Menge_Stiftspitze_PLA",
-        "zero": ["Menge_Stiftspitze_Polypropylene", "Menge_Stiftspitze_ABS"],
-    },
-}
+# Which openLCA process and parameter each part's mass goes into. Shared with
+# build_aas_from_plm.py, so the ERP and the PLM bill of material can never
+# disagree about it.
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'getting-started',
+                       'openlca', 'lca_mapping.json'), encoding='utf-8') as _fh:
+    LCA_MAPPING = {k: v for k, v in json.load(_fh).items() if not k.startswith('_')}
 
 # Product system and assembly process of the finished product
 PRODUCT_SYSTEM = "dc5bf90b-5ad5-4808-934f-f7a863ae1453"   # LCA process: Kugelschreiber TRACEpen

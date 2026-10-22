@@ -20,12 +20,29 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 """
-create_set_number_of_aas_instances.py - Creates a defined number of instance
-AAS from a preconfigured type AAS. Handles [Content_Types].xml, HandoverDoc
-enhancements, and Models3D styling.
+build_aas_from_plm.py - builds one AASX package per part from PLM data.
+
+Usage:  python build_aas_from_plm.py <JSON file written by PLM.json>
+
+The flow PLM.json collects a part from the PLM system - master data, bill of
+material, documents, the CAD file and its preview - and writes them into one
+JSON file. This script fills the template shell with it:
+
+  Nameplate                 article number, designation, manufacturer, serial
+                            number pattern
+  DataSources -> PLM        weight and material of the part, and its bill of
+                            material in the form the calculation reads
+  HandoverDocumentation     the CAD document and the bill of material as CSV
+  Models3D                  the CAD model with its preview
+
+The template is SDI_PLM_BASE_SHELL: an .aasx package or an unpacked one. The
+package goes into the output directory named in the JSON; the folder it is
+assembled in stays next to that JSON, so the output holds packages only.
+
+Written for CONTACT Elements. Another PLM system has another object model -
+this is the part to adapt; the template and everything after it stay the same.
 """
-import json, sys, os, shutil, zipfile
-import sys
+import json, sys, os, shutil, tempfile, zipfile
 from pathlib import Path
 from datetime import datetime
 import xml.etree.ElementTree as ET
@@ -93,6 +110,13 @@ doc          = data.get('docData') or {}
 file_name    = data.get('fileName') or 'model.sldasm'
 preview_name = data.get('previewName') or 'preview.jpg'
 base_path    = Path(data['basePath'])
+# The template may be an .aasx as shipped, or a folder it was unpacked into.
+# Everything below searches a folder, so a package is unpacked first.
+if base_path.is_file() and base_path.suffix.lower() == '.aasx':
+    entpackt = Path(tempfile.mkdtemp(prefix='sdi_template_'))
+    with zipfile.ZipFile(base_path) as _z:
+        _z.extractall(entpackt)
+    base_path = entpackt
 output_path  = Path(data['outputPath'])
 cad_bin      = data.get('cadBinPath')
 preview_bin  = data.get('previewBinPath')
@@ -127,7 +151,13 @@ print(f"Part: {part_name} ({article_nr})")
 print(f"CAD: {file_name} | Format: {format_name}:{format_version} | App: {app_name} {app_version}")
 
 # -- Folder structure ----------------------------------------------------------
-shell_dir = output_path / f"{article_nr}_{part_name}"
+# The package is assembled in a folder next to the JSON file, which is the
+# working directory of the flow. It used to sit in the output directory, so
+# that held a working folder beside every package.
+shell_dir = Path(sys.argv[1]).resolve().parent / 'build' / f"{article_nr}_{part_name}"
+if shell_dir.exists():
+    shutil.rmtree(shell_dir)
+output_path.mkdir(parents=True, exist_ok=True)
 root_rels_dir = shell_dir / '_rels'
 aasx_dir      = shell_dir / 'aasx'
 aasx_rels_dir = aasx_dir / '_rels'
@@ -139,7 +169,10 @@ for d in [shell_dir,root_rels_dir,aasx_dir,aasx_rels_dir,files_dir,new_sub,rels_
     d.mkdir(parents=True, exist_ok=True)
 
 # -- FIX 1: [Content_Types].xml exakt nach Vorlage aufbauen --------------------
-found_ct = list(base_path.rglob('[Content_Types].xml'))
+# Compared by name: in a glob pattern the brackets of "[Content_Types].xml"
+# are a character class, so rglob() never found the file and every package
+# was given the fallback schema below.
+found_ct = [p for p in base_path.rglob('*') if p.name == '[Content_Types].xml']
 if found_ct:
     shutil.copy2(found_ct[0], shell_dir/'[Content_Types].xml')
 else:
@@ -282,6 +315,36 @@ def set_mlp(parent, id_short, text, lang='de'):
     ET.SubElement(ls, f'{{{NS}}}text').text = str(text)
     return True
 
+def set_mlp_all(parent, id_short, text):
+    """Sets the text in every language the property already has; German if none."""
+    elem = find_typed(parent, 'multiLanguageProperty', id_short)
+    if elem is None:
+        return False
+    vb = elem.find(f'{{{NS}}}value')
+    if vb is None:
+        vb = ET.SubElement(elem, f'{{{NS}}}value')
+    eintraege = vb.findall(f'{{{NS}}}langStringTextType')
+    if not eintraege:
+        return set_mlp(parent, id_short, text, 'de')
+    for ls in eintraege:
+        tn = ls.find(f'{{{NS}}}text')
+        if tn is None:
+            tn = ET.SubElement(ls, f'{{{NS}}}text')
+        tn.text = str(text)
+    return True
+
+# The manufacturer, written into the nameplate. The template carries
+# "ExampleManufacturer", and every generated package used to keep it - while
+# its TechnicalData already named the chair. From .env, so another
+# installation names itself.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    from sdi_env import load_env
+    load_env()
+except ImportError:
+    pass
+HERSTELLER = os.environ.get('SDI_MANUFACTURER_NAME') or 'HNI Produktentstehung'
+
 def set_file(parent, id_short, path, mime):
     elem = find_typed(parent, 'file', id_short)
     if elem is None:
@@ -300,10 +363,97 @@ for sm in root.iter(f'{{{NS}}}submodel'):
     if ids is not None and ids.text:
         submodels[ids.text] = sm
 
+# Which openLCA process and parameter a part's mass goes into. The PLM does not
+# know; it is the same table the ERP setup writes into Odoo.
+try:
+    with open(Path(__file__).resolve().parent.parent / 'getting-started' / 'openlca'
+              / 'lca_mapping.json', encoding='utf-8') as _fh:
+        LCA_MAPPING = {k: v for k, v in json.load(_fh).items() if not k.startswith('_')}
+except (OSError, ValueError):
+    LCA_MAPPING = {}
+
+
+def _el(tag, **kinder):
+    """An AAS element with child elements, in the order given."""
+    e = ET.Element(f'{{{NS}}}{tag}')
+    for name, wert in kinder.items():
+        ET.SubElement(e, f'{{{NS}}}{name}').text = wert
+    return e
+
+
+def _prop(id_short, value, value_type='xs:string'):
+    e = _el('property', idShort=id_short, valueType=value_type)
+    if value not in (None, ''):
+        ET.SubElement(e, f'{{{NS}}}value').text = str(value)
+    return e
+
+
+def _smc(id_short, kinder):
+    e = _el('submodelElementCollection', idShort=id_short)
+    wert = ET.SubElement(e, f'{{{NS}}}value')
+    for k in kinder:
+        wert.append(k)
+    return e
+
+
+def write_bill_of_material(plm, items):
+    """Writes the bill of material into DataSources -> PLM as the calculation reads it.
+
+    The flow fetched the bill of material from the PLM all along, and this
+    script put it into the package - as a CSV attachment only. The calculation
+    looks for quantities under BillOfMaterial in a data source, in the order
+    MachineData, ERP, PLM, and found nothing in PLM. Without an ERP it fell
+    back to the default masses of the openLCA model, although the PLM had the
+    weights. Same fields as the ERP flow writes, so either source reads alike.
+    """
+    wert = plm.find(f'{{{NS}}}value')
+    if wert is None:
+        wert = ET.SubElement(plm, f'{{{NS}}}value')
+    for alt in [k for k in wert if k.findtext(f'{{{NS}}}idShort') == 'BillOfMaterial']:
+        wert.remove(alt)
+    komponenten, vergeben = [], set()
+    for item in items:
+        code = str(item.get('partNumber') or '')
+        name = str(item.get('name') or code)
+        try:
+            menge = float(item.get('quantity') or 0)
+            gewicht = float(item.get('weight') or 0)
+        except (TypeError, ValueError):
+            menge, gewicht = 0.0, 0.0
+        lca = LCA_MAPPING.get(code, {})
+        kennung = sanitize_id(name) or f'Position_{len(komponenten) + 1}'
+        while kennung in vergeben:
+            kennung += '_'
+        vergeben.add(kennung)
+        komponenten.append(_smc(kennung, [
+            _prop('ComponentName', name),
+            _prop('ProductCode', code),
+            _prop('Quantity', menge, 'xs:double'),
+            _prop('QuantityUnit', item.get('unit') or ''),
+            _prop('WeightPerUnit', gewicht, 'xs:double'),
+            _prop('WeightUnit', 'kg'),
+            _prop('TotalMass', round(menge * gewicht, 9), 'xs:double'),
+            _prop('TotalMassUnit', 'kg'),
+            _prop('Material', item.get('material') or ''),
+            _prop('LCAFlowId', lca.get('flow', '')),
+            _prop('LCAProcessId', lca.get('process', '')),
+            _prop('LCAParameterName', lca.get('parameter', '')),
+            _prop('LCAZeroParameters', ', '.join(lca.get('zero') or [])),
+        ]))
+        if not lca:
+            print(f"  [WARN] no LCA mapping for {code} {name} - "
+                  f"add it to getting-started/openlca/lca_mapping.json, or its mass is not calculated")
+    wert.append(_smc('BillOfMaterial', komponenten))
+    return len(komponenten)
+
+
 # ── Nameplate ─────────────────────────────────────────────────────────────────
 if 'Nameplate' in submodels:
     sm = submodels['Nameplate']
-    set_mlp(sm, 'ManufacturerProductDesignation', part_name, 'de')
+    # Every language the template carries, not only German: the English entry
+    # used to keep the template's "ExampleProduct".
+    set_mlp_all(sm, 'ManufacturerProductDesignation', part_name)
+    set_mlp_all(sm, 'ManufacturerName', HERSTELLER)
     set_prop(sm, 'ProductArticleNumberOfManufacturer', article_nr)
     # Serial number, coded as ASSEMBLY-INSTANCE-PART-INSTANCE:
     #
@@ -332,10 +482,17 @@ if 'Nameplate' in submodels:
 # ── DataSources ────────────────────────────────────────────────────────────────
 if 'DataSources' in submodels:
     sm = submodels['DataSources']
-    ed = find_sc(sm, 'PLM') or find_sc(sm, 'Engineering Data / PLM')
+    # "is None", not "or": an XML element without children counts as false,
+    # and then weight and material would silently not be written.
+    ed = find_sc(sm, 'PLM')
+    if ed is None:
+        ed = find_sc(sm, 'Engineering Data / PLM')
     if ed is not None:
         set_prop(ed, 'Material', part_material)
         set_prop(ed, 'Weight', part_weight)
+        if bom_items:
+            n = write_bill_of_material(ed, bom_items)
+            print(f"  DataSources/PLM: bill of material with {n} positions")
 
 # ── Models3D ──────────────────────────────────────────────────────────────────
 if 'Models3D' in submodels:
@@ -383,8 +540,43 @@ if 'Models3D' in submodels:
 if 'HandoverDocumentation' in submodels:
     sm = submodels['HandoverDocumentation']
 
+    # The document versions are found by name in an older template, where
+    # they still carried one, and by position in the template shipped with
+    # the KIT: they are members of lists there, which may not be named
+    # (AASd-120). Looking only for the name meant that with the shipped
+    # template neither the bill of material nor the CAD file ever reached
+    # the HandoverDocumentation - silently, the block was simply skipped.
+    def listenglied(eltern, liste, nr):
+        l = find_typed(eltern, 'submodelElementList', liste)
+        v = l.find(f'{{{NS}}}value') if l is not None else None
+        kinder = list(v) if v is not None else []
+        return kinder[nr] if len(kinder) > nr else None
+
+    def dokumentversion(name, dok, version):
+        dv = find_sc(sm, name)
+        if dv is None:
+            d = listenglied(sm, 'Documents', dok)
+            dv = listenglied(d, 'DocumentVersions', version) if d is not None else None
+        return dv
+
+    def datei_setzen(dv, path, mime):
+        # Named in the older template; the first member of DigitalFiles in
+        # the shipped one.
+        if set_file(dv, 'DigitalFile', path, mime):
+            return
+        f = listenglied(dv, 'DigitalFiles', 0)
+        if f is None:
+            return
+        vn = f.find(f'{{{NS}}}value')
+        if vn is None:
+            vn = ET.SubElement(f, f'{{{NS}}}value')
+        vn.text = path
+        ct = f.find(f'{{{NS}}}contentType')
+        if ct is not None:
+            ct.text = mime
+
     # 2.1) DocumentVersion_de (BOM CSV)
-    dv_de = find_sc(sm, 'DocumentVersion_de')
+    dv_de = dokumentversion('DocumentVersion_de', 0, 1)
     if dv_de is not None:
         set_mlp(dv_de, 'Title', csv_name, 'de')
         set_mlp(dv_de, 'Subtitle', '', 'de') 
@@ -393,10 +585,10 @@ if 'HandoverDocumentation' in submodels:
         set_prop(dv_de, 'StatusValue', 'released')
         set_prop(dv_de, 'OrganizationOfficialName', 'HNI Produktentstehung')
         set_prop(dv_de, 'OrganizationShortName', 'HNI')
-        set_file(dv_de, 'DigitalFile', f'/aasx/files/{csv_name}', 'text/csv')
+        datei_setzen(dv_de, f'/aasx/files/{csv_name}', 'text/csv')
 
     # 2.2) DocumentVersion_file (CAD-Modell)
-    dv_file = find_sc(sm, 'DocumentVersion_file')
+    dv_file = dokumentversion('DocumentVersion_file', 1, 0)
     if dv_file is not None:
         set_mlp(dv_file, 'Title', cad_title, 'de')
         set_prop(dv_file, 'StatusSetDate', today_str)
@@ -406,12 +598,15 @@ if 'HandoverDocumentation' in submodels:
         # change OrganizationShortName to "HNI"
         set_prop(dv_file, 'OrganizationShortName', 'HNI')
         
-        set_file(dv_file, 'DigitalFile', f'/aasx/files/{file_name}', 'application/octet-stream')
+        datei_setzen(dv_file, f'/aasx/files/{file_name}', 'application/octet-stream')
         
         # place the PreviewFile at its position inside the SMC
         set_file(dv_file, 'PreviewFile', f'/aasx/files/{preview_name}', 'image/jpeg')
 
     doc_id_coll = find_sc(sm, 'DocumentId')
+    if doc_id_coll is None:
+        _d = listenglied(sm, 'Documents', 0)
+        doc_id_coll = listenglied(_d, 'DocumentIds', 0) if _d is not None else None
     if doc_id_coll is not None:
         set_prop(doc_id_coll, 'DocumentIdentifier', f'BOM_{article_nr}')
         set_prop(doc_id_coll, 'DocumentDomainId', 'CIM-Database')
@@ -486,8 +681,13 @@ xml_str  = ET.tostring(root, encoding='unicode', xml_declaration=False)
 # function does both, so the two cannot drift apart.
 try:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from repair_aasx import clean_content
+    from repair_aasx import clean_content, drop_dangling_files
     xml_str, _removed = clean_content(xml_str)
+    # A purchased part has no CAD file, and the template carries example
+    # documents that were never attached: their addresses lead nowhere.
+    xml_str, _tot = drop_dangling_files(
+        xml_str, ['aasx/files/' + p.name for p in files_dir.iterdir()])
+    _removed += _tot
     if _removed:
         print(f'  [INFO] removed {_removed} content violations inherited from '
               f'the template')
