@@ -14,16 +14,24 @@ The key is neither stored nor written to the log.
 This page exists because a trial database expires and the next one has to be
 rebuilt quickly. Nothing below was done by hand in the Odoo interface.
 
+Tested with Odoo `saas~19.4`. The message `uom_po_id not present in this Odoo
+version` is expected there: the field was removed, and the script carries on
+without it.
+
+The scripts and the flow talk to Odoo through `/jsonrpc`. Current versions mark
+that interface as deprecated in favour of the JSON-2 API. It still works, but it
+is the first thing to check when a future version stops answering.
+
 ## 1. Connection
 
 Set in `.env` (see `.env.example`):
 
 | Variable | Meaning |
 |---|---|
-| `SDI_ODOO_URL` | address of the instance |
+| `SDI_ODOO_URL` | protocol and host of the instance, e.g. `https://name.odoo.com` |
 | `SDI_ODOO_DB` | database name, usually the same as the subdomain |
 | `SDI_ODOO_USER` | login of a user with access to manufacturing |
-| `SDI_ODOO_APIKEY` | leave empty in the file; the scripts ask for it |
+| `SDI_ODOO_APIKEY` | leave empty in the file; the scripts ask for it. When creating the key Odoo asks for a scope: choose **RPC** |
 
 A new trial gets a new URL and database name. Those two lines are the only
 ones that have to change.
@@ -54,6 +62,10 @@ the precision of the *Stock Weight* unit.
 
 This one is easy to miss: nothing fails, the numbers just turn to zero.
 
+<img src="../docs/img/screenshots/odoo-03-weight-six-decimals.png" alt="Odoo product with weight 0.003000 kg" width="720">
+
+*Weight stored with six decimals – with Odoo's default of two it would read 0.00.*
+
 ## 4. Products, bill of material, manufacturing order
 
 Taken from the PLM export in `docs/sample_data/BOM_TRACEpen.csv`: seven
@@ -64,6 +76,18 @@ The article number from the PLM becomes the *internal reference* in Odoo
 (`default_code`), for example `000114` for the pen. That reference is the link
 between PLM, ERP and the administration shell — and it is what the nameplate
 carries as `OrderCodeOfManufacturer`.
+
+<img src="../docs/img/screenshots/odoo-04a-bill-of-material.png" alt="Bill of material of the pen in Odoo" width="720">
+
+*The bill of material created from the PLM export: six positions.*
+
+<img src="../docs/img/screenshots/odoo-04b-product-internal-reference.png" alt="Odoo product with internal reference 000116" width="720">
+
+*The PLM article number becomes the internal reference in Odoo.*
+
+<img src="../docs/img/screenshots/odoo-04c-manufacturing-order.png" alt="Manufacturing order over 25 pieces" width="720">
+
+*Manufacturing order over 25 pieces; only the parts produced in house carry Details for serial numbers.*
 
 ## 5. Serial numbers
 
@@ -91,6 +115,10 @@ SDI_SERIAL_DIGITS=3
 
 000114-001-000000-000     the pen itself; it sits in nothing
 ```
+
+<img src="../docs/img/screenshots/odoo-05-serial-numbers.png" alt="Serial numbers in Odoo after one booking" width="720">
+
+*The serial numbers after one booking: the pen and the three parts produced in house, coded ASSEMBLY-INSTANCE-PART-INSTANCE.*
 
 The part instance counts the pieces actually produced of that kind. That is
 what makes a machine measurement usable in a product pass: the energy belongs
@@ -136,6 +164,10 @@ manufacturing order. `src/Assembly_Booking.json` creates it:
 From then on the machine flow attaches its measurements to the serial numbers
 of the booked assembly rather than to whatever was issued last.
 
+<img src="../docs/img/screenshots/odoo-06-manufacturing-order-after-booking.png" alt="Closed manufacturing order with serial number" width="720">
+
+*After the booking: an order over one piece, closed, with the serial number of the pen.*
+
 Two things worth knowing. `button_mark_done` answers without an error even
 when Odoo silently opened a dialog instead of closing the order, so the flow
 reads the state back afterwards rather than trusting the answer. And the flow
@@ -145,6 +177,10 @@ few clicks leave a row of orders that never corresponded to a real pen.
 If the records in the shell are ever lost, `src/Assembly_Backfill.json` reads
 every completed order from Odoo and restores them. Odoo is the system of
 record; the shell holds a copy.
+
+<img src="../docs/img/screenshots/odoo-06b-traceability-report.png" alt="Traceability report of the pen in Odoo" width="720">
+
+*Odoo's traceability report for the pen: which numbered parts went into it - purchased parts carry no number.*
 
 ## 7. Adapting the coding to your own products
 

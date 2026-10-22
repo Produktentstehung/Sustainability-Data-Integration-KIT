@@ -32,8 +32,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `default_method` - an EF 3.0 result under a second, meaningless name. The
   calculation now refuses, loads the method list and asks for a second start.
 
+- Exported and generated packages check without a single finding. The 19
+  to 26 per package came from the IDTA templates behind Nameplate,
+  TechnicalData and HandoverDocumentation: template qualifiers in instance
+  submodels, empty fields, supplemental semantic IDs without a main one, a
+  list of properties without a value type. `repair_aasx.py` removes them,
+  and links to files that are not in the package. A fresh AAS server renames
+  attachments after their element path, with brackets a URI does not allow;
+  the export drops that prefix.
+- The PLM script wrote neither the bill of material nor the CAD file into
+  the HandoverDocumentation when used with the template the KIT ships: it
+  looked for names the list members there do not have. It never found the
+  template's `[Content_Types].xml` either - the brackets are a glob pattern.
+- The PLM status node reported every run three times, twice as "CHECK".
+- *Choose your product* cleared the headline but left the result table.
+
+### Added
+
+- The PLM delivers its bill of material to the calculation. It was fetched
+  all along and only attached as CSV, so without an ERP the calculation fell
+  back to the default masses of the openLCA model. It is now written into
+  `DataSources → PLM` in the form the ERP uses; the LCA assignment both read
+  is `getting-started/openlca/lca_mapping.json`.
+- `check_aasx.py --summary`: one line per package, findings grouped by
+  submodel and rule, and paths by idShort instead of list positions.
+- `setup.py --step 4` checks that every product input of the product system
+  has a provider - an unlinked one is calculated as zero without a message -
+  and treats a missing impact method as an error rather than a warning.
+- The screenshots of a complete deployment test, in the tutorial, the
+  getting-started reference and the Odoo page.
+
 ### Changed
 
+- `src/create_set_number_of_aas_instances.py` is now
+  `src/build_aas_from_plm.py`, which is what it does. It accepts the template
+  as `.aasx`, writes the manufacturer from `SDI_MANUFACTURER_NAME`, and keeps
+  its working folders out of the output directory. Its documentation said it
+  was not part of the repository; it is the reference implementation.
+- Odoo addresses copied from the browser are reduced to protocol and host in
+  `setup_odoo_testdata.py` as well, not only in the flow.
+- Progress messages of the assembly booking are log entries, not warnings;
+  German status texts in the flows are English; nodes that overlapped in the
+  editor stand apart.
 - The EDC address book is read from `.env` (`SDI_EDC_PARTNER_*`,
   `SDI_EDC_ADDRESS_BOOK`) instead of being written into the flow; a connector
   cluster with a new identifier no longer means editing code.

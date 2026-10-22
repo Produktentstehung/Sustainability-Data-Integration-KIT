@@ -125,13 +125,19 @@ This is the only step the setup script cannot do for you. openLCA databases cont
 
 **3a — Prepare the background database.** Make sure you have a background database prepared for the installation process, as noted in Step 1. If not, you can obtain the *idemat 2023* here: <https://www.openlca.org/idemat-2023-available-for-openlca/>. Please be aware that the application process for a free academic licence may take some time. 
 
-**3b — Import it.** Start openLCA, then `File → Import → Data package`, select the downloaded file. This takes a few minutes. Afterwards open the database by double-clicking it; the open database is shown in bold.
+**3b — Import it as a database of its own.** Start openLCA, then `File → Import → Data package` (*Datei → Importieren → Datenpaket*), select the downloaded file. This takes a few minutes. Afterwards open the database by double-clicking it; the open database is shown in bold.
 
-**3c — Import the model of the example product.** `File → Import → Data package` again, this time `getting-started/openlca/idemat_2023_01_02_SDIKIT.zip` from the repository.
+**3c — Import the model of the example product into that database.** With the idemat database open: `File → Import → File` (*Datei → Importieren → Datei*), then `getting-started/openlca/idemat_2023_01_02_SDIKIT.zip` from the repository. openLCA recognises the format by itself.
 
-**3d — Start the IPC server.** `Tools → Developer tools → IPC Server`, port `8080`, then `Start`.
+The order matters. Imported into an empty database, the package brings its 98 processes but no impact assessment method, and nothing can be calculated. Imported into a database that already holds an older version of the TRACEpen model, it changes nothing: package and database share the identifiers, and openLCA keeps what is there - see *When something goes wrong*.
+
+**3d — Start the IPC server.** `Tools → Developer tools → IPC Server` (*Werkzeuge → Entwicklerwerkzeuge → IPC-Server*), port `8080`, then `Start`.
 
 **Check:** under `Product Systems` there is an entry `LCA Prozess: Kugelschreiber TRACEpen`, and the IPC server window shows it is running.
+
+<img src="../docs/img/screenshots/tutorial-03-openlca-ipc-server.png" alt="openLCA with the product system and the running IPC server" width="720">
+
+*The imported product system and the running IPC server on port 8080.*
 
 ---
 
@@ -169,9 +175,7 @@ Step 4 - check openLCA
   [ok]   IPC server reachable
   [ok]   1268 processes, 6 product systems, 44 impact methods
   [ok]   Default impact method present: EF 3.0 Method (adapted)
-  [!]    SDI_OPENLCA_PRODUCT_SYSTEM is not set
-         Available product systems:
-           LCA Prozess: Kugelschreiber TRACEpen  ->  9eb5b6f3-...
+  [ok]   Product system present: LCA Prozess: Kugelschreiber TRACEpen
 
 Step 5 - provide the flows
   [ok]   Odoo_ERP.json             23 nodes
@@ -179,10 +183,32 @@ Step 5 - provide the flows
   112 nodes written to ...\getting-started\nodered\flows.json
 ```
 
-The warning in step 4 is expected on a first run — you have not told the KIT yet which product system to calculate. The next step fixes that.
+The counts in step 4 depend on your database; the line that matters is the
+last one. The identifier of the example model is already in the configuration
+template, so the product system is found without you entering anything.
+
+<img src="../docs/img/screenshots/tutorial-04a-setup-configuration.png" alt="First part of the setup output" width="720">
+
+*First run of `setup.py`: `.env` is created, optional sources are reported as not configured.*
+
+<img src="../docs/img/screenshots/tutorial-04b-setup-import.png" alt="Setup output: importing the sample packages" width="720">
+
+*Seven shells imported into the AAS server.*
+
+<img src="../docs/img/screenshots/tutorial-04c-setup-openlca-check.png" alt="Setup output: openLCA check" width="720">
+
+*openLCA reachable, default impact method and product system found.*
+
+<img src="../docs/img/screenshots/tutorial-04d-setup-summary.png" alt="Setup summary with five passed steps" width="480">
+
+*All five setup steps passed.*
 
 **Check:** `http://localhost:3000` opens the AAS web interface and lists seven
 shells: the ballpoint pen and its six parts.
+
+<img src="../docs/img/screenshots/tutorial-04e-aas-viewer-seven-shells.png" alt="AAS web interface listing seven shells" width="720">
+
+*The AAS web interface lists the pen and its six parts.*
 
 ---
 
@@ -199,15 +225,18 @@ copy .env.example .env        # Windows
 cp .env.example .env          # macOS, Linux
 ```
 
-Enter the identifier that step 4 printed:
+For the example product there is nothing to enter: the identifier of its
+product system is already in the template. Everything else can stay as it is
+for a first run; the ERP section is only needed once you connect Odoo.
+
+Only for a model of your own, enter the identifier of its product system -
+`python setup.py --step 4` lists the ones the open database holds:
 
 ```
-SDI_OPENLCA_PRODUCT_SYSTEM=9eb5b6f3-bf7a-4bf5-a4c5-c2ebe875dac5
+SDI_OPENLCA_PRODUCT_SYSTEM=<identifier>
 ```
 
-Everything else can stay as it is for a first run. The ERP section is only needed once you connect Odoo.
-
-**Check:** `python setup.py --step 4` now reports `Product system present: LCA Prozess: Kugelschreiber TRACEpen`.
+**Check:** `python setup.py --step 4` reports `Product system present: LCA Prozess: Kugelschreiber TRACEpen`.
 
 ---
 
@@ -225,14 +254,18 @@ On macOS and Linux:
 node-red -u nodered -s nodered/settings.js
 ```
 
-Then open `http://localhost:1880`. You should see four tabs:
+Then open `http://localhost:1880`. You should see seven tabs:
 
 - **Odoo ERP → AAS**
 - **ema Simulation → AAS**
 - **Machine data → part AAS**
 - **openLCA calculation** — the calculation, operated from the dashboard
+- **SDI Dashboard** — the page at `/dashboard/kit`
+- **Assembly booking** and **Assembly backfill** — from a type to a piece, see below
 
-**Check:** all four tabs are present and no node is shown as *unknown node
+With a PLM system configured there are two more, with a connector three more.
+
+**Check:** all seven tabs are present and no node is shown as *unknown node
 type*. If some are, step 5 of the setup could not install the additional nodes;
 run `npm install` in `getting-started/nodered` and restart Node-RED.
 
@@ -251,6 +284,10 @@ In the debug panel on the right you should see:
 { "status": "ok", "dataSource": "Simulation",
   "operations": 5, "totalEnergyMJ": 0.014 }
 ```
+
+<img src="../docs/img/screenshots/tutorial-07-nodered-ema-debug.png" alt="Node-RED simulation flow with debug output" width="720">
+
+*The simulation flow after one click: five operations written into the shell.*
 
 What happened: the flow read the simulation export shipped with the KIT, distributed the energy consumption of the workstations across the five operations, and wrote the result into the AAS of the ballpoint pen.
 
@@ -277,16 +314,20 @@ missing measurement is noted and the run continues.
 > booking** creates a manufacturing order in Odoo; running it on every
 > calculation would produce a new pen each time.
 
+<img src="../docs/img/screenshots/tutorial-08a-dashboard-before-run.png" alt="Dashboard before the first run" width="720">
+
+*The dashboard before the first run.*
+
 The other controls on the page:
 
 | Control | What it does |
 | --- | --- |
-| **Recalculate** | the same run again, for instance after choosing another impact method. The earlier result is kept — every run adds an iteration rather than replacing one |
+| **Recalculate** | the same run again, for instance after choosing another impact method. There is one iteration per combination of data sources: a run with the same sources replaces it, while a run with another method adds that method beside the earlier ones. The previous value stays visible as *Compared with the run before* |
 | **View shell** | opens the selected shell in the AAS web interface, to click through the submodels before exporting anything |
 | **Export AASX** | writes the shells as packages into `getting-started/export`, the same thing step 9 does from the command line |
 | **Refresh view** | re-reads the shells without calculating. Use it when something was written by a flow started outside the page |
 
-The Node-RED log shows:
+The Node-RED log shows, here for a run without ERP:
 
 ```
 Data sources: Simulation, PLM
@@ -295,6 +336,13 @@ Calculating with 1 parameter, method EF 3.0 Method (adapted)
 LCA iteration "Simulation_PLM" written
 ```
 
+With Odoo connected the first line reads `Data sources: PLM, ERP, Simulation`,
+and the iteration is named after all three.
+
+<img src="../docs/img/screenshots/tutorial-08c-dashboard-result.png" alt="Dashboard after one run" width="720">
+
+*The result after one run, split by part.*
+
 The four data sources are always named the same way, in the shells and in the
 result: **PLM**, **ERP**, **Simulation** and **MachineData**. The name of the
 iteration is built from the sources that went into it, so you can tell two runs
@@ -302,9 +350,17 @@ apart by their name alone.
 
 **Check:** in the AAS web interface, submodel `ILCD`, there is an iteration whose `DataSource` property lists the sources used, and below it the impact categories with their values.
 
+<img src="../docs/img/screenshots/tutorial-08d-aas-viewer-ilcd-iterations.png" alt="Submodel ILCD in the AAS web interface" width="720">
+
+*Submodel `ILCD` with one iteration per combination of sources, and the sources it used.*
+
 ### What this first result does and does not tell you
 
 At this point only the **assembly energy** comes from your data. The material masses are still the default values stored in the openLCA model, because the PLM data source in the sample AAS holds the weight and material of the product as a whole, not a bill of material broken down by part.
+
+<img src="../docs/img/screenshots/tutorial-08b-data-sources-without-erp.png" alt="Data sources panel without ERP" width="600">
+
+*Without an ERP connection: PLM and simulation are present, ERP and machine data are missing.*
 
 That is the honest starting point of the KIT: a result exists, and it is traceable, but it rests largely on assumptions. Each further data source replaces one of those assumptions with a measured or order-specific value:
 
@@ -313,7 +369,16 @@ That is the honest starting point of the KIT: a result exists, and it is traceab
 | ERP (Odoo) | the default masses, by the actual bill of material |
 | Machine data (OPC UA) | the manufacturing energy, by measurements |
 
-The two optional sections below show both. In the reference setup they move the result from 0.12 to 0.29 kg CO₂ eq — the measured manufacturing energy alone more than doubles it.
+The two optional sections below show both. Which number belongs to which data:
+
+| Data | Climate change |
+| --- | --- |
+| PLM + ERP + simulation | 0.123143 kg CO₂ eq - the figure under *What you will have at the end* |
+| plus machine data for the three parts made in house | 0.222159 kg CO₂ eq, with the runs recorded in the reference laboratory |
+
+The machine data figure depends on which recorded runs belong to the piece, so
+yours will differ; the first one you should reproduce exactly. The measured
+manufacturing energy alone nearly doubles the result.
 
 ---
 
@@ -345,6 +410,10 @@ the serial numbers of the booked assembly. In the dashboard the dropdown
 *Piece* selects one item, and the machine table narrows to the runs that
 produced its parts.
 
+<img src="../docs/img/screenshots/tutorial-opt-piece-selection.png" alt="Dashboard with a selected piece" width="720">
+
+*Selecting a piece shows the order it was booked on and the numbered parts it was built from.*
+
 A piece whose parts were never measured says so rather than borrowing another
 piece's numbers. That is the point of the exercise: the difference between
 plausible and documented.
@@ -365,7 +434,7 @@ Only relevant if you run an Odoo instance. With it the bill of material comes fr
 python ../src/setup_odoo_testdata.py
 ```
 
-The script needs `SDI_ODOO_URL`, `SDI_ODOO_DB`, `SDI_ODOO_USER` and `SDI_ODOO_APIKEY`. Create the API key in Odoo under *Settings → Users → Account Security → New API Key*.
+The script needs `SDI_ODOO_URL`, `SDI_ODOO_DB`, `SDI_ODOO_USER` and `SDI_ODOO_APIKEY`. Create the API key in Odoo under *Settings → Users → Account Security → New API Key*. Newer versions ask for a scope: choose **RPC**, not MCP, and an expiry date that covers the time you will use it.
 
 It creates the custom fields, the seven products with weights and materials, the bill of material and a manufacturing order — all taken from the PLM export in the repository.
 
@@ -376,7 +445,15 @@ Afterwards trigger the flow *Odoo ERP → AAS*. Expected:
   "product": "Kugelschreiber_TracePEN", "components": 6 }
 ```
 
+<img src="../docs/img/screenshots/tutorial-opt-erp-nodered-debug.png" alt="ERP flow with debug output" width="720">
+
+*The ERP flow reports six components and the manufacturing order it read.*
+
 The next calculation then uses the ERP masses; the log says `Masses from ERP`.
+
+<img src="../docs/img/screenshots/tutorial-opt-erp-data-sources.png" alt="Data sources panel with ERP" width="720">
+
+*With Odoo connected the ERP row turns green and the masses come from the bill of material.*
 
 ---
 
@@ -386,6 +463,14 @@ Only relevant with a CONTACT Elements PLM system reachable from your network.
 With it the shells themselves come from the PLM system instead of from the
 sample packages, and the bill of material, materials and CAD documents are the
 ones your engineers maintain.
+
+<img src="../docs/img/screenshots/tutorial-opt-plm-part.png" alt="Part 000114 in the PLM system" width="720">
+
+*The source: part 000114 in the PLM system, with article number, category, material and bill-of-material type.*
+
+<img src="../docs/img/screenshots/tutorial-opt-plm-structure.png" alt="Bill of material of part 000114 in the PLM" width="720">
+
+*The bill of material in the PLM: the pen and its six positions.*
 
 Fill in the PLM section of `.env` — server address and login name, password left
 empty — then run the setup again and start Node-RED:
@@ -402,6 +487,10 @@ The start script now asks for the PLM password as well. A fifth tab appears,
 *PLM flow (product)*. Triggering it produces one AASX package per part in the
 directory named in `SDI_PLM_OUTPUT`.
 
+<img src="../docs/img/screenshots/tutorial-opt-plm-output.png" alt="Output folder of the PLM flow" width="480">
+
+*One AASX package per part, built from the PLM data.*
+
 Before importing those packages:
 
 ```bash
@@ -413,6 +502,10 @@ package with HTTP 400. And note that the upload does not overwrite — a shell
 that already exists answers HTTP 409, so import the packages before the other
 flows have written anything you want to keep.
 
+<img src="../docs/img/screenshots/tutorial-opt-plm-package.png" alt="Generated package in the AASX Package Explorer" width="720">
+
+*A generated package: weight and material from the PLM in `DataSources`, the CAD model with its preview in `Models3D`.*
+
 ---
 
 ## Optional: connect the machines
@@ -421,7 +514,7 @@ Only relevant with an OPC UA connection in place. The flow *Machine data → par
 
 The assignment of machine to part is at the top of the node *Configuration & assignment* and is the only place to change when the production sequence changes.
 
-In the sample setup the machine data more than doubles the footprint — from 0.12 to 0.29 kg CO₂ eq. Without it the assessment understates the product by more than half.
+In the reference setup the machine data nearly doubles the footprint — from 0.12 to 0.22 kg CO₂ eq, with the runs recorded there for the three parts made in house. Without it the assessment understates the product by almost half.
 
 ---
 
@@ -463,30 +556,41 @@ export writes one package holding everything and one package per shell:
 python ../src/export_aasx.py export --split
 ```
 
+<img src="../docs/img/screenshots/tutorial-09a-export-aasx.png" alt="Output of export_aasx.py" width="720">
+
+*The export writes one package with everything and one package per shell, attachments included.*
+
 ```
 7 shells, 50 submodels on the server
-
-complete.aasx                        0.21 MB
-Bolzen_Aluminium.aasx                  40 kB   7 submodels
-Huelse_Aluminium.aasx                  40 kB   7 submodels
+20 attachments, 5.1 MB
+...
+complete.aasx                        5.08 MB
+Bolzen_Aluminium.aasx                1001 kB   7 submodels
+Druckfeder.aasx                       881 kB   7 submodels
 ...
 ```
+
+The packages carry their attachments - CAD models, previews, the bill of
+material as CSV - so they are larger than the shells alone.
 
 Before passing a package on, check that it can actually be opened. The check
 uses the same reference library as the AASX Package Explorer, so its verdict
 matches what the Explorer will do:
 
 ```bash
-python ../src/check_aasx.py --directory export
+python ../src/check_aasx.py --summary export
 ```
 
 ```
-  Package structure: in order
-  Read: 7 shells, 50 submodels
-  Content: in order
-
-  RESULT: can be opened
+Bolzen_Aluminium.aasx                    can be opened   0 defects
+Druckfeder.aasx                          can be opened   0 defects
+...
+complete.aasx                            can be opened   0 defects
 ```
+
+`--summary` gives one line per package and, where there are findings, groups
+them by submodel and rule. Without it the check lists every finding with the
+path to it, by idShort.
 
 Two outcomes are distinguished on purpose. **"can be opened"** means the file
 is readable; findings listed under *Content* are defects, not obstacles — the
@@ -497,6 +601,10 @@ Now open `export/complete.aasx` in the
 [AASX Package Explorer](https://github.com/admin-shell-io/aasx-package-explorer).
 Under `DataSources` you see where every value came from, under `ILCD` the
 assessment with its impact categories.
+
+<img src="../docs/img/screenshots/tutorial-09c-aasx-package-explorer.png" alt="complete.aasx in the AASX Package Explorer" width="720">
+
+*`complete.aasx` in the AASX Package Explorer: the same value as in the dashboard, read from the file.*
 
 ---
 
@@ -534,14 +642,22 @@ Step 3 - ERP: bill of material and order
   Bill of material: 6 positions | order WH/MO/00001 over 25 pieces
 
 Step 6 - Calculation in openLCA
-  Shell                    Data sources                    Climate change
-  Kugelschreiber_TracePEN  Simulation, PLM, ERP, MachineData     0.127261
-  Bolzen_Aluminium         Simulation, PLM, ERP                  0.036113
+  Shell                    Data sources                               Climate change
+  Kugelschreiber_TracePEN  PLM, ERP, Simulation, MachineData              0.222159
+  Bolzen_Aluminium         PLM, ERP, MachineData                          0.105280
   ...
-  Sum of the parts                                              0.125624
-  Product                                                       0.127261
-  Difference                                                    0.001636  (assembly energy)
+  Sum of the parts                                                        0.220522
+  Product                                                                 0.222159
+  Difference                                                              0.001636  (assembly energy)
 ```
+
+<img src="../docs/img/screenshots/tutorial-cli-run-chain.png" alt="run_chain.py: calculation step with the sum check" width="720">
+
+*`run_chain.py`: the parts plus the assembly energy add up to the product.*
+
+<img src="../docs/img/screenshots/tutorial-cli-run-chain-export.png" alt="run_chain.py: export and check" width="560">
+
+*The chain ends with the export and checks every package: all readable, none rejected.*
 
 The last three lines are the most useful check you have: the parts plus the
 assembly energy must add up to the product. If they do not, a data source was
@@ -560,10 +676,10 @@ If a step fails, the message names what was missing rather than where the
 program stopped — for instance *"The bill of material did not arrive in the
 shell. Check the ERP credentials in .env."*
 
-A note on the numbers above: they belong to the reference setup, where the
-machine data covers one printed part only. With all three machines connected
-the result is roughly twice as high. That difference is the point of the KIT —
-what is measured replaces what was assumed.
+A note on the numbers above: they belong to the reference setup, with machine
+data for the three parts made in house. Without it the product comes to
+0.123143. That difference is the point of the KIT — what is measured replaces
+what was assumed.
 
 ---
 

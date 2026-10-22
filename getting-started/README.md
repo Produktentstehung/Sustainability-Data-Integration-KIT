@@ -94,13 +94,13 @@ python setup.py --check       # only check, change nothing
 
 The database is not part of this repository — it is several gigabytes in size and contains licensed background data. It has to be set up once.
 
-**1. Obtain the background database.** The example uses *idemat 2023*, freely available from <https://www.openlca.org/idemat-2023-available-for-openlca/>. Any other database with material datasets works as well; the mappings then have to be adjusted.
+**1. Obtain the background database.** The example uses *idemat 2023*, available through <https://www.openlca.org/idemat-2023-available-for-openlca/>. It is free for academic use, but has to be applied for, which can take some time. Any other database with material datasets works as well; the mappings then have to be adjusted.
 
-**2. Import it into openLCA.** `File → Import → Data package`, then open the database.
+**2. Import it into openLCA as a database of its own.** `File → Import → Data package` (*Datei → Importieren → Datenpaket*), then open the database.
 
-**3. Import the process model.** The processes of the example product are provided as an openLCA data package under `getting-started/openlca/`. Import it the same way. It contains one process per part, the assembly process and the product system.
+**3. Import the process model into that database.** With the idemat database open: `File → Import → File` (*Datei → Importieren → Datei*), then the package under `getting-started/openlca/`. openLCA recognises the format by itself. It contains one process per part, the assembly process and the product system. Into an empty database it brings no impact assessment method, so nothing can be calculated.
 
-**4. Start the IPC server.** In openLCA: `Tools → Developer tools → IPC Server`, port `8080`, then `Start`. Without this step Node-RED cannot trigger a calculation.
+**4. Start the IPC server.** In openLCA: `Tools → Developer tools → IPC Server` (*Werkzeuge → Entwicklerwerkzeuge → IPC-Server*), port `8080`, then `Start`. Without this step Node-RED cannot trigger a calculation.
 
 Two properties of the model are easy to miss when building your own, and neither produces an error message:
 
@@ -109,15 +109,15 @@ Two properties of the model are easy to miss when building your own, and neither
 
 ## Configuration
 
-The flows read their settings from environment variables. Copy `.env.example` to `.env` and fill it in. The filled-in file is excluded from version control.
+The flows read their settings from environment variables. `python setup.py` creates `.env` from `.env.example` on its first run; afterwards edit `.env`, never copy the template over it again. The file is excluded from version control.
 
 The most important entries:
 
 | Variable | Meaning |
 | --- | --- |
-| `SDI_AAS_URL` | AAS server, `http://localhost:8081` by default |
-| `SDI_OPENLCA_URL` | openLCA IPC, `http://localhost:8080` by default |
-| `SDI_OPENLCA_PRODUCT_SYSTEM` | identifier of the product system, shown by `setup.py --step 4` |
+| `SDI_AAS_URL` | AAS server, `http://127.0.0.1:8081` by default |
+| `SDI_OPENLCA_URL` | openLCA IPC, `http://127.0.0.1:8080` by default |
+| `SDI_OPENLCA_PRODUCT_SYSTEM` | identifier of the product system; already set for the example model, `setup.py --step 4` lists the others |
 | `SDI_ODOO_*` | access to the ERP system, if used |
 | `SDI_EMA_EXPORT` | path to the simulation export |
 
@@ -142,15 +142,23 @@ because none of it was done by hand in the Odoo interface.
 
 It is repeatable - existing records are updated rather than duplicated. Create
 the API key in Odoo under *Settings -> Users -> Account Security -> New API Key*.
+Newer versions ask for a scope: choose **RPC**, not MCP, and an expiry date that
+covers the time you will use it.
 
-Note the server address: `SDI_ODOO_URL` is the bare host, not the address shown
-in the browser. A trailing `/odoo` or `/web` is removed automatically.
+Note the server address: `SDI_ODOO_URL` is protocol and host only, for example
+`https://name.odoo.com` - not the address shown in the browser, which since
+Odoo 17 carries `/odoo/<app>` and more. The scripts and the flow reduce it to
+protocol and host themselves, but the setup script shows you what it used.
 
 ## The dashboard
 
-The page is at **http://localhost:1880/dashboard/kit** once `Dashboard.json` is
-imported. Each flow file can be imported on its own; the dashboard brings its
-own user interface base, so the order does not matter.
+The page is at **http://localhost:1880/dashboard/kit**. `setup.py` installs it
+together with the other flows; `Dashboard.json` also carries the user interface
+base the dataspace pages attach to.
+<img src="../docs/img/screenshots/tutorial-08a-dashboard-before-run.png" alt="Dashboard before the first run" width="720">
+
+*The dashboard before the first run.*
+
 
 The address has to be typed. In the Node-RED editor the *Dashboard 2.0* panel
 lists the page but shows no preview of it, so an empty panel there says
@@ -160,6 +168,10 @@ What the page shows, from top to bottom: the footprint with its reference
 quantity, the piece it belongs to, the button that runs the chain, the choice
 of product, method and piece, the result split by part, the state of each data
 source, and the recorded machine runs.
+<img src="../docs/img/screenshots/gs-dashboard-impact-categories.png" alt="All impact categories of the method" width="600">
+
+*Not only the carbon footprint: all impact categories of the selected method.*
+
 
 **One button does the work.** *Calculate the footprint* runs ERP, simulation,
 machine data and the calculation, in that order, and checks after every step
@@ -187,6 +199,10 @@ source is missing data. Two are passed over:
   goes red, the closing message names the source the quantities came from
   instead, and the result stands: it just does not rest on figures booked
   during this run.
+
+<img src="../docs/img/screenshots/gs-dashboard-erp-fallback.png" alt="Dashboard after a run without ERP" width="720">
+
+*A run without ERP: the ERP row turns red, the quantities come from the ERP entry already in the shell, and the closing message says so.*
 
 A run is only stopped when nothing at all carries a bill of material - then
 there is nothing to allocate the material masses to.
@@ -278,15 +294,15 @@ setup picks the flow up automatically:
 | `SDI_PLM_USER` | login name |
 | `SDI_PLM_PASSWORD` | leave empty; `start-nodered.ps1` asks for it |
 | `SDI_PLM_WORK_DIR` | directory for intermediate files |
-| `SDI_PLM_BASE_SHELL` | template of the administration shell |
-| `SDI_PLM_OUTPUT` | where the finished packages are written |
-| `SDI_PLM_SCRIPT` | script that builds the shell from the PLM data |
+| `SDI_PLM_BASE_SHELL` | template shell to fill: an `.aasx` file or an unpacked one; by default `docs/sample_data/AASX/BaseShell_Template.aasx` |
+| `SDI_PLM_OUTPUT` | where the finished packages are written; nothing else goes there |
+| `SDI_PLM_SCRIPT` | script that builds the shell from the PLM data; by default `src/build_aas_from_plm.py` |
 
-The last three point at artefacts of your own installation. The script that
-builds the shell is **not** part of this repository - it depends on the object
-model of your PLM system and has to be written for it. The flow calls it with
-the collected data as a JSON file, so the interface is small: read the JSON,
-write an AASX package.
+The script that builds the shell is part of this repository:
+`src/build_aas_from_plm.py`, the reference implementation for CONTACT Elements.
+The flow calls it with the collected data as a JSON file, so the interface is
+small: read the JSON, write an AASX package. For another PLM system it is the
+part to adapt - the template and everything after it stay the same.
 
 Paths may be written relative to `getting-started/`. The start script resolves
 them; Node-RED runs with its own working directory, so an unresolved relative
@@ -362,9 +378,16 @@ Or skip steps 3 to 5 and use the dashboard at
 button. The address has to be typed: the Node-RED editor lists the dashboard
 under *Dashboard 2.0* but shows no preview there.
 
-Without Odoo and without the machine connection the chain already runs end to end and produces a result. Be aware of what that first result rests on: only the assembly energy comes from the simulation data. The masses remain the default values of the openLCA model, because the PLM data source of the sample holds the weight of the product as a whole rather than a bill of material per part. Connecting the ERP system replaces those defaults, and the machine connection replaces the manufacturing energy — in the reference setup the two together move the result from 0.12 to 0.29 kg CO₂ eq.
+Without Odoo and without the machine connection the chain already runs end to end and produces a result. Be aware of what that first result rests on: only the assembly energy comes from the simulation data. The masses remain the default values of the openLCA model, because the PLM data source of the sample holds the weight of the product as a whole rather than a bill of material per part. Connecting the ERP system replaces those defaults, and the machine connection replaces the manufacturing energy — in the reference setup the measured energy of the three parts made in house moves the result from 0.12 to 0.22 kg CO₂ eq.
 
 ## Common pitfalls
+
+**The result is wrong although setup reports everything as ok.** The example
+package was imported into a database that already held an older version of the
+TRACEpen model. Package and database share the identifiers, and openLCA keeps
+the records that are there - so the old model stays, the product system is
+found, and inputs the old version does not link are calculated as zero without
+a message. Import into a fresh database holding only idemat.
 
 **The AAS server is empty after a restart.** Storage in MongoDB is configured in `docker-compose.yml`. A container started without that file keeps everything in memory only.
 

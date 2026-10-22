@@ -995,9 +995,14 @@ Measured for the TRACEpen with the sample data, impact method EF 3.0:
 | --- | --- | --- |
 | masses only (ERP + PLM) | 0.121508 kg CO₂eq | baseline |
 | plus assembly energy (simulation) | 0.123143 kg CO₂eq | +1.35 % |
-| plus manufacturing energy (machine data) | 0.293292 kg CO₂eq | +138.17 % |
+| plus manufacturing energy (machine data) | 0.222159 kg CO₂eq | +82.83 % |
 
-The manufacturing energy more than doubles the footprint. Without it the assessment understates the product by more than half, which is precisely why the stepwise enrichment described here matters.
+The machine data row depends on which recorded runs belong to the piece; it was
+measured for the three parts made in house in the reference laboratory, with
+0.591712, 0.187589 and 0.067767 MJ per piece for bolt, sleeve and pen tip. The
+manufacturing energy nearly doubles the footprint. Without it the assessment
+understates the product by almost half, which is precisely why the stepwise
+enrichment described here matters.
 
 ### Prerequisites in the openLCA model
 
@@ -1083,7 +1088,7 @@ The mapping is applied in four stages, corresponding to the use cases:
 | Stage | Source | Target | Implemented in |
 | --- | --- | --- | --- |
 | 1 | PLM system (REST API) | intermediate JSON | `src/PLM.json` |
-| 2 | intermediate JSON | AAS submodels (AASX) | `src/create_set_number_of_aas_instances.py` |
+| 2 | intermediate JSON | AAS submodels (AASX) | `src/build_aas_from_plm.py` |
 | 3 | Simulation export (`.xlsx`) | AAS submodel `DataSources` | `src/EMA.json` |
 | 4 | LCA tool (openLCA IPC) | AAS submodel `ILCD` | `src/OpenLCA_to_AAS.json` |
 
@@ -1297,9 +1302,9 @@ The collected data is written to a JSON file and handed to the script named in
 | `SDI_PLM_USER` | login name |
 | `SDI_PLM_PASSWORD` | leave empty in `.env`; `start-nodered.ps1` asks for it and passes it to the process only |
 | `SDI_PLM_WORK_DIR` | directory for the intermediate files (JSON, CAD, preview) |
-| `SDI_PLM_BASE_SHELL` | template of the administration shell |
-| `SDI_PLM_OUTPUT` | directory the finished packages are written to |
-| `SDI_PLM_SCRIPT` | script that builds the shell from the collected data |
+| `SDI_PLM_BASE_SHELL` | template shell to fill, as `.aasx` or unpacked; by default `docs/sample_data/AASX/BaseShell_Template.aasx` |
+| `SDI_PLM_OUTPUT` | directory the finished packages are written to, and nothing else |
+| `SDI_PLM_SCRIPT` | script that builds the shell from the collected data; by default `src/build_aas_from_plm.py` |
 
 Paths may be written relative to `getting-started/`; the start script resolves
 them. Node-RED itself runs with its own working directory, so an unresolved
@@ -1311,9 +1316,9 @@ Node-RED and imported into another carries no credentials with it.
 
 ### The shell-building script
 
-The script is **not** part of this repository. It depends on the object model of
-your PLM system and on the submodel template you want to fill, so it has to be
-written for your installation. The interface is small:
+The reference implementation is `src/build_aas_from_plm.py`, written for
+CONTACT Elements. Another PLM system has another object model, so this is the
+part to adapt; the interface is small:
 
 ```
 script <path to the JSON file>
@@ -1378,8 +1383,8 @@ as over the sample data shipped with the KIT:
 PLM   7 shells, bill of material with 6 positions
 ERP   6 positions, order over 25 pieces
 Sim   5 operations, 0.014 MJ
-OPC   bolt 0.4032 | sleeve 0.5772 | pen tip 0.4752 MJ
-LCA   15 parameters, 28 impact categories, 0.293292 kg CO2 eq
+OPC   bolt 0.5917 | sleeve 0.1876 | pen tip 0.0678 MJ
+LCA   15 parameters, 28 impact categories, 0.222159 kg CO2 eq
 ```
 
 ## ERP Connection (Odoo)
@@ -1604,7 +1609,7 @@ Which use case runs today is answered in the Adoption View under [What of this r
 | PLM → AAS | Use case 1 | Available (`src/PLM.json`), verified against CONTACT Elements |
 | Simulation (ema) → AAS | Use case 2 | Available (`src/EMA.json`) |
 | LCA calculation (openLCA) ↔ AAS | Use cases 1–5 | Available (`src/OpenLCA_to_AAS.json`) |
-| Instance-AAS creation | Use case 3 | Available (`src/create_set_number_of_aas_instances.py`) |
+| Instance-AAS creation | Use case 3 | Available (`src/build_aas_from_plm.py`) |
 | ERP → AAS | Use case 3 | Available (`src/Odoo_ERP.json`), verified against an Odoo instance |
 | OPC UA → AAS | Use case 3 | Available (`src/OPCUA_Manufacturing.json`). The flow reads the submodel written by the OPC UA connection; the connection to the machines themselves is plant-specific and not part of the published sources. Each run is stored with its own identifier, time window, piece count and the serial number of the piece it produced. |
 | Serial numbers and assembly booking | Use case 3 | Available (`src/Assembly_Booking.json`, `src/Assembly_Backfill.json`). Odoo issues the numbers from a configured pattern; the booking ties the components of an assembly to the piece and is written into `DataSources → ERP → AssemblyRecords`. |
@@ -1668,7 +1673,7 @@ The reference implementation was built as a laboratory demonstrator at the Smart
 - No Digital Twin Registry is deployed, so no dataspace-side access control on twin discovery applies.
 - Credentials for PLM and ERP are held as environment variables of the Node-RED **process**, set by `start-nodered.ps1` from `.env`. They are not stored in the flows, so an exported flow carries none. But any operator of that process can read them. A secret store is the productive answer.
 - Node-RED also offers environment variables **per tab**, and those are a different matter: their values are written into the flow file and travel with every export, invisibly — the editor shows the field empty again afterwards, and nothing warns. A real API key reached a public repository this way. Keep secrets out of tab variables; `src/check_flows.py` fails the build when a variable whose name says key, secret, token, password or credential carries a value in a committed flow file.
-- The script that builds the administration shell from PLM data is specific to the object model of the PLM system and is therefore not part of this repository.
+- The script that builds the administration shell from PLM data, `src/build_aas_from_plm.py`, is written for the object model of CONTACT Elements. Another PLM system needs its own version.
 
 These are properties of the demonstrator, not of the KIT concept. The architecture places no constraint on adding TLS, authentication and a registry.
 

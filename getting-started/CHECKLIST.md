@@ -33,10 +33,10 @@ python -m pip install openpyxl asyncua aas-core3.0
 | --- | --- | --- |
 | 6 | Clone the repository | terminal |
 | 7 | Download the background database *idemat 2023* | <https://www.openlca.org/idemat-2023-available-for-openlca/> |
-| 8 | openLCA: `File → Import → Data package`, select the download | openLCA |
+| 8 | openLCA: `File → Import → Data package` (*Datei → Importieren → Datenpaket*), select the download - as a database of its own | openLCA |
 | 9 | Open the database by double-clicking it (the open one is shown in bold) | openLCA |
-| 10 | openLCA: `File → Import → Data package`, this time `getting-started/openlca/idemat_2023_01_02_SDIKIT.zip` | openLCA |
-| 11 | openLCA: `Tools → Developer tools → IPC Server`, port `8080`, `Start` | openLCA |
+| 10 | Into that open database: `File → Import → File` (*Datei → Importieren → Datei*), then `getting-started/openlca/idemat_2023_01_02_SDIKIT.zip` | openLCA |
+| 11 | openLCA: `Tools → Developer tools → IPC Server` (*Werkzeuge → Entwicklerwerkzeuge → IPC-Server*), port `8080`, `Start` | openLCA |
 
 ```bash
 git clone https://github.com/Produktentstehung/Sustainability-Data-Integration-KIT.git

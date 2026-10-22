@@ -30,15 +30,20 @@ The package has been checked for completeness: all 1079 references it contains r
 
 ## Importing
 
-1. **Obtain the background database.** The model refers to datasets from *idemat 2023*, freely available from <https://www.openlca.org/idemat-2023-available-for-openlca/>
-2. Import it into openLCA and open it
-3. `File → Import → Other → Data formats of openLCA → JSON package (*.zip)`,
-   select this file
-4. Start the IPC server: `Tools → Developer tools → IPC Server`, port `8080`
+1. **Obtain the background database.** The model refers to datasets from *idemat 2023*, available through <https://www.openlca.org/idemat-2023-available-for-openlca/> - free for academic use, but it has to be applied for
+2. Import it into openLCA as a database of its own and open it
+3. With that database open: `File → Import → File` (*Datei → Importieren → Datei*),
+   select this file. openLCA recognises the format by itself
+4. Start the IPC server: `Tools → Developer tools → IPC Server` (*Werkzeuge → Entwicklerwerkzeuge → IPC-Server*), port `8080`
+
+Into an empty database the package brings its processes but no impact
+assessment method, and nothing can be calculated. Into a database that already
+holds an older version of this model it changes nothing, because openLCA keeps
+records whose identifiers it already has; use a fresh one.
 
 During the import openLCA recognises the idemat datasets that are already present by their identifier and does not duplicate them.
 
-Afterwards `python ../setup.py --step 4` shows the identifier of the product system. Put it into `.env` under `SDI_OPENLCA_PRODUCT_SYSTEM`.
+The identifier of the product system is already in `.env.example`, so for this model there is nothing to enter. Only for a model of your own: `python ../setup.py --step 4` lists the product systems of the open database, and the one to use goes into `.env` under `SDI_OPENLCA_PRODUCT_SYSTEM`.
 
 ## Two properties that are easy to miss
 

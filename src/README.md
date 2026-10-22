@@ -244,11 +244,15 @@ duplicated.
 
 > [Setting up the sample data](../README.md#setting-up-the-sample-data)
 
-#### `create_set_number_of_aas_instances.py`
-Creates a defined number of instance shells from a configured type shell.
-Used to produce the sample data, not needed in normal operation.
+#### `build_aas_from_plm.py`
+Builds one AASX package per part from the PLM data: `PLM.json` collects part,
+bill of material, documents and CAD file into a JSON file and calls this
+script with it. It fills the template shell, writes weight, material and bill
+of material into `DataSources → PLM`, attaches the CAD model with its preview,
+and cleans what the template would otherwise pass on. The reference
+implementation for CONTACT Elements; another PLM system needs its own version.
 
-> [Sample Data: TRACEpen](../README.md#sample-data-tracepen)
+> [The shell-building script](../README.md#the-shell-building-script)
 
 ---
 
