@@ -54,7 +54,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sdi_env import load_env
 load_env()
 # One table of data source names, shared with the repair of the packages.
-from repair_aasx import DATENQUELLEN
+from repair_aasx import DATENQUELLEN, ERGEBNISLISTEN, _id_aus
 
 AAS_URL = os.environ.get('SDI_AAS_URL', 'http://localhost:8081')
 
@@ -254,6 +254,43 @@ def name_data_sources(element):
     element['value'] = behalten
 
 
+def name_result_members(element):
+    """Names the nameless members of an iteration or method collection.
+
+    A server filled from the older packages holds LCAIteration and LCIAMethods
+    as lists. The conversion above makes them collections, but a member that
+    had no name - the template's placeholder - would stay nameless, which a
+    collection does not allow. Same rules as repair_aasx.name_result_lists.
+    """
+    art = element.get('idShort')
+    kinder = element.get('value')
+    if not isinstance(kinder, list):
+        return
+    vergeben = {k.get('idShort') for k in kinder if isinstance(k, dict)}
+    for nr, kind in enumerate(kinder, 1):
+        if not isinstance(kind, dict) or kind.get('idShort'):
+            continue
+        werte = {p.get('idShort'): p.get('value') for p in (kind.get('value') or [])
+                 if isinstance(p, dict) and p.get('modelType') == 'Property'}
+        if not _carries_value(kind) and ERGEBNISLISTEN[art]:
+            name = ERGEBNISLISTEN[art]
+        elif art == 'LCAIteration':
+            name = _id_aus('_'.join(t.strip() for t in
+                                    str(werte.get('DataSource') or '').split(',')))
+        elif art == 'LCIAMethods':
+            name = _id_aus(werte.get('LCIAMethod'))
+        else:
+            name = None
+        name = name or '%s_%d' % ({'LCAIteration': 'Iteration',
+                                   'LCIAMethods': 'Method'}.get(art, 'Process'), nr)
+        basis, n = name, 2
+        while name in vergeben:
+            name, n = '%s_%d' % (basis, n), n + 1
+        vergeben.add(name)
+        kind['idShort'] = name
+        counter['result member named'] += 1
+
+
 def clean_element(element, inside_list=False):
     """Walks an element and its children and removes the violations."""
     if not isinstance(element, dict):
@@ -331,6 +368,9 @@ def clean_element(element, inside_list=False):
     if (element.get('modelType') == 'SubmodelElementCollection'
             and element.get('idShort') == 'DataSources'):
         name_data_sources(element)
+    if (element.get('modelType') == 'SubmodelElementCollection'
+            and element.get('idShort') in ERGEBNISLISTEN):
+        name_result_members(element)
 
     # A file reference without a target is invalid: the value must be an
     # address. Without one the field is removed; the reference itself remains

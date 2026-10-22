@@ -1241,6 +1241,7 @@ The calculation tool is called per impact assessment method; the results of all 
 | part weight read back from the AAS | `WeightOfPart` | `xs:string` | |
 | `targetOutput` | `TargetOutput` | `xs:string` | reference quantity of the assessment |
 | `impactMethodName` | *(becomes the SMC name under `LCIAMethods`)* | (dynamic) | one collection per method |
+| `impactMethodName` | `LCIAMethod` | `xs:string` | the method under its own name, e.g. "EF 3.0 Method (adapted)"; the SMC name is the same text made safe for an identifier |
 | `impactCategory.name` | *(becomes the SMC name)* | (dynamic) | one collection per impact category |
 | `amount` | `Value` | `xs:double` | |
 | `impactCategory.refUnit` | `Unit` | `xs:string` | unit as reported by the calculation tool |

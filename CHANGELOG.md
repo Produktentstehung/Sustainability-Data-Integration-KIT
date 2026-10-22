@@ -19,6 +19,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   request nodes. It only looked at environment variables before, which is why
   it passed the eight nodes.
 
+### Fixed
+
+- An exported AASX package no longer loses the names of its iterations and
+  impact assessment methods. `LCAIteration` and `LCIAMethods` were lists in
+  the template, whose members may carry no name, so the export stripped them:
+  28 impact categories and nothing to say which method they belong to. They
+  are collections now, in the sample packages and through
+  `fix_aas_violations.py --apply` on an existing server, and every method also
+  carries its readable name as the property `LCIAMethod`.
+- A calculation started before openLCA had reported its methods was stored as
+  `default_method` - an EF 3.0 result under a second, meaningless name. The
+  calculation now refuses, loads the method list and asks for a second start.
+
 ### Changed
 
 - The EDC address book is read from `.env` (`SDI_EDC_PARTNER_*`,

@@ -334,6 +334,96 @@ def name_data_sources(text):
     return kopf + ET.tostring(baum, encoding='unicode'), count
 
 
+# The result structures of the KIT, and what their template entry is called.
+# The flows recognise those names as placeholders and drop them.
+ERGEBNISLISTEN = {
+    'LCAIteration': 'DataSourceTemplate',
+    'LCIAMethods': 'LCIAMethodTemplate',
+    'ManufacturingProcesses': None,
+}
+
+
+def _id_aus(text):
+    """An idShort from free text, the way the flows form them."""
+    s = re.sub(r'[^A-Za-z0-9_]', '_', str(text or ''))
+    s = re.sub(r'_+', '_', s).strip('_')
+    return s if s and s[0].isalpha() else None
+
+
+def name_result_lists(text):
+    """Keeps the names of iterations and methods in an exported package.
+
+    Same cause as with the data sources. LCAIteration and LCIAMethods are
+    lists in the template, the flows give their members names - the
+    iteration after its sources, the method after the impact assessment
+    method - and the next step here stripped those names, as AASd-120
+    demands of list members. In the exported package the method was then
+    "#00 <no idShort!>": 28 impact categories, and nothing to say which
+    method they came from. On the server the names were there; only the
+    file lost them.
+
+    So these lists become collections as well, which may name their
+    members. A nameless member - the template's placeholder, or one that
+    lost its name before - gets one: the placeholder the name the flows
+    already drop, an iteration the name of its sources, a method its
+    LCIAMethod property.
+    """
+    import xml.etree.ElementTree as ET
+    ET.register_namespace('', AAS_NAMESPACE)
+    try:
+        baum = ET.fromstring(text)
+    except ET.ParseError:
+        return text, 0
+    A = '{%s}' % AAS_NAMESPACE
+    count = 0
+    for liste in baum.iter(A + 'submodelElementList'):
+        art = liste.findtext(A + 'idShort')
+        if art not in ERGEBNISLISTEN:
+            continue
+        liste.tag = A + 'submodelElementCollection'
+        for feld in NUR_LISTE:
+            for weg in liste.findall(A + feld):
+                liste.remove(weg)
+        count += 1
+        wert = liste.find(A + 'value')
+        if wert is None:
+            continue
+        vergeben = {k.findtext(A + 'idShort') for k in wert}
+        for nr, kind in enumerate(wert, 1):
+            if kind.findtext(A + 'idShort'):
+                continue
+            werte = {}
+            for p in kind.findall(A + 'value/' + A + 'property'):
+                werte[p.findtext(A + 'idShort')] = p.findtext(A + 'value')
+            if not _traegt_wert(kind) and ERGEBNISLISTEN[art]:
+                name = ERGEBNISLISTEN[art]
+            elif art == 'LCAIteration':
+                name = _id_aus('_'.join(
+                    t.strip() for t in str(werte.get('DataSource') or '').split(',')))
+            elif art == 'LCIAMethods':
+                name = _id_aus(werte.get('LCIAMethod'))
+            else:
+                name = None
+            if not name:
+                name = {'LCAIteration': 'Iteration', 'LCIAMethods': 'Method'
+                        }.get(art, 'Process') + '_%d' % nr
+                print('     %s: a member without a name became %s' % (art, name))
+            basis, n = name, 2
+            while name in vergeben:
+                name, n = '%s_%d' % (basis, n), n + 1
+            vergeben.add(name)
+            feld = ET.Element(A + 'idShort')
+            feld.text = name
+            stelle = sum(1 for k in kind
+                         if k.tag in (A + 'extensions', A + 'category'))
+            kind.insert(stelle, feld)
+            count += 1
+    if not count:
+        return text, 0
+    kopf = '<?xml version="1.0" encoding="UTF-8"?>' + chr(10)
+    return kopf + ET.tostring(baum, encoding='unicode'), count
+
+
 def clean_content(text):
     """Removes the violations above from an .aas.xml. Returns text and count.
 
@@ -478,6 +568,8 @@ def _clean_once(text):
     # sources come first - once they are a collection, the next step leaves
     # their names alone.
     cleaned, hits = name_data_sources(cleaned)
+    count += hits
+    cleaned, hits = name_result_lists(cleaned)
     count += hits
     cleaned, hits = strip_list_child_idshorts(cleaned)
     count += hits
