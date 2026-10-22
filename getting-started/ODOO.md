@@ -62,10 +62,6 @@ the precision of the *Stock Weight* unit.
 
 This one is easy to miss: nothing fails, the numbers just turn to zero.
 
-<img src="../docs/img/screenshots/odoo-03-weight-six-decimals.png" alt="Odoo product with weight 0.003000 kg" width="720">
-
-*Weight stored with six decimals – with Odoo's default of two it would read 0.00.*
-
 ## 4. Products, bill of material, manufacturing order
 
 Taken from the PLM export in `docs/sample_data/BOM_TRACEpen.csv`: seven
@@ -76,18 +72,6 @@ The article number from the PLM becomes the *internal reference* in Odoo
 (`default_code`), for example `000114` for the pen. That reference is the link
 between PLM, ERP and the administration shell — and it is what the nameplate
 carries as `OrderCodeOfManufacturer`.
-
-<img src="../docs/img/screenshots/odoo-04a-bill-of-material.png" alt="Bill of material of the pen in Odoo" width="720">
-
-*The bill of material created from the PLM export: six positions.*
-
-<img src="../docs/img/screenshots/odoo-04b-product-internal-reference.png" alt="Odoo product with internal reference 000116" width="720">
-
-*The PLM article number becomes the internal reference in Odoo.*
-
-<img src="../docs/img/screenshots/odoo-04c-manufacturing-order.png" alt="Manufacturing order over 25 pieces" width="720">
-
-*Manufacturing order over 25 pieces; only the parts produced in house carry Details for serial numbers.*
 
 ## 5. Serial numbers
 
@@ -163,10 +147,6 @@ manufacturing order. `src/Assembly_Booking.json` creates it:
 
 From then on the machine flow attaches its measurements to the serial numbers
 of the booked assembly rather than to whatever was issued last.
-
-<img src="../docs/img/screenshots/odoo-06-manufacturing-order-after-booking.png" alt="Closed manufacturing order with serial number" width="720">
-
-*After the booking: an order over one piece, closed, with the serial number of the pen.*
 
 Two things worth knowing. `button_mark_done` answers without an error even
 when Odoo silently opened a dialog instead of closing the order, so the flow

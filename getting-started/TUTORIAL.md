@@ -187,28 +187,8 @@ The counts in step 4 depend on your database; the line that matters is the
 last one. The identifier of the example model is already in the configuration
 template, so the product system is found without you entering anything.
 
-<img src="../docs/img/screenshots/tutorial-04a-setup-configuration.png" alt="First part of the setup output" width="720">
-
-*First run of `setup.py`: `.env` is created, optional sources are reported as not configured.*
-
-<img src="../docs/img/screenshots/tutorial-04b-setup-import.png" alt="Setup output: importing the sample packages" width="720">
-
-*Seven shells imported into the AAS server.*
-
-<img src="../docs/img/screenshots/tutorial-04c-setup-openlca-check.png" alt="Setup output: openLCA check" width="720">
-
-*openLCA reachable, default impact method and product system found.*
-
-<img src="../docs/img/screenshots/tutorial-04d-setup-summary.png" alt="Setup summary with five passed steps" width="480">
-
-*All five setup steps passed.*
-
 **Check:** `http://localhost:3000` opens the AAS web interface and lists seven
 shells: the ballpoint pen and its six parts.
-
-<img src="../docs/img/screenshots/tutorial-04e-aas-viewer-seven-shells.png" alt="AAS web interface listing seven shells" width="720">
-
-*The AAS web interface lists the pen and its six parts.*
 
 ---
 
@@ -285,10 +265,6 @@ In the debug panel on the right you should see:
   "operations": 5, "totalEnergyMJ": 0.014 }
 ```
 
-<img src="../docs/img/screenshots/tutorial-07-nodered-ema-debug.png" alt="Node-RED simulation flow with debug output" width="720">
-
-*The simulation flow after one click: five operations written into the shell.*
-
 What happened: the flow read the simulation export shipped with the KIT, distributed the energy consumption of the workstations across the five operations, and wrote the result into the AAS of the ballpoint pen.
 
 **Check:** in the AAS web interface at `http://localhost:3000`, shell `Kugelschreiber_TracePEN`, submodel `DataSources`, there is now an entry `Simulation` containing `SimulationProcesses`.
@@ -350,17 +326,9 @@ apart by their name alone.
 
 **Check:** in the AAS web interface, submodel `ILCD`, there is an iteration whose `DataSource` property lists the sources used, and below it the impact categories with their values.
 
-<img src="../docs/img/screenshots/tutorial-08d-aas-viewer-ilcd-iterations.png" alt="Submodel ILCD in the AAS web interface" width="720">
-
-*Submodel `ILCD` with one iteration per combination of sources, and the sources it used.*
-
 ### What this first result does and does not tell you
 
 At this point only the **assembly energy** comes from your data. The material masses are still the default values stored in the openLCA model, because the PLM data source in the sample AAS holds the weight and material of the product as a whole, not a bill of material broken down by part.
-
-<img src="../docs/img/screenshots/tutorial-08b-data-sources-without-erp.png" alt="Data sources panel without ERP" width="600">
-
-*Without an ERP connection: PLM and simulation are present, ERP and machine data are missing.*
 
 That is the honest starting point of the KIT: a result exists, and it is traceable, but it rests largely on assumptions. Each further data source replaces one of those assumptions with a measured or order-specific value:
 
@@ -445,15 +413,7 @@ Afterwards trigger the flow *Odoo ERP → AAS*. Expected:
   "product": "Kugelschreiber_TracePEN", "components": 6 }
 ```
 
-<img src="../docs/img/screenshots/tutorial-opt-erp-nodered-debug.png" alt="ERP flow with debug output" width="720">
-
-*The ERP flow reports six components and the manufacturing order it read.*
-
 The next calculation then uses the ERP masses; the log says `Masses from ERP`.
-
-<img src="../docs/img/screenshots/tutorial-opt-erp-data-sources.png" alt="Data sources panel with ERP" width="720">
-
-*With Odoo connected the ERP row turns green and the masses come from the bill of material.*
 
 ---
 
@@ -463,14 +423,6 @@ Only relevant with a CONTACT Elements PLM system reachable from your network.
 With it the shells themselves come from the PLM system instead of from the
 sample packages, and the bill of material, materials and CAD documents are the
 ones your engineers maintain.
-
-<img src="../docs/img/screenshots/tutorial-opt-plm-part.png" alt="Part 000114 in the PLM system" width="720">
-
-*The source: part 000114 in the PLM system, with article number, category, material and bill-of-material type.*
-
-<img src="../docs/img/screenshots/tutorial-opt-plm-structure.png" alt="Bill of material of part 000114 in the PLM" width="720">
-
-*The bill of material in the PLM: the pen and its six positions.*
 
 Fill in the PLM section of `.env` — server address and login name, password left
 empty — then run the setup again and start Node-RED:
@@ -487,10 +439,6 @@ The start script now asks for the PLM password as well. A fifth tab appears,
 *PLM flow (product)*. Triggering it produces one AASX package per part in the
 directory named in `SDI_PLM_OUTPUT`.
 
-<img src="../docs/img/screenshots/tutorial-opt-plm-output.png" alt="Output folder of the PLM flow" width="480">
-
-*One AASX package per part, built from the PLM data.*
-
 Before importing those packages:
 
 ```bash
@@ -501,10 +449,6 @@ Windows likes to leave a `Thumbs.db` inside; the AAS server then rejects the
 package with HTTP 400. And note that the upload does not overwrite — a shell
 that already exists answers HTTP 409, so import the packages before the other
 flows have written anything you want to keep.
-
-<img src="../docs/img/screenshots/tutorial-opt-plm-package.png" alt="Generated package in the AASX Package Explorer" width="720">
-
-*A generated package: weight and material from the PLM in `DataSources`, the CAD model with its preview in `Models3D`.*
 
 ---
 
@@ -556,10 +500,6 @@ export writes one package holding everything and one package per shell:
 python ../src/export_aasx.py export --split
 ```
 
-<img src="../docs/img/screenshots/tutorial-09a-export-aasx.png" alt="Output of export_aasx.py" width="720">
-
-*The export writes one package with everything and one package per shell, attachments included.*
-
 ```
 7 shells, 50 submodels on the server
 20 attachments, 5.1 MB
@@ -601,10 +541,6 @@ Now open `export/complete.aasx` in the
 [AASX Package Explorer](https://github.com/admin-shell-io/aasx-package-explorer).
 Under `DataSources` you see where every value came from, under `ILCD` the
 assessment with its impact categories.
-
-<img src="../docs/img/screenshots/tutorial-09c-aasx-package-explorer.png" alt="complete.aasx in the AASX Package Explorer" width="720">
-
-*`complete.aasx` in the AASX Package Explorer: the same value as in the dashboard, read from the file.*
 
 ---
 
@@ -654,10 +590,6 @@ Step 6 - Calculation in openLCA
 <img src="../docs/img/screenshots/tutorial-cli-run-chain.png" alt="run_chain.py: calculation step with the sum check" width="720">
 
 *`run_chain.py`: the parts plus the assembly energy add up to the product.*
-
-<img src="../docs/img/screenshots/tutorial-cli-run-chain-export.png" alt="run_chain.py: export and check" width="560">
-
-*The chain ends with the export and checks every package: all readable, none rejected.*
 
 The last three lines are the most useful check you have: the parts plus the
 assembly energy must add up to the product. If they do not, a data source was

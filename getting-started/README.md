@@ -168,11 +168,6 @@ What the page shows, from top to bottom: the footprint with its reference
 quantity, the piece it belongs to, the button that runs the chain, the choice
 of product, method and piece, the result split by part, the state of each data
 source, and the recorded machine runs.
-<img src="../docs/img/screenshots/gs-dashboard-impact-categories.png" alt="All impact categories of the method" width="600">
-
-*Not only the carbon footprint: all impact categories of the selected method.*
-
-
 **One button does the work.** *Calculate the footprint* runs ERP, simulation,
 machine data and the calculation, in that order, and checks after every step
 that the data actually arrived. It takes well under a minute.
@@ -199,10 +194,6 @@ source is missing data. Two are passed over:
   goes red, the closing message names the source the quantities came from
   instead, and the result stands: it just does not rest on figures booked
   during this run.
-
-<img src="../docs/img/screenshots/gs-dashboard-erp-fallback.png" alt="Dashboard after a run without ERP" width="720">
-
-*A run without ERP: the ERP row turns red, the quantities come from the ERP entry already in the shell, and the closing message says so.*
 
 A run is only stopped when nothing at all carries a bill of material - then
 there is nothing to allocate the material masses to.

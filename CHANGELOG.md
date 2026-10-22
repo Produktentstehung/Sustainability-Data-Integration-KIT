@@ -72,7 +72,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `setup.py --step 4` checks that every product input of the product system
   has a provider - an unlinked one is calculated as zero without a message -
   and treats a missing impact method as an error rather than a warning.
-- The screenshots of a complete deployment test, in the tutorial, the
+- Seven screenshots of a complete deployment test, in the tutorial, the
   getting-started reference and the Odoo page.
 
 ### Changed
