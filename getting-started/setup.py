@@ -547,6 +547,50 @@ upload_aasx.gemeldet = False
 # ---------------------------------------------------------------------------
 # Step 4 - check openLCA
 # ---------------------------------------------------------------------------
+def links_complete(system_id):
+    """Whether every product input of the product system has a provider.
+
+    An input without a provider is calculated as zero, and openLCA says
+    nothing. That is what happens when the example package is imported into a
+    database that already holds an older version of the model: package and
+    database share the identifiers, openLCA keeps the records that are there,
+    the product system is found by its identifier - and the result is wrong
+    without a message. The identifier alone proves nothing.
+    """
+    try:
+        ps = olca("data/get", {"@type": "ProductSystem", "@id": system_id}).get("result") or {}
+        gelinkt = {(l.get("process", {}).get("@id"),
+                    (l.get("exchange") or {}).get("internalId"))
+                   for l in ps.get("processLinks") or []}
+        offen, geprueft = [], 0
+        for pr in ps.get("processes") or []:
+            proc = olca("data/get", {"@type": "Process", "@id": pr.get("@id")}).get("result") or {}
+            for e in proc.get("exchanges") or []:
+                if not e.get("isInput") or (e.get("flow") or {}).get("flowType") != "PRODUCT_FLOW":
+                    continue
+                if not (e.get("amount") or e.get("amountFormula")):
+                    continue
+                geprueft += 1
+                if (pr.get("@id"), e.get("internalId")) not in gelinkt:
+                    offen.append((proc.get("name", "?"), (e.get("flow") or {}).get("name", "?")))
+    except Exception as e:
+        print(f"{WARN}Links of the product system not checked: {e}")
+        return True
+    if not offen:
+        print(f"{OK}All {geprueft} product inputs of {len(ps.get('processes') or [])} "
+              f"processes are linked")
+        return True
+    print(f"{MISS} {len(offen)} product inputs have no provider - they are "
+          f"calculated as zero, without a message")
+    for proc, fluss in offen[:8]:
+        print(f"             {proc[:45]}  <-  {fluss[:40]}")
+    if len(offen) > 8:
+        print(f"             ... and {len(offen) - 8} more")
+    print("           Usually an older version of the model in the same database.")
+    print("           Import the package into a fresh database holding only idemat.")
+    return False
+
+
 def step_4(check=False):
     heading("Step 4 - check openLCA")
 
@@ -569,14 +613,25 @@ def step_4(check=False):
     print(f"{OK}{len(processes)} processes, {len(systems)} product systems, "
           f"{len(methods)} impact methods")
 
+    # Without an impact assessment method nothing can be calculated. This
+    # used to be a warning, and the summary still said "ok" over a database
+    # with 0 methods - which is what importing the example package into an
+    # empty database gives you.
+    methode_ok = True
     default = os.environ.get("SDI_OPENLCA_DEFAULT_METHOD",
                              "b4571628-4b7b-3e4f-81b1-9a8cca6cb3f8")
     hit = next((m for m in methods if m.get("@id") == default), None)
     if hit:
         print(f"{OK}Default impact method present: {hit.get('name')}")
+    elif not methods:
+        methode_ok = False
+        print(f"{MISS} The open database contains no impact assessment method")
+        print("           The example package brings none. Import it into the")
+        print("           idemat database rather than into an empty one.")
     else:
-        print(f"{WARN}Default impact method not found ({default})")
-        print("           Set a different one via SDI_OPENLCA_DEFAULT_METHOD")
+        methode_ok = False
+        print(f"{MISS} Default impact method not found ({default})")
+        print("           Set one of the database via SDI_OPENLCA_DEFAULT_METHOD")
 
     if not systems:
         print(f"{MISS} The open database contains no product system")
@@ -593,7 +648,7 @@ def step_4(check=False):
         hit = next((s for s in systems if s.get("@id") == system), None)
         if hit:
             print(f"{OK}Product system present: {hit.get('name')}")
-            return True
+            return links_complete(system) and methode_ok
         print(f"{MISS} Product system not found: {system}")
         print("           The identifier in .env belongs to no product system in")
         print("           the open database. Either the wrong database is open,")
