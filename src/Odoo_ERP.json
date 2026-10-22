@@ -43,7 +43,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 380,
+        "x": 400,
         "y": 100,
         "wires": [
             [
@@ -67,7 +67,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 640,
+        "x": 660,
         "y": 100,
         "wires": [
             [
@@ -87,7 +87,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 900,
+        "x": 1000,
         "y": 100,
         "wires": [
             [
@@ -111,7 +111,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1160,
+        "x": 1320,
         "y": 100,
         "wires": [
             [
@@ -155,7 +155,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 530,
+        "x": 550,
         "y": 200,
         "wires": [
             [
@@ -175,7 +175,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 790,
+        "x": 830,
         "y": 200,
         "wires": [
             [
@@ -199,7 +199,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1070,
+        "x": 1130,
         "y": 200,
         "wires": [
             [
@@ -263,7 +263,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 780,
+        "x": 800,
         "y": 300,
         "wires": [
             [
@@ -287,7 +287,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1060,
+        "x": 1080,
         "y": 300,
         "wires": [
             [
@@ -331,7 +331,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 560,
+        "x": 580,
         "y": 400,
         "wires": [
             [
@@ -344,14 +344,14 @@
         "type": "function",
         "z": "a1b2c3d4e5f60001",
         "name": "\ud83d\udd27 Map the ERP data into the AAS",
-        "func": "// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n// MAPPING Odoo -> AAS\n// Target: DataSources submodel -> SML \"DataSources\" -> SMC \"ERP\"\n// The collection sits alongside \"Manufacturing\", \"Simulation\" and \"PLM\"\n// as an equal and carries the data source \"ERP\".\n// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nconst erp = flow.get('erp');\nconst sm = msg.payload;\n\nif (!sm || !Array.isArray(sm.submodelElements)) {\n    node.error('The DataSources submodel could not be read', msg);\n    return null;\n}\n\nconst DATA_SOURCE_NAME = 'ERP';\nconst SMC_ID_SHORT = 'ERP';   // AASd-002: only [a-zA-Z][a-zA-Z0-9_]*\n\nfunction idShort(str) {\n    let s = String(str || '')\n        .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue')\n        .replace(/\u00c4/g, 'Ae').replace(/\u00d6/g, 'Oe').replace(/\u00dc/g, 'Ue')\n        .replace(/\u00df/g, 'ss')\n        .replace(/[^A-Za-z0-9_]/g, '_')\n        .replace(/__+/g, '_').replace(/_+$/, '');\n    if (!/^[a-zA-Z]/.test(s)) { s = 'X_' + s; }\n    return s.substring(0, 128) || 'Undefined';\n}\nfunction prop(id, value, valueType) {\n    return { modelType: 'Property', idShort: id,\n             valueType: valueType || 'xs:string',\n             value: value === null || value === undefined ? '' : String(value) };\n}\nfunction smc(id, value) {\n    return { modelType: 'SubmodelElementCollection', idShort: id, value: value };\n}\nfunction byIdShort(arr, id) {\n    return (arr || []).find(e => e && e.idShort === id);\n}\n\n// One collection per bill-of-material line\nconst usedIds = {};\nconst componentSmcs = erp.components.map(c => {\n    let id = idShort(c.name);\n    if (usedIds[id]) { usedIds[id] += 1; id = id + '_' + usedIds[id]; } else { usedIds[id] = 1; }\n    return smc(id, [\n        prop('ComponentName', c.name),\n        prop('ProductCode', c.productCode),\n        prop('Quantity', c.quantity, 'xs:double'),\n        prop('QuantityUnit', c.quantityUnit),\n        prop('WeightPerUnit', c.weightKg, 'xs:double'),\n        prop('WeightUnit', 'kg'),\n        prop('TotalMass', c.totalMassKg, 'xs:double'),\n        prop('TotalMassUnit', 'kg'),\n        prop('Material', c.material),\n        prop('MaterialCategory', c.materialCategory),\n        prop('LCAFlowId', c.lcaFlowId),\n        prop('LCAProcessId', c.lcaProcessId),\n        prop('LCAParameterName', c.lcaParameter),\n        prop('LCAZeroParameters', c.lcaZeroParameters)\n    ]);\n});\n\nconst erpValue = [\n    prop('DataSource', DATA_SOURCE_NAME),\n    prop('SourceSystem', 'Odoo'),\n    prop('TimeOfRetrieval', erp.retrievedAt, 'xs:dateTime'),\n    prop('ProductName', erp.productName),\n    prop('ProductCode', erp.productCode),\n    prop('ProductWeight', erp.productWeightKg, 'xs:double'),\n    prop('ProductWeightUnit', 'kg'),\n    prop('BillOfMaterialId', erp.bomId, 'xs:string'),\n    prop('BillOfMaterialQuantity', erp.bomQuantity, 'xs:double'),\n    smc('BillOfMaterial', componentSmcs)\n];\n\nif (erp.order) {\n    erpValue.push(smc('ManufacturingOrder', [\n        prop('OrderNumber', erp.order.number),\n        prop('OrderQuantity', erp.order.quantity, 'xs:double'),\n        prop('OrderUnit', erp.order.unit),\n        prop('OrderState', erp.order.state)\n    ]));\n}\n\n// SML \"DataSources\" suchen; faellt auf das erste Listenelement zurueck\nlet list = byIdShort(sm.submodelElements, 'DataSources')\n        || byIdShort(sm.submodelElements, 'Data Sources')\n        || sm.submodelElements.find(e => e.modelType === 'SubmodelElementList');\nif (!list) {\n    node.error('SubmodelElementList \"DataSources\" not found', msg);\n    return null;\n}\nif (!Array.isArray(list.value)) { list.value = []; }\n\n// Replace an existing ERP entry, otherwise append one\nconst existing = list.value.findIndex(e => e && e.idShort === SMC_ID_SHORT);\nconst newSmc = smc(SMC_ID_SHORT, erpValue);\n\n// Leave entries that belong to someone else in place.\n//\n// This flow rebuilds the ERP block. Everything it does not write itself\n// was gone with it - including the booked assemblies (AssemblyRecords),\n// which another flow puts there. The loss went unnoticed: the ERP row in\n// the dashboard stayed green, only the list of manufactured pieces was\n// suddenly empty.\n//\n// Whoever rebuilds a block has to carry over what is not theirs.\nif (existing >= 0) {\n    const bisher = (list.value[existing] || {}).value || [];   // what is there now\n    const eigene = erpValue.map(e => e && e.idShort);\n    const fremde = bisher.filter(e => e && eigene.indexOf(e.idShort) < 0);\n    newSmc.value = erpValue.concat(fremde);\n    list.value[existing] = newSmc;\n    node.log('ERP updated'\n           + (fremde.length ? ', ' + fremde.length + ' foreign entries kept' : ''));\n} else {\n    list.value.push(newSmc);\n    node.log('ERP newly created');\n}\n\nmsg.method = 'PUT';\nmsg.url = flow.get('cfg').aasUrl + '/submodels/' + flow.get('submodelB64');\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = sm;\nnode.status({ fill: 'blue', shape: 'dot', text: 'schreibe AAS' });\nreturn msg;\n",
+        "func": "// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n// MAPPING Odoo -> AAS\n// Target: DataSources submodel -> SML \"DataSources\" -> SMC \"ERP\"\n// The collection sits alongside \"Manufacturing\", \"Simulation\" and \"PLM\"\n// as an equal and carries the data source \"ERP\".\n// \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nconst erp = flow.get('erp');\nconst sm = msg.payload;\n\nif (!sm || !Array.isArray(sm.submodelElements)) {\n    node.error('The DataSources submodel could not be read', msg);\n    return null;\n}\n\nconst DATA_SOURCE_NAME = 'ERP';\nconst SMC_ID_SHORT = 'ERP';   // AASd-002: only [a-zA-Z][a-zA-Z0-9_]*\n\nfunction idShort(str) {\n    let s = String(str || '')\n        .replace(/\u00e4/g, 'ae').replace(/\u00f6/g, 'oe').replace(/\u00fc/g, 'ue')\n        .replace(/\u00c4/g, 'Ae').replace(/\u00d6/g, 'Oe').replace(/\u00dc/g, 'Ue')\n        .replace(/\u00df/g, 'ss')\n        .replace(/[^A-Za-z0-9_]/g, '_')\n        .replace(/__+/g, '_').replace(/_+$/, '');\n    if (!/^[a-zA-Z]/.test(s)) { s = 'X_' + s; }\n    return s.substring(0, 128) || 'Undefined';\n}\nfunction prop(id, value, valueType) {\n    return { modelType: 'Property', idShort: id,\n             valueType: valueType || 'xs:string',\n             value: value === null || value === undefined ? '' : String(value) };\n}\nfunction smc(id, value) {\n    return { modelType: 'SubmodelElementCollection', idShort: id, value: value };\n}\nfunction byIdShort(arr, id) {\n    return (arr || []).find(e => e && e.idShort === id);\n}\n\n// One collection per bill-of-material line\nconst usedIds = {};\nconst componentSmcs = erp.components.map(c => {\n    let id = idShort(c.name);\n    if (usedIds[id]) { usedIds[id] += 1; id = id + '_' + usedIds[id]; } else { usedIds[id] = 1; }\n    return smc(id, [\n        prop('ComponentName', c.name),\n        prop('ProductCode', c.productCode),\n        prop('Quantity', c.quantity, 'xs:double'),\n        prop('QuantityUnit', c.quantityUnit),\n        prop('WeightPerUnit', c.weightKg, 'xs:double'),\n        prop('WeightUnit', 'kg'),\n        prop('TotalMass', c.totalMassKg, 'xs:double'),\n        prop('TotalMassUnit', 'kg'),\n        prop('Material', c.material),\n        prop('MaterialCategory', c.materialCategory),\n        prop('LCAFlowId', c.lcaFlowId),\n        prop('LCAProcessId', c.lcaProcessId),\n        prop('LCAParameterName', c.lcaParameter),\n        prop('LCAZeroParameters', c.lcaZeroParameters)\n    ]);\n});\n\nconst erpValue = [\n    prop('DataSource', DATA_SOURCE_NAME),\n    prop('SourceSystem', 'Odoo'),\n    prop('TimeOfRetrieval', erp.retrievedAt, 'xs:dateTime'),\n    prop('ProductName', erp.productName),\n    prop('ProductCode', erp.productCode),\n    prop('ProductWeight', erp.productWeightKg, 'xs:double'),\n    prop('ProductWeightUnit', 'kg'),\n    prop('BillOfMaterialId', erp.bomId, 'xs:string'),\n    prop('BillOfMaterialQuantity', erp.bomQuantity, 'xs:double'),\n    smc('BillOfMaterial', componentSmcs)\n];\n\nif (erp.order) {\n    erpValue.push(smc('ManufacturingOrder', [\n        prop('OrderNumber', erp.order.number),\n        prop('OrderQuantity', erp.order.quantity, 'xs:double'),\n        prop('OrderUnit', erp.order.unit),\n        prop('OrderState', erp.order.state)\n    ]));\n}\n\n// SML \"DataSources\" suchen; faellt auf das erste Listenelement zurueck\nlet list = byIdShort(sm.submodelElements, 'DataSources')\n        || byIdShort(sm.submodelElements, 'Data Sources')\n        || sm.submodelElements.find(e => e.modelType === 'SubmodelElementList');\nif (!list) {\n    node.error('SubmodelElementList \"DataSources\" not found', msg);\n    return null;\n}\nif (!Array.isArray(list.value)) { list.value = []; }\n\n// Replace an existing ERP entry, otherwise append one\nconst existing = list.value.findIndex(e => e && e.idShort === SMC_ID_SHORT);\nconst newSmc = smc(SMC_ID_SHORT, erpValue);\n\n// Leave entries that belong to someone else in place.\n//\n// This flow rebuilds the ERP block. Everything it does not write itself\n// was gone with it - including the booked assemblies (AssemblyRecords),\n// which another flow puts there. The loss went unnoticed: the ERP row in\n// the dashboard stayed green, only the list of manufactured pieces was\n// suddenly empty.\n//\n// Whoever rebuilds a block has to carry over what is not theirs.\nif (existing >= 0) {\n    const bisher = (list.value[existing] || {}).value || [];   // what is there now\n    const eigene = erpValue.map(e => e && e.idShort);\n    const fremde = bisher.filter(e => e && eigene.indexOf(e.idShort) < 0);\n    newSmc.value = erpValue.concat(fremde);\n    list.value[existing] = newSmc;\n    node.log('ERP updated'\n           + (fremde.length ? ', ' + fremde.length + ' foreign entries kept' : ''));\n} else {\n    list.value.push(newSmc);\n    node.log('ERP newly created');\n}\n\nmsg.method = 'PUT';\nmsg.url = flow.get('cfg').aasUrl + '/submodels/' + flow.get('submodelB64');\nmsg.headers = { 'Content-Type': 'application/json' };\nmsg.payload = sm;\nnode.status({ fill: 'blue', shape: 'dot', text: 'writing the AAS' });\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 810,
+        "x": 870,
         "y": 400,
         "wires": [
             [
@@ -375,7 +375,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 1070,
+        "x": 1150,
         "y": 400,
         "wires": [
             [
@@ -388,7 +388,7 @@
         "type": "function",
         "z": "a1b2c3d4e5f60001",
         "name": "\u2705 Status",
-        "func": "// Ergebnis melden\nconst erp = flow.get('erp') || {};\nconst code = msg.statusCode;\nif (code && code >= 400) {\n    node.error('AAS-Schreibvorgang fehlgeschlagen: HTTP ' + code, msg);\n    node.status({ fill: 'red', shape: 'ring', text: 'HTTP ' + code });\n    return null;\n}\nconst n = (erp.components || []).length;\nconst order = erp.order ? (', Auftrag ' + erp.order.number) : '';\nmsg.payload = {\n    status: 'ok',\n    dataSource: 'ERP',\n    product: erp.productName,\n    components: n,\n    skipped: erp.skipped || [],\n    order: erp.order || null,\n    retrievedAt: erp.retrievedAt\n};\nnode.status({ fill: 'green', shape: 'dot', text: n + ' Positionen' + order });\nnode.log('ERP-Daten in AAS geschrieben: ' + n + ' Positionen');\nreturn msg;\n",
+        "func": "// Ergebnis melden\nconst erp = flow.get('erp') || {};\nconst code = msg.statusCode;\nif (code && code >= 400) {\n    node.error('AAS-Schreibvorgang fehlgeschlagen: HTTP ' + code, msg);\n    node.status({ fill: 'red', shape: 'ring', text: 'HTTP ' + code });\n    return null;\n}\nconst n = (erp.components || []).length;\nconst order = erp.order ? (', order ' + erp.order.number) : '';\nmsg.payload = {\n    status: 'ok',\n    dataSource: 'ERP',\n    product: erp.productName,\n    components: n,\n    skipped: erp.skipped || [],\n    order: erp.order || null,\n    retrievedAt: erp.retrievedAt\n};\nnode.status({ fill: 'green', shape: 'dot', text: n + ' positions' + order });\nnode.log('ERP data written into the AAS: ' + n + ' positions');\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,

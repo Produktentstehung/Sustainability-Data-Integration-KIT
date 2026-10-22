@@ -129,7 +129,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 540,
+        "x": 560,
         "y": 200,
         "wires": [
             [
@@ -153,7 +153,7 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 810,
+        "x": 830,
         "y": 200,
         "wires": [
             [
@@ -166,7 +166,7 @@
         "type": "function",
         "z": "b1c2d3e4f5a60001",
         "name": "✅ Status",
-        "func": "// Ergebnis melden\nconst sim = flow.get('sim') || {};\nif (msg.statusCode && msg.statusCode >= 400) {\n    node.error('AAS-Schreibvorgang fehlgeschlagen: HTTP ' + msg.statusCode, msg);\n    node.status({ fill: 'red', shape: 'ring', text: 'HTTP ' + msg.statusCode });\n    return null;\n}\nmsg.payload = {\n    status: 'ok', dataSource: 'Simulation', scenario: sim.scenario,\n    operations: (sim.operations || []).length,\n    totalEnergyMJ: sim.totalEnergyMJ, exportFile: sim.exportFile\n};\nnode.status({ fill: 'green', shape: 'dot',\n              text: (sim.operations || []).length + ' Arbeitsgaenge' });\nnode.log('Simulationsdaten in AAS geschrieben');\nreturn msg;\n",
+        "func": "// Ergebnis melden\nconst sim = flow.get('sim') || {};\nif (msg.statusCode && msg.statusCode >= 400) {\n    node.error('AAS-Schreibvorgang fehlgeschlagen: HTTP ' + msg.statusCode, msg);\n    node.status({ fill: 'red', shape: 'ring', text: 'HTTP ' + msg.statusCode });\n    return null;\n}\nmsg.payload = {\n    status: 'ok', dataSource: 'Simulation', scenario: sim.scenario,\n    operations: (sim.operations || []).length,\n    totalEnergyMJ: sim.totalEnergyMJ, exportFile: sim.exportFile\n};\nnode.status({ fill: 'green', shape: 'dot',\n              text: (sim.operations || []).length + ' operations' });\nnode.log('Simulationsdaten in AAS geschrieben');\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
