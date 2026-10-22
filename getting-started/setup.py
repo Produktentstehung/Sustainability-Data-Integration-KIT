@@ -360,7 +360,7 @@ def step_3(check=False):
     #
     # Everything named *_Template.aasx is a blank structure to build from, not
     # a twin of anything: Submodel_*.aasx would create shells without a name,
-    # and BaseShell_Template.aasx would put an empty SDI_BaseShell next to the
+    # and BaseShell_Template.aasx would put an empty base shell next to the
     # real products - selectable in the dashboard, calculable, and answering
     # with nothing. They are meant to be opened as files, from
     # docs/sample_data/AASX, and nothing reads them off the server.
