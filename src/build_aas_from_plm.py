@@ -235,6 +235,12 @@ if aasx_out.exists():
         with zipfile.ZipFile(aasx_out, 'r') as z:
             for fi in z.infolist():
                 if fi.filename.startswith('aasx/files/') and not fi.is_dir():
+                    # A CAD program's companion file is not carried over. An
+                    # earlier package of the bolt held one as its "preview",
+                    # and this block kept bringing it back into every new
+                    # package after the preview itself had been corrected.
+                    if fi.filename.rsplit('.', 1)[-1].lower() in ('appinfo', 'bak', 'tmp'):
+                        continue
                     rel = Path(fi.filename).relative_to('aasx/files')
                     tgt = files_dir/rel
                     if not tgt.exists():
