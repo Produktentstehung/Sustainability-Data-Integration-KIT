@@ -45,6 +45,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   looked for names the list members there do not have. It never found the
   template's `[Content_Types].xml` either - the brackets are a glob pattern.
 - The PLM status node reported every run three times, twice as "CHECK".
+- A package built by the PLM script could carry two XML declarations, one
+  from the cleaning and one written on top, and was then unreadable.
+- Generated packages, the template and the sample data carried the example
+  documents of the IDTA template - identifier "123-ABC-789", a CAD model at
+  files.aasexample.com - and values such as "ExampleCity". The script keeps
+  only the document versions it fills and gives the CAD document the
+  identifier of its file; the template keeps the two places it needs.
+- A part's preview was a SolidWorks companion file (".SLDPRT.appinfo"),
+  declared as an image. The script accepts only pictures as preview, and the
+  export leaves companion files out.
 - *Choose your product* cleared the headline but left the result table.
 
 ### Added
@@ -54,6 +64,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   back to the default masses of the openLCA model. It is now written into
   `DataSources → PLM` in the form the ERP uses; the LCA assignment both read
   is `getting-started/openlca/lca_mapping.json`.
+- The dashboard groups the impact categories - climate change first, its
+  parts beneath it - and names the method as openLCA does,
+  "EF 3.0 Method (adapted)". Display only; the ILCD keeps its order.
 - `check_aasx.py --summary`: one line per package, findings grouped by
   submodel and rule, and paths by idShort instead of list positions.
 - `setup.py --step 4` checks that every product input of the product system

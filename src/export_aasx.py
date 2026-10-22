@@ -188,8 +188,10 @@ ATTACHMENT_TYPES = {
     'csv': 'text/csv', 'txt': 'text/plain', 'json': 'application/json',
     'step': 'application/step', 'stp': 'application/step',
     'sldprt': 'application/octet-stream', 'sldasm': 'application/octet-stream',
-    'appinfo': 'application/octet-stream',
 }
+
+# Files a CAD program writes next to a model. Not content of the shell.
+BEGLEITDATEIEN = {'appinfo', 'bak', 'tmp'}
 
 
 def file_name(value):
@@ -285,6 +287,12 @@ def collect_attachments(submodels):
                 continue
             name = file_name(value)
             if not name or name in files:
+                continue
+            # A CAD program's companion file is not content. For one part the
+            # PLM delivered "000053-1.SLDPRT.appinfo" as the preview, and the
+            # package then showed a broken image. Left out, its reference goes
+            # with the other links to files that are not in the package.
+            if name.rsplit('.', 1)[-1].lower() in BEGLEITDATEIEN:
                 continue
             address = '%s/submodels/%s/submodel-elements/%s/attachment' % (
                 AAS_URL, key, urllib.parse.quote(path, safe='.'))

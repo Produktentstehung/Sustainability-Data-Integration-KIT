@@ -246,8 +246,18 @@ if aasx_out.exists():
 if cad_bin and os.path.exists(cad_bin):
     shutil.copy2(cad_bin, files_dir/file_name)
     print(f"CAD: {file_name} ({os.path.getsize(cad_bin)//1024} KB)")
-if preview_bin and os.path.exists(preview_bin):
+# A preview is only a preview if it is a picture. For one part the PLM
+# returned the SolidWorks companion file "000053-1.SLDPRT.appinfo" as its
+# preview, and it went into the package as image/jpeg - a broken image in
+# every viewer. Anything else is left out; the reference to it then goes
+# with the other links to files that are not there.
+BILD_TYPEN = {'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
+              'gif': 'image/gif', 'bmp': 'image/bmp', 'svg': 'image/svg+xml'}
+preview_typ = BILD_TYPEN.get(preview_name.rsplit('.', 1)[-1].lower()) if '.' in preview_name else None
+if preview_bin and os.path.exists(preview_bin) and preview_typ:
     shutil.copy2(preview_bin, files_dir/preview_name)
+elif preview_bin and os.path.exists(preview_bin):
+    print(f"  [INFO] preview '{preview_name}' is not an image - left out")
 
 # BOM CSV
 lines = ['Position,Komponentennummer,Name,Menge,Einheit,Gewicht(kg),Material,Baugruppenart,Kategorie']
@@ -503,7 +513,7 @@ if 'Models3D' in submodels:
     set_prop(sm, 'SetDate', today_str)
     set_prop(sm, 'StatusValue', 'released')
     set_file(sm, 'DigitalFile', f'/aasx/files/{file_name}', 'application/octet-stream')
-    set_file(sm, 'PreviewFile', f'/aasx/files/{preview_name}', 'image/jpeg')
+    set_file(sm, 'PreviewFile', f'/aasx/files/{preview_name}', preview_typ or 'image/jpeg')
 
     ff = find_sc(sm, 'FileFormat')
     if ff is not None:
@@ -556,7 +566,12 @@ if 'HandoverDocumentation' in submodels:
         dv = find_sc(sm, name)
         if dv is None:
             d = listenglied(sm, 'Documents', dok)
+            # The template shipped with the KIT keeps only the version each
+            # document needs, so it sits at position 0; an older template
+            # still has the IDTA example versions around it.
             dv = listenglied(d, 'DocumentVersions', version) if d is not None else None
+            if dv is None and d is not None:
+                dv = listenglied(d, 'DocumentVersions', 0)
         return dv
 
     def datei_setzen(dv, path, mime):
@@ -578,8 +593,8 @@ if 'HandoverDocumentation' in submodels:
     # 2.1) DocumentVersion_de (BOM CSV)
     dv_de = dokumentversion('DocumentVersion_de', 0, 1)
     if dv_de is not None:
-        set_mlp(dv_de, 'Title', csv_name, 'de')
-        set_mlp(dv_de, 'Subtitle', '', 'de') 
+        set_mlp_all(dv_de, 'Title', csv_name)
+        set_mlp_all(dv_de, 'Subtitle', '') 
         
         set_prop(dv_de, 'StatusSetDate', today_str)
         set_prop(dv_de, 'StatusValue', 'released')
@@ -590,7 +605,7 @@ if 'HandoverDocumentation' in submodels:
     # 2.2) DocumentVersion_file (CAD-Modell)
     dv_file = dokumentversion('DocumentVersion_file', 1, 0)
     if dv_file is not None:
-        set_mlp(dv_file, 'Title', cad_title, 'de')
+        set_mlp_all(dv_file, 'Title', cad_title)
         set_prop(dv_file, 'StatusSetDate', today_str)
         set_prop(dv_file, 'StatusValue', 'released')
         set_prop(dv_file, 'OrganizationOfficialName', 'HNI Produktentstehung')
@@ -601,7 +616,7 @@ if 'HandoverDocumentation' in submodels:
         datei_setzen(dv_file, f'/aasx/files/{file_name}', 'application/octet-stream')
         
         # place the PreviewFile at its position inside the SMC
-        set_file(dv_file, 'PreviewFile', f'/aasx/files/{preview_name}', 'image/jpeg')
+        set_file(dv_file, 'PreviewFile', f'/aasx/files/{preview_name}', preview_typ or 'image/jpeg')
 
     doc_id_coll = find_sc(sm, 'DocumentId')
     if doc_id_coll is None:
@@ -610,6 +625,41 @@ if 'HandoverDocumentation' in submodels:
     if doc_id_coll is not None:
         set_prop(doc_id_coll, 'DocumentIdentifier', f'BOM_{article_nr}')
         set_prop(doc_id_coll, 'DocumentDomainId', 'CIM-Database')
+
+    # The CAD document has an identifier of its own. It used to keep the one
+    # from the IDTA example, "123-ABC-789" in the domain aasexample.com.
+    cad_doc = None
+    for doc in (listenglied(sm, 'Documents', i) for i in range(10)):
+        if doc is not None and dv_file is not None and dv_file in doc.iter():
+            cad_doc = doc
+            break
+    if cad_doc is not None:
+        cad_id = listenglied(cad_doc, 'DocumentIds', 0)
+        if cad_id is None:
+            cad_id = find_sc(cad_doc, 'DocumentId')
+        if cad_id is not None:
+            set_prop(cad_id, 'DocumentIdentifier', file_id or file_name)
+            set_prop(cad_id, 'DocumentDomainId', 'CIM-Database')
+
+    # Only what this script filled stays. The IDTA template comes with example
+    # versions - "Document title", a CAD model at files.aasexample.com - and
+    # every generated package carried them on as if they were documents of
+    # the part. A version the script did not fill goes; a document left
+    # without versions goes with it.
+    gefuellt = [x for x in (dv_de, dv_file) if x is not None]
+    if gefuellt:
+        for docs in [l for l in sm.iter(f'{{{NS}}}submodelElementList')
+                     if l.findtext(f'{{{NS}}}idShort') == 'Documents']:
+            dv = docs.find(f'{{{NS}}}value')
+            for doc in list(dv if dv is not None else []):
+                for versionen in [l for l in doc.iter(f'{{{NS}}}submodelElementList')
+                                  if l.findtext(f'{{{NS}}}idShort') == 'DocumentVersions']:
+                    vv = versionen.find(f'{{{NS}}}value')
+                    for version in list(vv if vv is not None else []):
+                        if version not in gefuellt:
+                            vv.remove(version)
+                    if vv is not None and len(vv) == 0:
+                        dv.remove(doc)
 
 # ── BackendSpecificMaterialInformation ────────────────────────────────────────
 if 'BackendSpecificMaterialInformation' in submodels:
@@ -622,6 +672,19 @@ if 'BackendSpecificMaterialInformation' in submodels:
         set_mlp(msp, 'BaseUnitOfMeasure', unit, 'en')
         set_prop(msp, 'MaterialNumber', part.get('materialObjectId',''))
         set_mlp(msp, 'Description', f'{part_name} - {category}', 'en')
+
+# ── TechnicalData and template placeholders ────────────────────────────────────
+if 'TechnicalData' in submodels:
+    set_mlp_all(submodels['TechnicalData'], 'ManufacturerProductDesignation', part_name)
+
+# What the IDTA templates put in as example values - "ExampleCity",
+# "ExampleProduct" - and the PLM has nothing for stays empty rather than
+# reading as data in every package. Values only: the identifiers that carry
+# "ExampleProduct" are renamed below.
+_beispiel = re.compile(r'^Example[A-Z][A-Za-z]*$')
+for _el in root.iter():
+    if _el.tag in (f'{{{NS}}}value', f'{{{NS}}}text') and _beispiel.match((_el.text or '').strip()):
+        _el.text = ''
 
 # ── Submodel-IDs + Referenzen dynamisch anpassen ──────────────────────────────
 # Alten Part-Namen aus der Shell-ID des Templates ermitteln (z.B. "Kugelschreiber"
@@ -696,6 +759,10 @@ except ImportError:
           'keeps the violations of its template')
 
 xml_path = new_sub / f'{part_name_id}.aas.xml'
+# The cleaning steps return a declaration of their own when they change
+# something. A second one after the one written here made the package
+# unreadable, so any that is there goes, and the file gets exactly one.
+xml_str = re.sub(r'^\s*<\?xml[^>]*\?>\s*', '', xml_str)
 xml_path.write_text(f'<?xml version="1.0" encoding="utf-8"?>\n{xml_str}', encoding='utf-8')
 
 # ── .rels Dateien ─────────────────────────────────────────────────────────────
