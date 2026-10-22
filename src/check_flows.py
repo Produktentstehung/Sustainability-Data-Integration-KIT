@@ -184,13 +184,19 @@ def pruefe_datei(pfad, node_da, auch_bekannt=frozenset()):
 # So the names are checked, not the values: a variable whose name says secret
 # must be empty in a file that is committed. Where the value belongs is .env,
 # which start-nodered.ps1 reads and which is not in version control.
+#
+# The same goes for the headers of an http request node. A header typed into
+# the node is stored in the flow file as plain text, and that is where two
+# EDC management keys sat for a month - in eight nodes, after this check had
+# been written, because it only looked at environment variables. A header
+# whose value comes from msg or env is fine; a literal value is not.
 GEHEIM = re.compile(r'KEY|SECRET|TOKEN|PASSWORD|PASSWD|CREDENTIAL', re.I)
 # Names that merely contain one of those words without holding a secret.
 HARMLOS = re.compile(r'KEYWORD|KEY_FIELD|KEYS_?OF|PUBLIC_KEY_URL', re.I)
 
 
 def geheimnisse(knoten):
-    """Finds filled-in secrets in tab and node environment variables."""
+    """Finds filled-in secrets in environment variables and request headers."""
     funde = []
     for n in knoten:
         if not isinstance(n, dict):
@@ -208,6 +214,21 @@ def geheimnisse(knoten):
                     'not in a flow file'
                     % (n.get('type', 'node'),
                        n.get('label') or n.get('name') or n.get('id'), name))
+        if n.get('type') != 'http request':
+            continue
+        for h in (n.get('headers') or []):
+            if not isinstance(h, dict):
+                continue
+            name = str(h.get('keyValue') or '')
+            if not GEHEIM.search(name) or HARMLOS.search(name):
+                continue
+            if h.get('valueType') in ('msg', 'env'):
+                continue
+            if str(h.get('valueValue') or '').strip():
+                funde.append(
+                    'http request "%s" carries a literal value for header %s '
+                    '- secrets belong in .env, not in a flow file'
+                    % (n.get('name') or n.get('id'), name))
     return funde
 
 

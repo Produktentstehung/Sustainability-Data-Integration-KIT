@@ -232,27 +232,14 @@
         "method": "POST",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/catalog/request",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "AuweANlp"
-            }
-        ],
+        "headers": [],
         "x": 510,
         "y": 420,
         "wires": [
@@ -268,7 +255,7 @@
         "z": "b52a70122308a06e",
         "g": "b804a5ed07792fb4",
         "name": "function 9",
-        "func": "const form = flow.get(\"catalogForm\") || {};\n\nconst dspurl = form.dsp_url;\nconst bpn_provider = form.provider_bnp;\n\nmsg.payload = {\n  \"@context\": {\n    \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n  },\n  \"protocol\": \"dataspace-protocol-http\",\n  \"counterPartyAddress\": dspurl,\n  \"counterPartyId\": bpn_provider,\n  \"querySpec\": {\n    \"offset\": 0,\n    \"limit\": 50\n  }\n};\n\nreturn msg; ",
+        "func": "const form = flow.get(\"catalogForm\") || {};\n\nconst dspurl = form.dsp_url;\nconst bpn_provider = form.provider_bnp;\n\nmsg.payload = {\n  \"@context\": {\n    \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n  },\n  \"protocol\": \"dataspace-protocol-http\",\n  \"counterPartyAddress\": dspurl,\n  \"counterPartyId\": bpn_provider,\n  \"querySpec\": {\n    \"offset\": 0,\n    \"limit\": 50\n  }\n};\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL_HNI02\") || env.get(\"SDI_EDC_PARTNER_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY_HNI02\") || env.get(\"SDI_EDC_PARTNER_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_PARTNER_MANAGEMENT_URL and SDI_EDC_PARTNER_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return null;\n}\nmsg.url = edcVerwaltung + \"/v3/catalog/request\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn msg; ",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -310,27 +297,14 @@
         "method": "POST",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/edrs",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "AuweANlp"
-            }
-        ],
+        "headers": [],
         "x": 510,
         "y": 680,
         "wires": [
@@ -346,7 +320,7 @@
         "z": "b52a70122308a06e",
         "g": "e8f3b01f8d696740",
         "name": "function 10",
-        "func": "const assetId = flow.get(\"selectedAssetId\");\nconst index = flow.get(\"catalogIndex\") || {};\nconst item = index[assetId] || {};\nconst flow1 = flow.get(\"catalogForm\");\nconst bpn_provider = flow1.provider_bnp; \nconst bpn_consumer = \"BPNL000000003HN2\";\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/policy/v1.0.0\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    {\n      \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\",\n      \"tx\": \"https://w3id.org/tractusx/v0.0.1/ns/\"\n    }\n  ],\n  \"@type\": \"ContractRequest\",\n  \"counterPartyAddress\": item.providerEndpoint,\n  \"protocol\": \"dataspace-protocol-http\",\n  \"policy\": {\n    \"@id\": item.offerId,\n    \"@type\": \"Offer\",\n    \"assigner\": bpn_provider,\n    \"permission\": [\n      {\n        \"action\": \"use\",\n        \"constraint\": {\n          \"leftOperand\": \"tx:BusinessPartnerNumber\",\n          \"operator\": \"eq\",\n          \"rightOperand\": bpn_consumer\n        }\n      }\n    ],\n    \"prohibition\": [],\n    \"obligation\": [],\n    \"target\": assetId\n  },\n  \"callbackAddresses\": []\n};\n\nreturn msg;",
+        "func": "const assetId = flow.get(\"selectedAssetId\");\nconst index = flow.get(\"catalogIndex\") || {};\nconst item = index[assetId] || {};\nconst flow1 = flow.get(\"catalogForm\");\nconst bpn_provider = flow1.provider_bnp; \nconst bpn_consumer = \"BPNL000000003HN2\";\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/policy/v1.0.0\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    {\n      \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\",\n      \"tx\": \"https://w3id.org/tractusx/v0.0.1/ns/\"\n    }\n  ],\n  \"@type\": \"ContractRequest\",\n  \"counterPartyAddress\": item.providerEndpoint,\n  \"protocol\": \"dataspace-protocol-http\",\n  \"policy\": {\n    \"@id\": item.offerId,\n    \"@type\": \"Offer\",\n    \"assigner\": bpn_provider,\n    \"permission\": [\n      {\n        \"action\": \"use\",\n        \"constraint\": {\n          \"leftOperand\": \"tx:BusinessPartnerNumber\",\n          \"operator\": \"eq\",\n          \"rightOperand\": bpn_consumer\n        }\n      }\n    ],\n    \"prohibition\": [],\n    \"obligation\": [],\n    \"target\": assetId\n  },\n  \"callbackAddresses\": []\n};\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL_HNI02\") || env.get(\"SDI_EDC_PARTNER_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY_HNI02\") || env.get(\"SDI_EDC_PARTNER_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_PARTNER_MANAGEMENT_URL and SDI_EDC_PARTNER_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return null;\n}\nmsg.url = edcVerwaltung + \"/v3/edrs\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -388,27 +362,14 @@
         "method": "POST",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/edrs/request",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "AuweANlp"
-            }
-        ],
+        "headers": [],
         "x": 310,
         "y": 840,
         "wires": [
@@ -424,7 +385,7 @@
         "z": "b52a70122308a06e",
         "g": "d5dffa03b85d2729",
         "name": "function 5",
-        "func": "const assetId = flow.get(\"selectedAssetId\");\n\nmsg.payload = {\n  \"@context\": {\n    \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n  },\n  \"@type\": \"QuerySpec\",\n  \"filterExpression\": [\n    {\n      \"operandLeft\": \"assetId\",\n      \"operator\": \"=\",\n      \"operandRight\": assetId\n    }\n  ]\n};\n\nreturn msg;",
+        "func": "const assetId = flow.get(\"selectedAssetId\");\n\nmsg.payload = {\n  \"@context\": {\n    \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n  },\n  \"@type\": \"QuerySpec\",\n  \"filterExpression\": [\n    {\n      \"operandLeft\": \"assetId\",\n      \"operator\": \"=\",\n      \"operandRight\": assetId\n    }\n  ]\n};\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL_HNI02\") || env.get(\"SDI_EDC_PARTNER_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY_HNI02\") || env.get(\"SDI_EDC_PARTNER_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_PARTNER_MANAGEMENT_URL and SDI_EDC_PARTNER_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return null;\n}\nmsg.url = edcVerwaltung + \"/v3/edrs/request\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -466,27 +427,14 @@
         "method": "GET",
         "ret": "obj",
         "paytoqs": "ignore",
-        "url": "https://hni-02.c-27d7c36.kyma.ondemand.com/management/v3/edrs/{{payload}}/dataaddress",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "AuweANlp"
-            }
-        ],
+        "headers": [],
         "x": 130,
         "y": 1000,
         "wires": [
@@ -1033,7 +981,7 @@
         "z": "b52a70122308a06e",
         "g": "d5dffa03b85d2729",
         "name": "function 18",
-        "func": "// msg.payload ist ein Array von EndpointDataReferenceEntry-Objekten\nmsg.transferProcessId = msg.payload[0].transferProcessId;\n\n// optional: als payload f\u00fcr den n\u00e4chsten Schritt\nmsg.payload = msg.transferProcessId;\n\nreturn msg;\n",
+        "func": "// msg.payload ist ein Array von EndpointDataReferenceEntry-Objekten\nmsg.transferProcessId = msg.payload[0].transferProcessId;\n\n// optional: als payload f\u00fcr den n\u00e4chsten Schritt\nmsg.payload = msg.transferProcessId;\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL_HNI02\") || env.get(\"SDI_EDC_PARTNER_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY_HNI02\") || env.get(\"SDI_EDC_PARTNER_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_PARTNER_MANAGEMENT_URL and SDI_EDC_PARTNER_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return null;\n}\nmsg.url = edcVerwaltung + \"/v3/edrs/\" + encodeURIComponent(msg.payload) + \"/dataaddress\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn msg;\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -1302,7 +1250,7 @@
         "z": "b52a70122308a06e",
         "g": "e3897cfe7adfe8e5",
         "name": "Adressbuch",
-        "func": "// Adressbuch \nconst book = {\n  \"HNI-01\":  { name:\"HNI-01\", bpn:\"BPNL000000003HN1\", dsp:\"https://hni-01-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"HNI-02\": { name:\"HNI-02\", bpn:\"BPNL000000003HN2\", dsp:\"https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Sonova\": { name:\"Sonova\", bpn:\"BPNL000000003PS2\", dsp:\"https://prostep-sonova-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"BOS\": { name:\"BOS\", bpn:\"BPNL000000003LJ2\", dsp:\"https://prostep-bos-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"Hadi-Plast\": { name:\"Hadi-Plast\", bpn:\"BPNL000000003PH1\", dsp:\"https://prostep-hadiplast-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n};\n\n// Dropdown-Optionen erzeugen (label = sichtbarer Name, value = ID)\nmsg.ui_update = msg.ui_update || {};\nmsg.ui_update.options = Object.entries(book).map(([id, e]) => ({\n  label: e.name,\n  value: id\n}));\n\n// Buch speichern f\u00fcr sp\u00e4tere Lookup-Nodes\nglobal.set(\"addressbook\", book);\n\nreturn msg;",
+        "func": "// Address book of the connectors one can talk to.\n//\n// It used to be written out here, every address of the reference cluster\n// included, so a cluster with a new identifier meant editing the flow. Now it\n// is read from .env:\n//\n//   SDI_EDC_PARTNER_BPN + SDI_EDC_PARTNER_DSP_URL   the partner, if set\n//   SDI_EDC_ADDRESS_BOOK   further entries, Name|BPN|DSP-URL, separated by ;\n//\n// Only when neither is set does the address book of the reference\n// installation below apply, so the dashboard still works out of the box there.\nconst REFERENZ = {\n  \"HNI-01\":  { name:\"HNI-01\", bpn:\"BPNL000000003HN1\", dsp:\"https://hni-01-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"HNI-02\": { name:\"HNI-02\", bpn:\"BPNL000000003HN2\", dsp:\"https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Sonova\": { name:\"Sonova\", bpn:\"BPNL000000003PS2\", dsp:\"https://prostep-sonova-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"BOS\": { name:\"BOS\", bpn:\"BPNL000000003LJ2\", dsp:\"https://prostep-bos-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Hadi-Plast\": { name:\"Hadi-Plast\", bpn:\"BPNL000000003PH1\", dsp:\"https://prostep-hadiplast-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n};\n\nconst konfiguriert = {};\nconst partnerBpn = String(env.get(\"SDI_EDC_PARTNER_BPN\") || \"\").trim();\nconst partnerDsp = String(env.get(\"SDI_EDC_PARTNER_DSP_URL\") || \"\").trim();\nif (partnerBpn && partnerDsp) {\n  konfiguriert[\"Partner\"] = { name: \"Partner\", bpn: partnerBpn, dsp: partnerDsp };\n}\nfor (const eintrag of String(env.get(\"SDI_EDC_ADDRESS_BOOK\") || \"\").split(\";\")) {\n  const [name, bpn, dsp] = eintrag.split(\"|\").map(s => (s || \"\").trim());\n  if (!name) { continue; }\n  if (!bpn || !dsp) {\n    node.warn(\"SDI_EDC_ADDRESS_BOOK: entry \\\"\" + eintrag.trim() + \"\\\" needs Name|BPN|DSP-URL\");\n    continue;\n  }\n  konfiguriert[name] = { name, bpn, dsp };\n}\nconst book = Object.keys(konfiguriert).length ? konfiguriert : REFERENZ;\n\n\n// Dropdown-Optionen erzeugen (label = sichtbarer Name, value = ID)\nmsg.ui_update = msg.ui_update || {};\nmsg.ui_update.options = Object.entries(book).map(([id, e]) => ({\n  label: e.name,\n  value: id\n}));\n\n// Buch speichern f\u00fcr sp\u00e4tere Lookup-Nodes\nglobal.set(\"addressbook\", book);\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2321,27 +2269,14 @@
         "method": "POST",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/assets",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "M6TEwlJH"
-            }
-        ],
+        "headers": [],
         "x": 450,
         "y": 340,
         "wires": [
@@ -2357,7 +2292,7 @@
         "z": "5dcb186b05559fb8",
         "g": "5262b23873fcd161",
         "name": "function 1",
-        "func": "const form = flow.get(\"assetForm\") || {};\n\nconst assetId = form.asset_id;\nconst description = form.description;\nconst baseUrl = form.url_asset;\nconst dataType = form.data_type || \"HttpData\";\n\nconst missing = [];\nif (!assetId) missing.push(\"Asset-ID\");\nif (!description) missing.push(\"Description\");\nif (!baseUrl) missing.push(\"Asset-URL\");\n\nif (missing.length) {\n  // Status an UI\n  const uiMsg = { payload: `Bitte ausf\u00fcllen: ${missing.join(\", \")}` };\n  return [null, uiMsg];\n}\n\n// request body\nmsg.payload = {\n  \"@context\": {},\n  \"@type\": \"Asset\",\n  \"@id\": assetId,\n  \"properties\": { \"description\": description },\n  \"dataAddress\": {\n    \"@type\": \"DataAddress\",\n    \"type\": dataType,\n    \"baseUrl\": baseUrl\n  }\n};\n\n// Werte f\u00fcr sp\u00e4ter merken (f\u00fcr Summary nach Response)\nmsg._assetSummary = { assetId, description, baseUrl, dataType };\n\nreturn [msg, null];",
+        "func": "const form = flow.get(\"assetForm\") || {};\n\nconst assetId = form.asset_id;\nconst description = form.description;\nconst baseUrl = form.url_asset;\nconst dataType = form.data_type || \"HttpData\";\n\nconst missing = [];\nif (!assetId) missing.push(\"Asset-ID\");\nif (!description) missing.push(\"Description\");\nif (!baseUrl) missing.push(\"Asset-URL\");\n\nif (missing.length) {\n  // Status an UI\n  const uiMsg = { payload: `Bitte ausf\u00fcllen: ${missing.join(\", \")}` };\n  return [null, uiMsg];\n}\n\n// request body\nmsg.payload = {\n  \"@context\": {},\n  \"@type\": \"Asset\",\n  \"@id\": assetId,\n  \"properties\": { \"description\": description },\n  \"dataAddress\": {\n    \"@type\": \"DataAddress\",\n    \"type\": dataType,\n    \"baseUrl\": baseUrl\n  }\n};\n\n// Werte f\u00fcr sp\u00e4ter merken (f\u00fcr Summary nach Response)\nmsg._assetSummary = { assetId, description, baseUrl, dataType };\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_MANAGEMENT_URL and SDI_EDC_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return [null, null];\n}\nmsg.url = edcVerwaltung + \"/v3/assets\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn [msg, null];",
         "outputs": 2,
         "timeout": 0,
         "noerr": 0,
@@ -2402,27 +2337,14 @@
         "method": "POST",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/policydefinitions",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "M6TEwlJH"
-            }
-        ],
+        "headers": [],
         "x": 450,
         "y": 660,
         "wires": [
@@ -2438,7 +2360,7 @@
         "z": "5dcb186b05559fb8",
         "g": "7a45027c49b9c3e8",
         "name": "function 2",
-        "func": "const form = flow.get(\"policyForm\") || {};\nconst policyId = form.access_policy; // weil dein Input topic = \"access_policy\"\n\nif (!policyId) {\n  node.error(\"Bitte Access-Policy-ID ausf\u00fcllen.\", msg);\n  return null;\n}\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/edc/v0.0.1\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\" }\n  ],\n  \"@type\": \"PolicyDefinition\",\n  \"@id\": policyId,\n  \"policy\": { \"@type\": \"Set\" }\n};\n\nreturn msg;",
+        "func": "const form = flow.get(\"policyForm\") || {};\nconst policyId = form.access_policy; // weil dein Input topic = \"access_policy\"\n\nif (!policyId) {\n  node.error(\"Bitte Access-Policy-ID ausf\u00fcllen.\", msg);\n  return null;\n}\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/edc/v0.0.1\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    { \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\" }\n  ],\n  \"@type\": \"PolicyDefinition\",\n  \"@id\": policyId,\n  \"policy\": { \"@type\": \"Set\" }\n};\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_MANAGEMENT_URL and SDI_EDC_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return null;\n}\nmsg.url = edcVerwaltung + \"/v3/policydefinitions\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2479,27 +2401,14 @@
         "method": "POST",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/policydefinitions",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "M6TEwlJH"
-            }
-        ],
+        "headers": [],
         "x": 450,
         "y": 1040,
         "wires": [
@@ -2515,7 +2424,7 @@
         "z": "5dcb186b05559fb8",
         "g": "e7b9f7aed530b7da",
         "name": "function 3",
-        "func": "const form = flow.get(\"usageForm\") || {};\nconst usageId = form.usage_policy;\nconst bpn = form.bpn_consumer;\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/edc/v0.0.1\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    {\n      \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n    }\n  ],\n  \"@type\": \"PolicyDefinition\",\n  \"@id\": usageId,\n  \"policy\": {\n    \"@type\": \"Set\",\n    \"permission\": [\n      {\n        \"action\": \"use\",\n        \"constraint\": {\n          \"leftOperand\": \"BusinessPartnerNumber\",\n          \"operator\": \"eq\",\n          \"rightOperand\": bpn,\n        }\n      }\n    ]\n  }\n};\n\nreturn msg;",
+        "func": "const form = flow.get(\"usageForm\") || {};\nconst usageId = form.usage_policy;\nconst bpn = form.bpn_consumer;\n\nmsg.payload = {\n  \"@context\": [\n    \"https://w3id.org/tractusx/edc/v0.0.1\",\n    \"http://www.w3.org/ns/odrl.jsonld\",\n    {\n      \"@vocab\": \"https://w3id.org/edc/v0.0.1/ns/\"\n    }\n  ],\n  \"@type\": \"PolicyDefinition\",\n  \"@id\": usageId,\n  \"policy\": {\n    \"@type\": \"Set\",\n    \"permission\": [\n      {\n        \"action\": \"use\",\n        \"constraint\": {\n          \"leftOperand\": \"BusinessPartnerNumber\",\n          \"operator\": \"eq\",\n          \"rightOperand\": bpn,\n        }\n      }\n    ]\n  }\n};\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_MANAGEMENT_URL and SDI_EDC_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return null;\n}\nmsg.url = edcVerwaltung + \"/v3/policydefinitions\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -2556,27 +2465,14 @@
         "method": "POST",
         "ret": "txt",
         "paytoqs": "ignore",
-        "url": "https://hni-01.c-27d7c36.kyma.ondemand.com/management/v3/contractdefinitions",
+        "url": "",
         "tls": "",
         "persist": false,
         "proxy": "",
         "insecureHTTPParser": false,
         "authType": "",
         "senderr": false,
-        "headers": [
-            {
-                "keyType": "other",
-                "keyValue": "Content-Type",
-                "valueType": "other",
-                "valueValue": "application/json"
-            },
-            {
-                "keyType": "other",
-                "keyValue": "X-Api-Key",
-                "valueType": "other",
-                "valueValue": "M6TEwlJH"
-            }
-        ],
+        "headers": [],
         "x": 470,
         "y": 1340,
         "wires": [
@@ -2592,7 +2488,7 @@
         "z": "5dcb186b05559fb8",
         "g": "6d45da6a38bbb708",
         "name": "function 4",
-        "func": "const form1 = flow.get(\"usageForm\") || {};\nconst usageId = form1.usage_policy;\nconst form2 = flow.get(\"policyForm\") || {};\nconst policyId = form2.access_policy;\nconst form3 = flow.get(\"contractForm\") || {};\nconst contractId = form3.contract_id; \nconst form4 = flow.get(\"assetForm\") || {};\nconst assetId = form4.asset_id;\n\nmsg.payload = {\n  \"@context\": {},\n  \"@id\": contractId,\n  \"@type\": \"ContractDefinition\",\n  \"accessPolicyId\": policyId,\n  \"contractPolicyId\": usageId, //Fehler in Dokumentation, hier soll die Usage-Policy hin\n  \"assetsSelector\": {\n    \"@type\": \"CriterionDto\",\n    \"operandLeft\": \"https://w3id.org/edc/v0.0.1/ns/id\",\n    \"operator\": \"=\",\n    \"operandRight\": assetId\n  }\n};\n\nreturn msg;",
+        "func": "const form1 = flow.get(\"usageForm\") || {};\nconst usageId = form1.usage_policy;\nconst form2 = flow.get(\"policyForm\") || {};\nconst policyId = form2.access_policy;\nconst form3 = flow.get(\"contractForm\") || {};\nconst contractId = form3.contract_id; \nconst form4 = flow.get(\"assetForm\") || {};\nconst assetId = form4.asset_id;\n\nmsg.payload = {\n  \"@context\": {},\n  \"@id\": contractId,\n  \"@type\": \"ContractDefinition\",\n  \"accessPolicyId\": policyId,\n  \"contractPolicyId\": usageId, //Fehler in Dokumentation, hier soll die Usage-Policy hin\n  \"assetsSelector\": {\n    \"@type\": \"CriterionDto\",\n    \"operandLeft\": \"https://w3id.org/edc/v0.0.1/ns/id\",\n    \"operator\": \"=\",\n    \"operandRight\": assetId\n  }\n};\n\n// Address and key of the connector come from .env, through\n// start-nodered.ps1. They used to be typed into the request node, which\n// stores them in this file as plain text - that is how two management keys\n// reached the public repository.\nconst edcVerwaltung = String((env.get(\"EDC_MANAGEMENT_URL\") || env.get(\"SDI_EDC_MANAGEMENT_URL\")) || \"\").replace(/\\/+$/, \"\");\nconst edcSchluessel = (env.get(\"EDC_API_KEY\") || env.get(\"SDI_EDC_API_KEY\"));\nif (!edcVerwaltung || !edcSchluessel) {\n    node.error(\"SDI_EDC_MANAGEMENT_URL and SDI_EDC_API_KEY have to be set. Start Node-RED through start-nodered.ps1.\", msg);\n    return null;\n}\nmsg.url = edcVerwaltung + \"/v3/contractdefinitions\";\n// Assigned, not extended: after an earlier request msg.headers holds that\n// request's response headers, content-length included, and they would be\n// sent along.\nmsg.headers = { \"Content-Type\": \"application/json\", \"X-Api-Key\": edcSchluessel };\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -3744,7 +3640,7 @@
         "type": "function",
         "z": "5dcb186b05559fb8",
         "name": "Adressbuch",
-        "func": "// Adressbuch \nconst book = {\n  \"HNI-01\":  { name:\"HNI-01\", bpn:\"BPNL000000003HN1\", dsp:\"https://hni-01-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"HNI-02\": { name:\"HNI-02\", bpn:\"BPNL000000003HN2\", dsp:\"https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Sonova\": { name:\"Sonova\", bpn:\"BPNL000000003PS2\", dsp:\"https://prostep-sonova-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"BOS\": { name:\"BOS\", bpn:\"BPNL000000003LJ2\", dsp:\"https://prostep-bos-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n  \"Hadi-Plast\": { name:\"Hadi-Plast\", bpn:\"BPNL000000003PH1\", dsp:\"https://prostep-hadiplast-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},  \n};\n\n// Dropdown-Optionen erzeugen (label = sichtbarer Name, value = ID)\nmsg.ui_update = msg.ui_update || {};\nmsg.ui_update.options = Object.entries(book).map(([id, e]) => ({\n  label: e.name,\n  value: id\n}));\n\n// Buch speichern f\u00fcr sp\u00e4tere Lookup-Nodes\nglobal.set(\"addressbook\", book);\n\nreturn msg;",
+        "func": "// Address book of the connectors one can talk to.\n//\n// It used to be written out here, every address of the reference cluster\n// included, so a cluster with a new identifier meant editing the flow. Now it\n// is read from .env:\n//\n//   SDI_EDC_PARTNER_BPN + SDI_EDC_PARTNER_DSP_URL   the partner, if set\n//   SDI_EDC_ADDRESS_BOOK   further entries, Name|BPN|DSP-URL, separated by ;\n//\n// Only when neither is set does the address book of the reference\n// installation below apply, so the dashboard still works out of the box there.\nconst REFERENZ = {\n  \"HNI-01\":  { name:\"HNI-01\", bpn:\"BPNL000000003HN1\", dsp:\"https://hni-01-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"HNI-02\": { name:\"HNI-02\", bpn:\"BPNL000000003HN2\", dsp:\"https://hni-02-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Sonova\": { name:\"Sonova\", bpn:\"BPNL000000003PS2\", dsp:\"https://prostep-sonova-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"BOS\": { name:\"BOS\", bpn:\"BPNL000000003LJ2\", dsp:\"https://prostep-bos-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n  \"Hadi-Plast\": { name:\"Hadi-Plast\", bpn:\"BPNL000000003PH1\", dsp:\"https://prostep-hadiplast-dsp.c-27d7c36.kyma.ondemand.com/api/v1/dsp\"},\n};\n\nconst konfiguriert = {};\nconst partnerBpn = String(env.get(\"SDI_EDC_PARTNER_BPN\") || \"\").trim();\nconst partnerDsp = String(env.get(\"SDI_EDC_PARTNER_DSP_URL\") || \"\").trim();\nif (partnerBpn && partnerDsp) {\n  konfiguriert[\"Partner\"] = { name: \"Partner\", bpn: partnerBpn, dsp: partnerDsp };\n}\nfor (const eintrag of String(env.get(\"SDI_EDC_ADDRESS_BOOK\") || \"\").split(\";\")) {\n  const [name, bpn, dsp] = eintrag.split(\"|\").map(s => (s || \"\").trim());\n  if (!name) { continue; }\n  if (!bpn || !dsp) {\n    node.warn(\"SDI_EDC_ADDRESS_BOOK: entry \\\"\" + eintrag.trim() + \"\\\" needs Name|BPN|DSP-URL\");\n    continue;\n  }\n  konfiguriert[name] = { name, bpn, dsp };\n}\nconst book = Object.keys(konfiguriert).length ? konfiguriert : REFERENZ;\n\n\n// Dropdown-Optionen erzeugen (label = sichtbarer Name, value = ID)\nmsg.ui_update = msg.ui_update || {};\nmsg.ui_update.options = Object.entries(book).map(([id, e]) => ({\n  label: e.name,\n  value: id\n}));\n\n// Buch speichern f\u00fcr sp\u00e4tere Lookup-Nodes\nglobal.set(\"addressbook\", book);\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,

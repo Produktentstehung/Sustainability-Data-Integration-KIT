@@ -147,6 +147,7 @@ GET <SDI_AAS_URL>/submodels/<base64url(shellId + "/Zuliefererdaten")>
 | 500 on almost every call to the connector | the connector is down. Not fixable from here |
 | 500 only when creating something that exists | this connector answers a repeated create with a crash instead of a conflict; the flows check with GET first |
 | `Policy ... not fulfilled` during negotiation | the BPN constraint uses the wrong namespace or the wrong partner BPN. It must be `tx:BusinessPartnerNumber` |
+| `getaddrinfo ENOTFOUND <connector host>` | the connector's host name no longer resolves - the cluster was renamed or taken down. Not fixable from here; ask the operator, then update the addresses in `.env` |
 | The list of endpoint data references stays empty | negotiation has not finished. Wait and repeat the step |
 | Attachments do not open in the Package Explorer | only the JSON travels, not an AASX package with its files. Not implemented |
 | Step 4 brings the wrong shell's data | the flows remember the shell selected in step 2 and look for its offer specifically; if that is missing they fall back to any offer |

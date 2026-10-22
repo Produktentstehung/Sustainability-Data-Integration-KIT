@@ -15,7 +15,7 @@ and a mismatch causes negotiation to fail with "Policy ... not fulfilled"
 even when the BPN value itself is correct.
 
 Usage:
-  .\edc-bootstrap-policies.ps1 -EdcManagementUrl https://hni-01.c-27d7c36.kyma.ondemand.com/management -EdcApiKey M6TEwlJH -ConsumerBpn BPNL000000000000
+  .\edc-bootstrap-policies.ps1 -EdcManagementUrl https://hni-01.c-27d7c36.kyma.ondemand.com/management -EdcApiKey <api-key> -ConsumerBpn BPNL000000000000
 #>
 param(
     [Parameter(Mandatory = $true)][string]$EdcManagementUrl,

@@ -16,7 +16,7 @@
 #
 # Usage:
 #   EDC_MANAGEMENT_URL=https://hni-01.c-27d7c36.kyma.ondemand.com/management \
-#   EDC_API_KEY=M6TEwlJH \
+#   EDC_API_KEY=<api-key> \
 #   CONSUMER_BPN=BPNL000000000000 \
 #   ./edc-bootstrap-policies.sh
 

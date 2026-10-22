@@ -4,6 +4,27 @@ All notable changes to this repository will be documented in this file.
 Further information can be found on the [README.md](README.md) file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [Unreleased]
+
+### Security
+
+- Two EDC management API keys were written into eight HTTP request nodes of
+  `src/EDC_Dashboard.json` as literal header values, and one into a usage
+  example of the policy bootstrap script. They were public from 24 September.
+  The nodes now take address and key from the environment, as every other node
+  did already. The keys remain in the history and have to be rotated by the
+  operator of the connectors.
+- `src/check_flows.py` also reports literal secrets in the headers of HTTP
+  request nodes. It only looked at environment variables before, which is why
+  it passed the eight nodes.
+
+### Changed
+
+- The EDC address book is read from `.env` (`SDI_EDC_PARTNER_*`,
+  `SDI_EDC_ADDRESS_BOOK`) instead of being written into the flow; a connector
+  cluster with a new identifier no longer means editing code.
+
 ## [0.2.0]
 
 ### Added
